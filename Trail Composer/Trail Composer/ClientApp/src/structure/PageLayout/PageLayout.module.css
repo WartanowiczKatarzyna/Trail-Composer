@@ -1,0 +1,30 @@
+.PageLayout {
+    background-color: black;
+    width: 100%;
+}
+
+.MenuContainer, 
+.ContentContainer {
+    padding-top: var(--header-height);
+    margin: 0;
+}
+
+.MenuContainer {
+    background-color: var(--neutral-grey);
+}
+
+.ContentContainer { 
+    background-color: var(--background-color);
+}
+
+@media (max-width: 767px) {
+    .ContentContainer {
+        padding-top: 0;
+    }
+}
+
+@media (min-width: 768px) {
+    .ContentContainer {
+        min-height: calc(100vh - var(--footer-height));
+    }
+}

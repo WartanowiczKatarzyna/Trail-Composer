@@ -1,0 +1,48 @@
+﻿
+body, html {
+    margin: 0;
+    padding: 0;
+}
+
+body {
+    --body-height: 100%;
+    --footer-height: 50px;
+    --header-height: calc(45.167px + 12px);
+    --font-family: 'Roboto', sans-serif;
+    --button-font-weight: 700;
+    --section-header-font-weight: 500;
+    --subsection-header-font-weight: 400;
+    --text-font-weight: 100;
+    --button-font-size: 12px;
+    --section-header-font-size: 16px;
+    --subsection-header-font-size: 14px;
+    --text-font-size: 10px;
+}
+
+.btn-secondary:not(abc) {
+    --bs-btn-color: var(--light-grey);
+    --bs-btn-bg: var(--main-color);
+    --bs-btn-border-color: var(--main-color);
+
+    --bs-btn-hover-color: var(--black);
+    --bs-btn-hover-bg: var(--accent-color);
+    --bs-btn-hover-border-color: var(--accent-color);
+
+    --bs-btn-active-color: var(--black);
+    --bs-btn-active-bg: var(--accent-color);
+    --bs-btn-active-border-color: var(--accent-color);
+
+    --bs-btn-font-family: var(--font-family);
+    --bs-btn-font-weight: var(--button-font-weight);
+    --bs-btn-font-size: var(--button-font-size);
+
+    margin-left: 10px;
+    margin-right: 10px;
+}
+
+.btn-secondary:active:not(abc),
+.btn-secondary:focus:not(abc),
+.btn-secondary:focus-visible:not(abc) {
+    outline: none;
+    box-shadow: none;
+}

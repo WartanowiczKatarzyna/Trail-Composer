@@ -1,0 +1,32 @@
+.Menu {
+    background-color: var(--neutral-grey);
+}
+
+.SectionHeader {
+    --bs-accordion-active-bg: var(--dark-grey);
+    --bs-accordion-btn-bg: var(--dark-grey);
+    --bs-accordion-active-color: var(--light-grey);
+    --bs-accordion-btn-color: var(--light-grey);
+    --bs-accordion-btn-active-icon: url(../../assets/icons/arrow_unfolded.svg);
+    --bs-accordion-btn-icon: url(../../assets/icons/arrow_folded.svg);
+}
+
+    
+.SectionHeader button:not(abc) {
+        font-family: var(--font-family);
+        font-weight: var(--section-header-font-weight);
+        font-size: var(--subsection-header-font-size);
+    }    
+
+.SectionHeader button:focus {
+        box-shadow: none;
+    }
+
+.NavLink {
+    --bs-nav-link-color: var(--black);
+    --bs-nav-link-hover-color: var(--main-color);
+
+    font-family: var(--font-family);
+    font-weight: var(--subsection-header-font-weight);
+    --bs-nav-link-font-size: var(--subsection-header-font-size);
+}

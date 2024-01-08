@@ -1,0 +1,22 @@
+footer {
+    background-color: var(--dark-grey);
+    color: var(--light-grey);
+    width: 100%;
+    height: var(--footer-height);
+    padding: 10px;
+    text-align: center;
+    font-family: var(--font-family);
+    font-weight: var(--text-font-weight);
+    font-size: var(--text-font-size);
+}
+
+@media (max-width: 580px) {
+    footer {
+        height: 75px;
+    }
+}
+
+.FooterLink {
+    --bs-nav-link-color: var(--light-grey);
+    --bs-nav-link-hover-color: var(--accent-color);
+}
