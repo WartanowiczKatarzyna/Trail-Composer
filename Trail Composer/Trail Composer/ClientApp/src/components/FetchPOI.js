@@ -6,6 +6,7 @@ export class FetchPOI extends Component {
   constructor(props) {
     super(props);
     this.state = { poi: {}, loading: true };
+    this.state = { photo: {}, loading: true };
   }
 
   componentDidMount() {
@@ -13,6 +14,8 @@ export class FetchPOI extends Component {
   }
 
   static renderPOITable(poi) {
+    const photoUrl = `tc-api/poi-photo/${poi.photoId}`;
+
     return (
       <table className="table table-striped" aria-labelledby="tableLabel">
         <thead>
@@ -21,6 +24,7 @@ export class FetchPOI extends Component {
             <th>latitude</th>
             <th>longitude</th>
             <th>description</th>
+            <th>photo</th>
           </tr>
         </thead>
         <tbody>
@@ -29,6 +33,7 @@ export class FetchPOI extends Component {
               <td>{poi.latitude}</td>
               <td>{poi.longitude}</td>
               <td>{poi.description}</td>
+            <td><a href={photoUrl} >{poi.photoId}</a></td>
             </tr>
         </tbody>
       </table>
@@ -50,8 +55,9 @@ export class FetchPOI extends Component {
   }
 
   async populatePOIData() {
-    const response = await fetch('tc-api/poi/1');
+    const response = await fetch('tc-api/poi/35');
     const data = await response.json();
+
     this.setState({ poi: data, loading: false });
   }
 }

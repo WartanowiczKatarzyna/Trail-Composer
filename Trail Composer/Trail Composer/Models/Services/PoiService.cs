@@ -3,7 +3,7 @@ using System.Diagnostics.Metrics;
 using System.Linq;
 using System.Threading.Tasks.Dataflow;
 using Trail_Composer.Data;
-using Trail_Composer.Models.APIClasses;
+using Trail_Composer.Models.DTOs;
 using Trail_Composer.Models.Generated;
 
 namespace Trail_Composer.Models.Services

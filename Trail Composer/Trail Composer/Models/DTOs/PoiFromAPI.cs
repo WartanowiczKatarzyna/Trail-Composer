@@ -1,10 +1,10 @@
 ﻿using Trail_Composer.Models.Generated;
 
-namespace Trail_Composer.Models.APIClasses
+namespace Trail_Composer.Models.DTOs
 {
-    public class PoiToAPI
+    public class PoiFromAPI
     {
-        public int Id { get; set; }
+        //public int? Id { get; set; }
         public int UserId { get; set; }
         public required string Name { get; set; }
         public int CountryId { get; set; }
@@ -13,7 +13,7 @@ namespace Trail_Composer.Models.APIClasses
         public decimal Latitude { get; set; }   //szerokość geograficzna
         public string? Description { get; set; }
 
-        public int PhotoId { get; set; }
+        public IFormFile? Photo { get; set; }
 
     }
 }

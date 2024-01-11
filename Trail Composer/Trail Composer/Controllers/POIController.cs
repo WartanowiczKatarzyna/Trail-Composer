@@ -3,7 +3,7 @@ using Trail_Composer.Models.Generated;
 using Serilog;
 using Microsoft.EntityFrameworkCore;
 using Trail_Composer.Models.Services;
-using Trail_Composer.Models.APIClasses;
+using Trail_Composer.Models.DTOs;
 
 namespace Trail_Composer.Controllers
 {
