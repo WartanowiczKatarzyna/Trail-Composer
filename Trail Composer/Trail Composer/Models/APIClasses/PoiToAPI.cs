@@ -2,9 +2,9 @@
 
 namespace Trail_Composer.Models.APIClasses
 {
-    public class PoiAPI
+    public class PoiToAPI
     {
-        public int? Id { get; set; }
+        public int Id { get; set; }
         public int UserId { get; set; }
         public required string Name { get; set; }
         public int CountryId { get; set; }
@@ -13,7 +13,7 @@ namespace Trail_Composer.Models.APIClasses
         public decimal Latitude { get; set; }   //szerokość geograficzna
         public string? Description { get; set; }
 
-        public IFormFile? Photo { get; set; }
+        public int PhotoId { get; set; }
 
     }
 }

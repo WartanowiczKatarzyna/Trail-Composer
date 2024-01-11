@@ -20,7 +20,7 @@ namespace Trail_Composer.Controllers
         }
 
         [HttpGet("{id}")]
-        public async Task<ActionResult<PoiAPI>> GetPOI(int id)
+        public async Task<ActionResult<PoiFromAPI>> GetPOI(int id)
         {
             var poi = await _poiService.GetPoiByIdAsync(id);
             
@@ -33,7 +33,7 @@ namespace Trail_Composer.Controllers
         [HttpPost]
         [Consumes("multipart/form-data")]
         [RequestSizeLimit(10485760)] // Limiting to 10 MB (in bytes)
-        public async Task<ActionResult> CreatePOI([FromForm]PoiAPI poi)
+        public async Task<ActionResult> CreatePOI([FromForm]PoiFromAPI poi)
         {
             var newPoiId = await _poiService.AddPoiAsync(poi);
 

@@ -17,11 +17,12 @@ namespace Trail_Composer.Models.Services
             _context = context;
         }
 
-        public async Task<PoiAPI> GetPoiByIdAsync (int id)
+        public async Task<PoiToAPI> GetPoiByIdAsync (int id)
         {
             var poi = await _context.Pois
                 .Include(poi => poi.PoiPoitypes)
-                .Select(poi => new PoiAPI
+                .Include(poi => poi.Poiphotos)
+                .Select(poi => new PoiToAPI
                 {
                     Id = poi.Id,
                     UserId = poi.UserId,
@@ -30,7 +31,8 @@ namespace Trail_Composer.Models.Services
                     Longitude = poi.Longitude,
                     Description = poi.Description,
                     CountryId = poi.CountryId,
-                    PoiTypes = poi.PoiPoitypes.Select(poiPoiType => poiPoiType.Poitype).Select(poiType => poiType.Id).ToList()
+                    PoiTypes = poi.PoiPoitypes.Select(poiPoiType => poiPoiType.Poitype).Select(poiType => poiType.Id).ToList(),
+                    PhotoId = poi.Poiphotos.Select(photo => photo.Id).SingleOrDefault()
                 })
                 .Where(poi => poi.Id == id)
                 .SingleOrDefaultAsync();
@@ -38,7 +40,7 @@ namespace Trail_Composer.Models.Services
             return poi;
         }
 
-        public async Task<int> AddPoiAsync (PoiAPI poi) 
+        public async Task<int> AddPoiAsync (PoiFromAPI poi) 
         {
             using var transaction = await _context.Database.BeginTransactionAsync();
             try
