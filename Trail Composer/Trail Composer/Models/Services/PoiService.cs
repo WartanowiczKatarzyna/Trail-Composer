@@ -87,6 +87,7 @@ namespace Trail_Composer.Models.Services
                         }
                     }
 
+                    // adding Photo
                     if (poi.Photo != null && poi.Photo.Length > 0)
                     {
                         byte[] photoBytes;

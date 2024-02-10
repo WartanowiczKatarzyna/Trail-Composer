@@ -30,7 +30,7 @@ namespace Trail_Composer.Controllers
             if (countires == null)
             {
                 Log.Information("Country list=null");
-                return NotFound(); // 404 Not Found
+                return NotFound();
             }
 
             return Ok(countires);

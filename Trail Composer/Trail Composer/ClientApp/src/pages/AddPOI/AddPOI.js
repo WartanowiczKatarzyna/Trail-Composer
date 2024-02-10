@@ -55,7 +55,8 @@ const AddPOI = () => {
         // photo is optional
         if (value.size > 1024*1024*10)
           return 'Rozmiar zdjęcia przekracza 10 MB.';
-        break;      
+        break;    
+        default:
     }
 
     return ''; // No errors
@@ -68,10 +69,10 @@ const AddPOI = () => {
       const reader = new FileReader();
 
       reader.onloadend = () => {
-        // Set the image preview using the data URL
         setImagePreview(reader.result);
       }
 
+      // handling empty files
       if (files.length > 0) {
         reader.readAsDataURL(files[0]);
         const errors = validateInput(name, files[0]);
@@ -88,18 +89,14 @@ const AddPOI = () => {
         setSelectedPOICountry(value);
       }
         
-      // Validation logic
       const errors = validateInput(name, value);
-      // Update form data and errors
       formData.current.set(name, value);
-
       setFormErrors({ ...formErrors, [name]: errors });
     }    
   };
 
   const handleSubmit = (e) => {
     e.preventDefault();
-    // Validate all fields before submission
     const errors = {};
     formData.current.forEach((value, key) => {
       const fieldErrors = validateInput(key, value);
@@ -108,21 +105,17 @@ const AddPOI = () => {
       }
     });
 
-    // If there are errors, update the state and do not submit
     if (Object.keys(errors).length > 0) {
       setFormErrors(errors);
       return;
     }
 
-    // Clear any previous errors
     setFormErrors({});
 
-    // Set submitting to true to show a loading state if needed
     setSubmitting(true);
 
     showFormData(formData.current, "przed fetch");
 
-    // Form submission (API call)
     // TO-DO: after sending go back to prev page 
     fetch('tc-api/poi', {
       method: 'POST',

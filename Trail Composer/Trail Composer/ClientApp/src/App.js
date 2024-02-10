@@ -41,11 +41,10 @@ const App = () => {
         setAppData(initialData);
       })
       .catch(error => {
-        // Handle errors if any of the promises fail
         console.error('Error:', error);
       });
 
-  }, []); // Empty dependency array ensures this effect runs only once on mount
+  }, []);
 
   return (
     <AppContext.Provider value={appData}>
