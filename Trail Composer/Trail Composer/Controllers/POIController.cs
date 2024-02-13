@@ -4,9 +4,11 @@ using Serilog;
 using Microsoft.EntityFrameworkCore;
 using Trail_Composer.Models.Services;
 using Trail_Composer.Models.DTOs;
+using Microsoft.AspNetCore.Authorization;
 
 namespace Trail_Composer.Controllers
 {
+
     [Produces("application/json")]
     [Route("tc-api/poi")]
     [ApiController]
@@ -31,6 +33,7 @@ namespace Trail_Composer.Controllers
         }
 
         [HttpPost]
+        [Authorize]
         [Consumes("multipart/form-data")]
         [RequestSizeLimit(10485760)] // Limiting to 10 MB (in bytes)
         public async Task<ActionResult> CreatePOI([FromForm]PoiFromAPI poi)
