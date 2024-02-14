@@ -3,9 +3,15 @@ import styles from './AddPOI.module.css';
 import { Button, Form, FormGroup, Label, Input, FormFeedback, Col, Row, Container, FormText } from 'reactstrap';
 import App, { AppContext } from '../../App.js';
 import Multiselect from 'multiselect-react-dropdown';
+import { useMsal, useAccount, useMsalAuthentication, AuthenticatedTemplate } from "@azure/msal-react";
+import { InteractionType } from '@azure/msal-browser';
 
 const AddPOI = () => {
   const appData = useContext(AppContext);
+  const { result, error } = useMsalAuthentication(InteractionType.Redirect, {scopes:['openid', 'offline_access']});
+  const { instance: pca, accounts } = useMsal();
+  const account = useAccount(accounts[0] || {});
+
   const [formErrors, setFormErrors] = useState({});
   const [submitting, setSubmitting] = useState(false);
   const [selectedPOITypes, setSelectedPOITypes] = useState([]);
@@ -95,7 +101,7 @@ const AddPOI = () => {
     }    
   };
 
-  const handleSubmit = (e) => {
+  const handleSubmit = async (e) => {
     e.preventDefault();
     const errors = {};
     formData.current.forEach((value, key) => {
@@ -116,11 +122,20 @@ const AddPOI = () => {
 
     showFormData(formData.current, "przed fetch");
 
+    var request = {
+      account: account,
+      scopes:['openid', 'offline_access', pca.getConfiguration().auth.clientId]
+    }
+    var response = await pca.acquireTokenSilent(request);
+    const authorizationHeader = `Bearer ${response.accessToken}`;
+
     // TO-DO: after sending go back to prev page 
     fetch('tc-api/poi', {
       method: 'POST',
       body: formData.current,
-
+      headers: {
+        Authorization: authorizationHeader
+      }
     })
       .then(response => response.json())
       .then(data => {
