@@ -7,7 +7,7 @@ public partial class Poi
 {
     public int Id { get; set; }
 
-    public int UserId { get; set; }
+    public string TcuserId { get; set; } = null!;
 
     public int CountryId { get; set; }
 
@@ -28,6 +28,4 @@ public partial class Poi
     public virtual ICollection<Poiphoto> Poiphotos { get; set; } = new List<Poiphoto>();
 
     public virtual ICollection<SegmentPoi> SegmentPois { get; set; } = new List<SegmentPoi>();
-
-    public virtual Tcuser User { get; set; } = null!;
 }

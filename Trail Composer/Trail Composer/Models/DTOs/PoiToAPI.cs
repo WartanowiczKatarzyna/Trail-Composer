@@ -5,7 +5,7 @@ namespace Trail_Composer.Models.DTOs
     public class PoiToAPI
     {
         public int Id { get; set; }
-        public int UserId { get; set; }
+        public string TcuserId { get; set; }
         public required string Name { get; set; }
         public int CountryId { get; set; }
         public ICollection<int> PoiTypes { get; set; } = new List<int>();          

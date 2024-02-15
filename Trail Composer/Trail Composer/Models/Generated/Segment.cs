@@ -7,7 +7,7 @@ public partial class Segment
 {
     public int Id { get; set; }
 
-    public int UserId { get; set; }
+    public string TcuserId { get; set; } = null!;
 
     public int LevelId { get; set; }
 
@@ -30,6 +30,4 @@ public partial class Segment
     public virtual ICollection<SegmentType> SegmentTypes { get; set; } = new List<SegmentType>();
 
     public virtual ICollection<TrailSegment> TrailSegments { get; set; } = new List<TrailSegment>();
-
-    public virtual Tcuser User { get; set; } = null!;
 }

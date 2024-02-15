@@ -5,6 +5,7 @@ using Microsoft.EntityFrameworkCore;
 using Trail_Composer.Models.Services;
 using Trail_Composer.Models.DTOs;
 using Microsoft.AspNetCore.Authorization;
+using Trail_Composer.Controllers.Utils;
 
 namespace Trail_Composer.Controllers
 {
@@ -36,9 +37,14 @@ namespace Trail_Composer.Controllers
         [Authorize]
         [Consumes("multipart/form-data")]
         [RequestSizeLimit(10485760)] // Limiting to 10 MB (in bytes)
+        // Also adds photos to database
         public async Task<ActionResult> CreatePOI([FromForm]PoiFromAPI poi)
         {
-            var newPoiId = await _poiService.AddPoiAsync(poi);
+            var userId = UserId.GetUserIdFromContext(this.HttpContext);
+            if (userId == null)
+                return StatusCode(401, "Authenticated but not authorized");
+
+            var newPoiId = await _poiService.AddPoiAsync(poi, userId);
 
             if (newPoiId > -1)
                 return new CreatedResult($"/tc-api/poi/{newPoiId}", newPoiId);

@@ -25,7 +25,7 @@ namespace Trail_Composer.Models.Services
                 .Select(poi => new PoiToAPI
                 {
                     Id = poi.Id,
-                    UserId = poi.UserId,
+                    TcuserId = poi.TcuserId,
                     Name = poi.Name,
                     Latitude = poi.Latitude,
                     Longitude = poi.Longitude,
@@ -40,28 +40,25 @@ namespace Trail_Composer.Models.Services
             return poi;
         }
 
-        public async Task<int> AddPoiAsync (PoiFromAPI poi) 
+        public async Task<int> AddPoiAsync (PoiFromAPI poi, string userId) 
         {
             using var transaction = await _context.Database.BeginTransactionAsync();
             try
             {
-                var user = await _context.Tcusers.FindAsync(poi.UserId);
-
                 var country = await _context.Countries.FindAsync(poi.CountryId);
 
-                if (user != null && country != null)
+                if ( country != null)
                 {
                     // adding Poi
                     var newPoi = new Poi
                     {
-                        UserId = poi.UserId,
+                        TcuserId = userId,
                         CountryId = poi.CountryId,
                         Name = poi.Name,
                         Latitude = poi.Latitude,
                         Longitude = poi.Longitude,
                         Description = poi.Description,
 
-                        User = user,
                         Country = country
                     };
 

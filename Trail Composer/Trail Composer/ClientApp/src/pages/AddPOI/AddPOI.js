@@ -24,7 +24,6 @@ const AddPOI = () => {
   useEffect(() => {
     const form = document.getElementById("AddPOIForm");
     formData.current = new FormData(form);
-    formData.current.set("UserId", 1);
     formData.current.set("CountryId", selectedPOICountry);
   }, [])
 
