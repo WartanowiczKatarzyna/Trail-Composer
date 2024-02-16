@@ -7,6 +7,8 @@ import Header from '../Header/Header'
 import Menu from '../Menu/Menu'
 import Footer from '../Footer/Footer'
 
+import CookieConsent from "react-cookie-consent";
+
 const PageLayout = ({ children }) => (
   <div>
     <Header />
@@ -19,6 +21,26 @@ const PageLayout = ({ children }) => (
     </Container>
 
     <Footer/>
+
+    <CookieConsent
+      buttonText="Wyrażam zgodę"
+      debug={true}
+      overlay={true}
+      overlayStyle={{
+        zIndex: "1031"
+      }}
+      buttonStyle = {{
+         background: "var(--main-color)",
+         color: "var(--light-grey)",
+         borderRadius: "5px"
+        }}
+      style = {{
+        color: "var(--light-grey)"
+      }}
+    >
+    Ta strona wykorzystuje pliki cookies wyłącznie w celu zapewnienia prawidłowego działania poszczególnych jej funkcji, 
+    w tym funkcji obsługujących konto użytkownika. Szczegółowe informacje są zawarte w polityce prywatności.
+    </CookieConsent>
   </div>
 );
 
