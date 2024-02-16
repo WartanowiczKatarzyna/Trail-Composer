@@ -1,11 +1,12 @@
 import { FetchPOI } from "./components/FetchPOI";
 
 import AddPOI from "./pages/AddPOI/AddPOI"
+import HomePage from "./pages/HomePage/HomePage"
 
 const AppRoutes = [
   {
     index: true,
-    element: <AddPOI />
+    element: <HomePage />
   },
   {
     path: '/fetch-POI',
