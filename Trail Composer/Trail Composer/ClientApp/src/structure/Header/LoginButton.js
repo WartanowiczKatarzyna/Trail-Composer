@@ -3,7 +3,7 @@ import { Button } from 'reactstrap';
 import { AuthenticatedTemplate, UnauthenticatedTemplate, useMsal } from "@azure/msal-react";
 
 export const LoginButton = () => {
-    const { pca } = useMsal();
+    const { instance: pca } = useMsal();
 
     return (
         <React.Fragment> 
