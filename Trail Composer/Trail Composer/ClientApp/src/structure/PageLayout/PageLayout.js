@@ -24,7 +24,7 @@ const PageLayout = ({ children }) => (
 
     <CookieConsent
       buttonText="Wyrażam zgodę"
-      debug={true}
+      debug={false}
       overlay={true}
       overlayStyle={{
         zIndex: "1031"
