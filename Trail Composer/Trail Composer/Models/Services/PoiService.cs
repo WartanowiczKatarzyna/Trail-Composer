@@ -122,6 +122,26 @@ namespace Trail_Composer.Models.Services
             return -1;
         }
     
+        public async Task<bool> EditPoiAsync (int poiId, PoiFromAPI poi, string userId)
+        {
+            using var transaction = await _context.Database.BeginTransactionAsync();
+            try
+            {
+                var poiDb = await _context.Pois.FirstOrDefaultAsync(p => p.Id == poiId && p.TcuserId == userId);
+
+                if (poiDb == null) { }
+
+                await _context.SaveChangesAsync();
+                await transaction.CommitAsync();
+
+                return true;
+            }
+            catch (Exception ex)
+            {
+                await transaction.RollbackAsync();
+            }
+            return false;
+        }
         public async Task<bool> DeletePoiAsync (int id, string userId) {
             using var transaction = await _context.Database.BeginTransactionAsync();
             try
@@ -130,20 +150,25 @@ namespace Trail_Composer.Models.Services
                     .Include(p => p.Poiphotos)
                     .FirstOrDefaultAsync(p => p.Id == id && p.TcuserId == userId);
 
-                if (poi != null)
+                if (poi == null || poi.Deleted)
+                {
+                    await transaction.RollbackAsync();
+                    Log.Error("DeletePOiAsync error: poi is null");
+                    return false;
+                }
+                else
                 {
                     poi.Deleted = true;
                     foreach (var photo in poi.Poiphotos)
                     {
                         photo.Deleted = true;
                     }
-                    
+
                     await _context.SaveChangesAsync();
                     Log.Information("Poi and PoiPhotos sucessfully changes to deleted=true");
+                    await transaction.CommitAsync();
+                    return true;
                 }
-                                
-                await transaction.CommitAsync();
-                return true;
             }
             catch (Exception ex)
             {

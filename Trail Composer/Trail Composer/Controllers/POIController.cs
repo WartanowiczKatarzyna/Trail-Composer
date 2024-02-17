@@ -52,9 +52,10 @@ namespace Trail_Composer.Controllers
             return StatusCode(500, "Couldn't add POI");
         }
 
-        [HttpDelete("{id}/{userId}")]
-        public async Task<IActionResult> DeletePOI(int id, string userId)
+        [HttpDelete("{id}")]
+        public async Task<IActionResult> DeletePOI(int id)
         {
+            var userId = UserId.GetUserIdFromContext(this.HttpContext);
             bool deletedSuccess = await _poiService.DeletePoiAsync(id, userId);
 
             if (deletedSuccess)
