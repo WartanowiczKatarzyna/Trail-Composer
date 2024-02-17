@@ -12,7 +12,7 @@ const App = () => {
   useEffect(() => {
     // Fetch or set initial data when the component mounts
     const initialData = // your initial data logic here;
-      {
+    {
       Countries: [
           { id: 1, countryName: "Polska" },
           { id: 2, countryName: "Niemcy" },

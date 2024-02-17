@@ -1,4 +1,5 @@
 ﻿import { useState, useEffect, useContext, useRef } from 'react';
+import { useNavigate } from 'react-router-dom';
 import styles from './AddPOI.module.css';
 import { Button, Form, FormGroup, Label, Input, FormFeedback, Col, Row, Container, FormText } from 'reactstrap';
 import App, { AppContext } from '../../App.js';
@@ -11,6 +12,7 @@ const AddPOI = () => {
   const { result, error } = useMsalAuthentication(InteractionType.Redirect, {scopes:['openid', 'offline_access']});
   const { instance: pca, accounts } = useMsal();
   const account = useAccount(accounts[0] || {});
+  const navigate = useNavigate();
 
   const [formErrors, setFormErrors] = useState({});
   const [submitting, setSubmitting] = useState(false);
@@ -146,13 +148,14 @@ const AddPOI = () => {
           setFormErrorMessage('Nie udało się zapisać POI.');
         }
         setSubmitting(false);
+        navigate("/");
       })
       .catch(error => {
         console.error('Error uploading AddPOI form:', error);
         setFormErrorMessage('Nie udało się zapisać POI.');
         setSubmitting(false);
       });
- 
+    
   };
 
   // Callback when POITypes are selected or removed

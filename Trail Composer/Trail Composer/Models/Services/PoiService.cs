@@ -2,9 +2,11 @@
 using System.Diagnostics.Metrics;
 using System.Linq;
 using System.Threading.Tasks.Dataflow;
+using Trail_Composer.Controllers.Utils;
 using Trail_Composer.Data;
 using Trail_Composer.Models.DTOs;
 using Trail_Composer.Models.Generated;
+using Serilog;
 
 namespace Trail_Composer.Models.Services
 {
@@ -120,6 +122,35 @@ namespace Trail_Composer.Models.Services
             return -1;
         }
     
-        public async Task DeletePoiAsync (int id) { }
+        public async Task<bool> DeletePoiAsync (int id, string userId) {
+            using var transaction = await _context.Database.BeginTransactionAsync();
+            try
+            {
+                var poi = await _context.Pois
+                    .Include(p => p.Poiphotos)
+                    .FirstOrDefaultAsync(p => p.Id == id && p.TcuserId == userId);
+
+                if (poi != null)
+                {
+                    poi.Deleted = true;
+                    foreach (var photo in poi.Poiphotos)
+                    {
+                        photo.Deleted = true;
+                    }
+                    
+                    await _context.SaveChangesAsync();
+                    Log.Information("Poi and PoiPhotos sucessfully changes to deleted=true");
+                }
+                                
+                await transaction.CommitAsync();
+                return true;
+            }
+            catch (Exception ex)
+            {
+                await transaction.RollbackAsync();
+                Log.Error($"DeletePOiAsync error: {ex.Message}");
+            }
+            return false;
+        }
     }
 }
