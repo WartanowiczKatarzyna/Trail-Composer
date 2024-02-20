@@ -33,8 +33,8 @@ namespace Trail_Composer.Controllers
             return Ok(poi);
         }
 
-        [HttpPost]
         [Authorize]
+        [HttpPost]
         [Consumes("multipart/form-data")]
         [RequestSizeLimit(10485760)] // Limiting to 10 MB (in bytes)
         // Also adds photos to database
@@ -52,6 +52,7 @@ namespace Trail_Composer.Controllers
             return StatusCode(500, "Couldn't add POI");
         }
 
+        [Authorize]
         [HttpDelete("{id}")]
         public async Task<IActionResult> DeletePOI(int id)
         {
