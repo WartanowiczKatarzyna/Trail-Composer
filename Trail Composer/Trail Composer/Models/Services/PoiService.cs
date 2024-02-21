@@ -8,6 +8,8 @@ using Trail_Composer.Models.DTOs;
 using Trail_Composer.Models.Generated;
 using Serilog;
 using Microsoft.IdentityModel.Tokens;
+using Microsoft.EntityFrameworkCore.Metadata.Internal;
+using Humanizer.Bytes;
 
 namespace Trail_Composer.Models.Services
 {
@@ -122,57 +124,103 @@ namespace Trail_Composer.Models.Services
 
             return -1;
         }
-    
-        public async Task<bool> EditPoiAsync (int poiId, PoiFromAPI poiApi, string userId)
+        public async Task<bool> EditPoiAsync(int poiId, PoiFromAPI poiApi, string userId)
         {
             using var transaction = await _context.Database.BeginTransactionAsync();
             try
             {
                 var poiDb = await _context.Pois.FirstOrDefaultAsync(p => p.Id == poiId && p.TcuserId == userId);
+                var poiApiCountry = await _context.Countries.FindAsync(poiApi.CountryId);
 
-                if (poiDb == null || poiDb.Deleted) 
+                if (poiDb == null)
                 {
                     await transaction.RollbackAsync();
-                    Log.Error("DeletePOiAsync error: poi is null");
+                    Log.Error("DeletePOiAsync error: couldn't find poi;");
                     return false;
+                }
+                else if (poiApiCountry == null)
+                {
+                    await transaction.RollbackAsync();
+                    Log.Error("DeletePOiAsync error: couldn't find country;");
+                    return false;
+                }
+
+                poiDb.Name = poiApi.Name;
+                poiDb.Latitude = poiApi.Latitude;
+                poiDb.Longitude = poiApi.Longitude;
+                poiDb.Description = poiApi.Description;
+
+                poiDb.CountryId = poiApi.CountryId;
+                poiDb.Country = poiApiCountry;
+
+                _context.PoiPoitypes.RemoveRange(poiDb.PoiPoitypes);
+                foreach (var poiTypeApiId in poiApi.PoiTypes)
+                {
+                    var poiTypeApi = _context.Poitypes.Find(poiTypeApiId);
+                    if (poiTypeApi == null)
+                    {
+                        await transaction.RollbackAsync();
+                        Log.Error($"DeletePOiAsync error: poiType with id {poiTypeApi} doesn't exist;");
+                        return false;
+                    }
+
+                    var poiPoiTypeApi = new PoiPoitype
+                    {
+                        PoiId = poiId,
+                        PoitypeId = poiTypeApiId,
+
+                        Poi = poiDb,
+                        Poitype = poiTypeApi
+                    };
+                    _context.PoiPoitypes.Add(poiPoiTypeApi);
+                }
+
+                if (poiApi.Photo == null || poiApi.Photo.Length <= 0)
+                {
+                    if (poiApi.deletePhoto != null)
+                    {
+                        var poiPhotoApi = _context.Poiphotos.FirstOrDefault(pp => pp.Id == poiApi.deletePhoto && pp.PoiId == poiId);
+                        if (poiPhotoApi == null)
+                        {
+                            await transaction.RollbackAsync();
+                            Log.Error($"DeletePOiAsync error: couldn't find photo to delete;");
+                            return false;
+                        }
+                        _context.Poiphotos.Remove(poiPhotoApi);
+                    }                    
                 } else
                 {
-                    if (!poiApi.Name.IsNullOrEmpty() && !poiDb.Name.Equals(poiApi.Name))
-                        poiDb.Name = poiApi.Name;
-                    if (poiDb.CountryId != poiApi.CountryId)
+                    var poiPhotoDb = poiDb.Poiphotos.SingleOrDefault();
+                    byte[] photoApiBytes;
+                    using (var memoryStream = new MemoryStream())
                     {
-                        poiDb.CountryId = poiApi.CountryId;
-                        var country = await _context.Countries.FindAsync(poiApi.CountryId);
-                        if (country != null)
-                            poiDb.Country = country;
+                        await poiApi.Photo.CopyToAsync(memoryStream);
+                        photoApiBytes = memoryStream.ToArray();
                     }
-                    if (poiDb.Latitude != poiApi.Latitude)
+                    //tworzenie nowego zdjęcia
+                    if (poiPhotoDb == null)
                     {
-                        poiDb.Latitude = poiApi.Latitude;
-                    }    
-                    if (poiDb.Longitude != poiApi.Longitude)
-                    {
-                        poiDb.Longitude = poiApi.Longitude;
-                    }
-                    if (poiDb.Description.Equals(poiApi.Description)) {
-                        poiDb.Description = poiApi.Description;
-                    }
-                    //poiTypes
-                    //sprawdź czy wszystkie poiTypes w relacjji z poiDb znajdują się na liście poiApi.PoiTypes
-                    //jeżeli któryś się nie znajduje to usuń relację z bazy
-                    foreach (var apiTypeId in poiApi.PoiTypes)
-                    {
-                        //sprawdź czy relacja między poiType o apiTypeId a poiDb istnieje
-                        bool relationshipExists = poiDb.PoiPoitypes.Any(ppt => ppt.PoitypeId == apiTypeId);
-                        //jeżeli istnieje to nic nie rób
-                        //jeżeli nie istnieje to dodaj
-                    }
+                        var newPoiPhoto = new Poiphoto
+                        {
+                            PoiId = poiId,
+                            Photo = photoApiBytes,
 
-                    await _context.SaveChangesAsync();
-                    await transaction.CommitAsync();
+                            Poi = poiDb
+                        };
 
-                    return true;
+                        _context.Poiphotos.Add(newPoiPhoto);
+                    } else
+                    {
+                        //nadpisywanie bloba
+                        poiPhotoDb.Photo = photoApiBytes;
+
+                    }
                 }
+
+                await _context.SaveChangesAsync();
+                await transaction.CommitAsync();
+
+                return true;
             }
             catch (Exception ex)
             {
