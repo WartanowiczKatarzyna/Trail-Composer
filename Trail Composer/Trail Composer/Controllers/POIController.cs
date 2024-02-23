@@ -53,6 +53,23 @@ namespace Trail_Composer.Controllers
         }
 
         [Authorize]
+        [HttpPut("{id}")]
+        [Consumes("multipart/form-data")]
+        [RequestSizeLimit(10485760)] // Limiting to 10 MB (in bytes)
+        // Also responsible for handling photos related to the poi
+        public async Task<ActionResult> DeletePOI([FromForm]PoiFromAPI poi, int id)
+        {
+            //var userId = UserId.GetUserIdFromContext(this.HttpContext);
+            var userId = "703645aa-f169-4aa8-9fc9-e3dbb01960d9";
+
+            var result = await _poiService.EditPoiAsync(id, poi, userId);
+
+            if (!result)
+                return StatusCode(400, "Error when editing poi");
+            return Ok(result);
+        }
+
+        [Authorize]
         [HttpDelete("{id}")]
         public async Task<IActionResult> DeletePOI(int id)
         {

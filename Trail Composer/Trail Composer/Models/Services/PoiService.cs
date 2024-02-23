@@ -129,7 +129,10 @@ namespace Trail_Composer.Models.Services
             using var transaction = await _context.Database.BeginTransactionAsync();
             try
             {
-                var poiDb = await _context.Pois.FirstOrDefaultAsync(p => p.Id == poiId && p.TcuserId == userId);
+                var poiDb = await _context.Pois
+                    .Include(p => p.PoiPoitypes)
+                    .Include(p => p.Poiphotos)
+                    .FirstOrDefaultAsync(p => p.Id == poiId && p.TcuserId == userId);
                 var poiApiCountry = await _context.Countries.FindAsync(poiApi.CountryId);
 
                 if (poiDb == null)
@@ -153,6 +156,7 @@ namespace Trail_Composer.Models.Services
                 poiDb.CountryId = poiApi.CountryId;
                 poiDb.Country = poiApiCountry;
 
+                //_context.AttachRange(poiDb.PoiPoitypes); -> seem to do nothing
                 _context.PoiPoitypes.RemoveRange(poiDb.PoiPoitypes);
                 foreach (var poiTypeApiId in poiApi.PoiTypes)
                 {
@@ -179,14 +183,14 @@ namespace Trail_Composer.Models.Services
                 {
                     if (poiApi.deletePhoto != null)
                     {
-                        var poiPhotoApi = _context.Poiphotos.FirstOrDefault(pp => pp.Id == poiApi.deletePhoto && pp.PoiId == poiId);
-                        if (poiPhotoApi == null)
+                        var poiPhotoToDelete = poiDb.Poiphotos.FirstOrDefault(pp => pp.Id == poiApi.deletePhoto);
+                        if (poiPhotoToDelete == null)
                         {
                             await transaction.RollbackAsync();
                             Log.Error($"DeletePOiAsync error: couldn't find photo to delete;");
                             return false;
                         }
-                        _context.Poiphotos.Remove(poiPhotoApi);
+                        _context.Poiphotos.Remove(poiPhotoToDelete);
                     }                    
                 } else
                 {
