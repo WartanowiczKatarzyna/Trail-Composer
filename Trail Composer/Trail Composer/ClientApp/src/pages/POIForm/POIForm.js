@@ -32,19 +32,47 @@ const PoiForm = () => {
   }, [poiId]);
 
   useEffect(() => {
+
     console.log(localPoiId);
     if (!isNaN(Number.parseInt(localPoiId)))
       setEditMode(true);
-  }, [localPoiId]);
+    else
+      setEditMode(false);
 
-  useEffect(() => {
     console.log(editMode);
+    console.log(localPoiId);
     const form = document.getElementById("POIForm");
     formData.current = new FormData(form);
     formData.current.set("CountryId", selectedPOICountry);
+      
+    if (editMode && localPoiId){
+      const fetchData = async () => {
+        try {
+          console.log(localPoiId);
+          const fetchedPoi = await fetch(`tc-api/poi/${localPoiId}`).then(response => response.json());
+          console.log(fetchedPoi);
+          const fetchedPhoto = await fetch(`tc-api/poi-photo/${fetchedPoi.photoId}`).then(response => response.arrayBuffer());
+          console.log(fetchedPhoto);
 
-    if (editMode){
-      var response = fetch(`tc-api/poi/${localPoiId}`).then(response => response.json());
+          /*setSelectedPOICountry(fetchedPoi.countryId);
+          setSelectedPOITypes(fetchedPoi.poiTypes);
+          setImagePreview(fetchedPhoto.photo);
+
+          //formData.current.set('Id', Id);
+          //formData.current.set('TcuserId', TcuserId);
+          formData.current.set('Name', fetchedPoi.name);
+          formData.current.set('CountryId', fetchedPoi.countryId);
+          formData.current.set('PoiTypes', fetchedPoi.poiTypes);
+          formData.current.set('Longitude', fetchedPoi.longitude);
+          formData.current.set('Latitude', fetchedPoi.latitude);
+          formData.current.set('Description', fetchedPoi.description);
+          //formData.current.set('Photo', rePhoto); */
+        } catch (error) {
+          console.error('Error fetching poi:', error);
+        }
+      };
+      
+      fetchData();
     }
   }, [editMode, localPoiId]);
 
