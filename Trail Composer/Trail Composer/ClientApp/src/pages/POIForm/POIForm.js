@@ -1,5 +1,5 @@
 import { useState, useEffect, useContext, useRef } from 'react';
-import { useNavigate } from 'react-router-dom';
+import { useNavigate, useParams } from 'react-router-dom';
 import { Button, Form, FormGroup, Label, Input, FormFeedback, Col, Row, Container, FormText } from 'reactstrap';
 import App, { AppContext } from '../../App.js';
 import Multiselect from 'multiselect-react-dropdown';
@@ -14,6 +14,10 @@ const PoiForm = () => {
   const account = useAccount(accounts[0] || {});
   const navigate = useNavigate();
 
+  const { poiId } = useParams();
+  const [localPoiId, setLocalPoiId] = useState(poiId);
+  const [editMode, setEditMode] = useState(false); 
+
   const [formErrors, setFormErrors] = useState({});
   const [submitting, setSubmitting] = useState(false);
   const [selectedPOITypes, setSelectedPOITypes] = useState([]);
@@ -24,10 +28,25 @@ const PoiForm = () => {
   let formData = useRef(new FormData());
 
   useEffect(() => {
+    setLocalPoiId(poiId);
+  }, [poiId]);
+
+  useEffect(() => {
+    console.log(localPoiId);
+    if (!isNaN(Number.parseInt(localPoiId)))
+      setEditMode(true);
+  }, [localPoiId]);
+
+  useEffect(() => {
+    console.log(editMode);
     const form = document.getElementById("POIForm");
     formData.current = new FormData(form);
     formData.current.set("CountryId", selectedPOICountry);
-  }, [])
+
+    if (editMode){
+      var response = fetch(`tc-api/poi/${localPoiId}`).then(response => response.json());
+    }
+  }, [editMode, localPoiId]);
 
   const validateInput = (name, value) => {
     const emptyMsg = 'Pole jest wymagane.';

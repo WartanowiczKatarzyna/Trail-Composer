@@ -1,6 +1,6 @@
 import { FetchPOI } from "./components/FetchPOI";
 
-import AddPOI from "./pages/AddPOI/AddPOI"
+import POIForm from "./pages/POIForm/POIForm"
 import HomePage from "./pages/HomePage/HomePage"
 
 const AppRoutes = [
@@ -14,7 +14,11 @@ const AppRoutes = [
   },
   {
     path: '/add-POI',
-    element: <AddPOI />
+    element: <POIForm />
+  },
+  {
+    path: '/edit-POI/:poiId',
+    element: <POIForm />
   }
 ];
 
