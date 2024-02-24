@@ -58,6 +58,8 @@ const PoiForm = () => {
           setPoiDescription(fetchedPoi.description);
           setPoiLatitude(fetchedPoi.latitude);
           setPoiLongitude(fetchedPoi.longitude);
+          
+          setImagePreview(fetchedPoi.photoId ? `tc-api/poi-photo/${fetchedPoi.photoId}` : null);
 
           let fetchedPoiTypes = appData.POITypes.filter(type => {
             const foundType = fetchedPoi.poiTypes.find((fetchedType) => fetchedType === type.id);
@@ -196,8 +198,14 @@ const PoiForm = () => {
     const authorizationHeader = `Bearer ${response.accessToken}`;
 
     // TO-DO: after sending go back to prev page 
-    fetch('tc-api/poi', {
-      method: 'POST',
+    let connString = 'tc-api/poi';
+    let connMethod = 'POST'
+    if (editMode) {
+      connString = `tc-api/poi/${localPoiId}`;
+      connMethod = 'PUT';
+    }
+    fetch(connString, {
+      method: connMethod,
       body: formData.current,
       headers: {
         Authorization: authorizationHeader
@@ -207,6 +215,8 @@ const PoiForm = () => {
       .then(data => {
         if (data > -1){
           console.log('AddPOI Form uploaded successfully:', data);
+          if (editMode)
+            console.log("edit POI")
           setFormErrorMessage('');
         }          
         else {
@@ -239,6 +249,13 @@ const PoiForm = () => {
     setFormErrors({ ...formErrors, [name]: errors });    
   };
 
+  const deletePhoto = () => {
+    console.log("delete");
+    setImagePreview(null);
+    formData.current.set("Photo", null);
+    showFormData(formData.current, "after deletePhoto");
+  }
+
   const showFormData = (formDataArg, comment) => {
     console.log(comment);
     for (const pair of formDataArg.entries()) {
@@ -250,7 +267,7 @@ const PoiForm = () => {
     <div className={styles.PoiForm}>
       <Form id="POIForm" onSubmit={handleSubmit} encType="multipart/form-data">
         <Container>
-          <Row className={styles.SectionTitle}>Tworzenie POI</Row>
+          <Row className={styles.SectionTitle}>{editMode ? 'Edytowanie POI' : 'Tworzenie POI'}</Row>
 
           <Row>
             <Col sm={6}>
@@ -390,14 +407,21 @@ const PoiForm = () => {
               <FormGroup row>
                 <Label for="POIPhoto" sm={4} lg={3}  className="text-end">Zdjęcie</Label>
                 <Col sm={8} lg={9} >
-                  <Input
-                    type="file"
-                    name="Photo"
-                    id="POIPhoto"
-                    onChange={handleInputChange}
-                    invalid={!!formErrors.Photo}
-                    accept=".jpg, .jpeg"
-                  />
+                  <Row>
+                    <Col sm={11}>
+                      <Input
+                      type="file"
+                      name="Photo"
+                      id="POIPhoto"
+                      onChange={handleInputChange}
+                      invalid={!!formErrors.Photo}
+                      accept=".jpg, .jpeg"
+                      />
+                    </Col>
+                    <Col sm={1}>
+                      {imagePreview && (<div class="mt-2 mt-lg-0"><i role="button" onClick={deletePhoto} class="bi bi-trash fs-4"></i></div>)}
+                    </Col>
+                  </Row>                
                   <FormFeedback>{formErrors.Photo}</FormFeedback>
                 </Col>                
               </FormGroup>
