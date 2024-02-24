@@ -20,20 +20,20 @@ const PoiForm = () => {
 
   const [formErrors, setFormErrors] = useState({});
   const [submitting, setSubmitting] = useState(false);
-  const [selectedPOITypes, setSelectedPOITypes] = useState([]);
-  const [selectedPOICountry, setSelectedPOICountry] = useState(29);
-  const [imagePreview, setImagePreview] = useState(null);
   const [formErrorMessage, setFormErrorMessage] = useState('');
+  const [selectedPOITypes, setSelectedPOITypes] = useState([]);
+  const [selectedPOICountry, setSelectedPOICountry] = useState(28);
+  const [poiName, setPoiName] = useState('');
+  const [poiDescription, setPoiDescription] = useState('');
+  const [poiLatitude, setPoiLatitude] = useState();
+  const [poiLongitude, setPoiLongitude] = useState();
+  const [imagePreview, setImagePreview] = useState(null);
 
   let formData = useRef(new FormData());
 
   useEffect(() => {
     setLocalPoiId(poiId);
-  }, [poiId]);
 
-  useEffect(() => {
-
-    console.log(localPoiId);
     if (!isNaN(Number.parseInt(localPoiId)))
       setEditMode(true);
     else
@@ -41,32 +41,36 @@ const PoiForm = () => {
 
     console.log(editMode);
     console.log(localPoiId);
+
     const form = document.getElementById("POIForm");
     formData.current = new FormData(form);
     formData.current.set("CountryId", selectedPOICountry);
       
-    if (editMode && localPoiId){
+    if (editMode && localPoiId && appData){
       const fetchData = async () => {
         try {
           console.log(localPoiId);
           const fetchedPoi = await fetch(`tc-api/poi/${localPoiId}`).then(response => response.json());
           console.log(fetchedPoi);
-          const fetchedPhoto = await fetch(`tc-api/poi-photo/${fetchedPoi.photoId}`).then(response => response.arrayBuffer());
-          console.log(fetchedPhoto);
 
-          /*setSelectedPOICountry(fetchedPoi.countryId);
-          setSelectedPOITypes(fetchedPoi.poiTypes);
-          setImagePreview(fetchedPhoto.photo);
+          setSelectedPOICountry(fetchedPoi.countryId);
+          setPoiName(fetchedPoi.name);
+          setPoiDescription(fetchedPoi.description);
+          setPoiLatitude(fetchedPoi.latitude);
+          setPoiLongitude(fetchedPoi.longitude);
 
-          //formData.current.set('Id', Id);
-          //formData.current.set('TcuserId', TcuserId);
+          let fetchedPoiTypes = appData.POITypes.filter(type => {
+            const foundType = fetchedPoi.poiTypes.find((fetchedType) => fetchedType === type.id);
+            return foundType;
+          });
+          setSelectedPOITypes(fetchedPoiTypes);
+
           formData.current.set('Name', fetchedPoi.name);
           formData.current.set('CountryId', fetchedPoi.countryId);
-          formData.current.set('PoiTypes', fetchedPoi.poiTypes);
           formData.current.set('Longitude', fetchedPoi.longitude);
           formData.current.set('Latitude', fetchedPoi.latitude);
           formData.current.set('Description', fetchedPoi.description);
-          //formData.current.set('Photo', rePhoto); */
+          handlePoiTypes(fetchedPoiTypes);
         } catch (error) {
           console.error('Error fetching poi:', error);
         }
@@ -74,7 +78,7 @@ const PoiForm = () => {
       
       fetchData();
     }
-  }, [editMode, localPoiId]);
+  }, [editMode, localPoiId, appData, poiId]);
 
   const validateInput = (name, value) => {
     const emptyMsg = 'Pole jest wymagane.';
@@ -139,8 +143,22 @@ const PoiForm = () => {
       }
       
     } else {
-      if (name === "CountryId") {
-        setSelectedPOICountry(value);
+      switch (name) {
+        case "CountryId":
+          setSelectedPOICountry(value);
+          break;
+        case "Name":
+          setPoiName(value);
+          break;
+        case "Description":
+          setPoiDescription(value);
+          break;
+        case "Latitude":
+          setPoiLatitude(value);
+          break;
+        case "Longitude":
+          setPoiLongitude(value);
+          break;
       }
         
       const errors = validateInput(name, value);
@@ -208,6 +226,7 @@ const PoiForm = () => {
   // Callback when POITypes are selected or removed
   const handlePoiTypes = (selectedList) => {
     const name = "PoiTypes";
+    console.log(selectedList);
     setSelectedPOITypes(selectedList);
 
     formData.current.delete(name);
@@ -242,6 +261,7 @@ const PoiForm = () => {
                   <Input
                     name="Name"
                     id="POIname"
+                    value={poiName}
                     onChange={handleInputChange}
                     invalid={!!formErrors.Name}
                     placeholder="wprowadź maksymalnie 50 liter"
@@ -304,6 +324,7 @@ const PoiForm = () => {
                     type="textarea"
                     name="Description"
                     id="POIDescription"
+                    value={poiDescription}
                     onChange={handleInputChange}
                     invalid={!!formErrors.Description}
                     placeholder="wprowadź maksymalnie 2048 znaki"
@@ -323,6 +344,7 @@ const PoiForm = () => {
                     name="Latitude"
                     type="number"
                     id="POILatitude"
+                    value={poiLatitude}
                     onChange={handleInputChange}
                     invalid={!!formErrors.Latitude}
                     placeholder = "wprowadź liczbę dziesiętną"
@@ -341,6 +363,7 @@ const PoiForm = () => {
                     name="Longitude"
                     type="number"
                     id="POILongitude"
+                    value={poiLongitude}
                     onChange={handleInputChange}
                     invalid={!!formErrors.Longitude}
                     placeholder = "wprowadź liczbę dziesiętną"
