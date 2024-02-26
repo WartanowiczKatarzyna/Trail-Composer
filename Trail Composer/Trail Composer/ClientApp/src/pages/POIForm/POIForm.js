@@ -219,7 +219,7 @@ const PoiForm = () => {
           setFormErrorMessage('Nie udało się zapisać POI.');
         }
         setSubmitting(false);
-        navigate("/");
+        navigate(`/details-poi/${data}`);
       })
       .catch(error => {
         console.error('Error uploading AddPOI form:', error);
