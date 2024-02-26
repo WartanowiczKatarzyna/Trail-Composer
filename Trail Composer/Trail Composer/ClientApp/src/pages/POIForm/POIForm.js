@@ -31,6 +31,7 @@ const PoiForm = () => {
   const [photoValue, setPhotoValue] = useState(null);
 
   let formData = useRef(new FormData());
+  let photoId = useRef(0);
 
   useEffect(() => {
     setLocalPoiId(poiId);
@@ -40,9 +41,6 @@ const PoiForm = () => {
     else
       setEditMode(false);
 
-    console.log(editMode);
-    console.log(localPoiId);
-
     const form = document.getElementById("POIForm");
     formData.current = new FormData(form);
     formData.current.set("CountryId", selectedPOICountry);
@@ -50,9 +48,7 @@ const PoiForm = () => {
     if (editMode && localPoiId && appData){
       const fetchData = async () => {
         try {
-          console.log(localPoiId);
           const fetchedPoi = await fetch(`tc-api/poi/${localPoiId}`).then(response => response.json());
-          console.log(fetchedPoi);
 
           setSelectedPOICountry(fetchedPoi.countryId);
           setPoiName(fetchedPoi.name);
@@ -74,6 +70,9 @@ const PoiForm = () => {
           formData.current.set('Latitude', fetchedPoi.latitude);
           formData.current.set('Description', fetchedPoi.description);
           handlePoiTypes(fetchedPoiTypes);
+          photoId.current=fetchedPoi.photoId;
+
+          showFormData(formData.current, "starting editMode");
         } catch (error) {
           console.error('Error fetching poi:', error);
         }
@@ -140,11 +139,6 @@ const PoiForm = () => {
         formData.current.set(name, files[0]);
         setFormErrors({ ...formErrors, [name]: errors });
         setPhotoValue(null);
-        
-        console.log("look up Photo");
-        console.log(value);
-        console.log(name);
-        console.log(files[0].name);
       }      
     } else {
       switch (name) {
@@ -238,7 +232,6 @@ const PoiForm = () => {
   // Callback when POITypes are selected or removed
   const handlePoiTypes = (selectedList) => {
     const name = "PoiTypes";
-    console.log(selectedList);
     setSelectedPOITypes(selectedList);
 
     formData.current.delete(name);
@@ -256,6 +249,8 @@ const PoiForm = () => {
     setImagePreview(null);
     setPhotoValue('');
     formData.current.set("Photo", null);
+    formData.current.set("deletePhoto", photoId.current);
+
     showFormData(formData.current, "after deletePhoto");
   }
 
