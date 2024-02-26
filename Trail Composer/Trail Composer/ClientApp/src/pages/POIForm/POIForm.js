@@ -28,6 +28,7 @@ const PoiForm = () => {
   const [poiLatitude, setPoiLatitude] = useState();
   const [poiLongitude, setPoiLongitude] = useState();
   const [imagePreview, setImagePreview] = useState(null);
+  const [photoValue, setPhotoValue] = useState(null);
 
   let formData = useRef(new FormData());
 
@@ -138,12 +139,13 @@ const PoiForm = () => {
         const errors = validateInput(name, files[0]);
         formData.current.set(name, files[0]);
         setFormErrors({ ...formErrors, [name]: errors });
-      } else {
-        formData.current.set(name, null);
-        setFormErrors({ ...formErrors, [name]: '' });
-        setImagePreview(null);
-      }
-      
+        setPhotoValue(null);
+        
+        console.log("look up Photo");
+        console.log(value);
+        console.log(name);
+        console.log(files[0].name);
+      }      
     } else {
       switch (name) {
         case "CountryId":
@@ -252,6 +254,7 @@ const PoiForm = () => {
   const deletePhoto = () => {
     console.log("delete");
     setImagePreview(null);
+    setPhotoValue('');
     formData.current.set("Photo", null);
     showFormData(formData.current, "after deletePhoto");
   }
@@ -413,6 +416,7 @@ const PoiForm = () => {
                       type="file"
                       name="Photo"
                       id="POIPhoto"
+                      value={photoValue}
                       onChange={handleInputChange}
                       invalid={!!formErrors.Photo}
                       accept=".jpg, .jpeg"
