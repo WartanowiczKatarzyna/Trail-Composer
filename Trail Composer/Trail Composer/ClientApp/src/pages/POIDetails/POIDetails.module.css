@@ -1,2 +1,12 @@
 .PoiDetails {
+    background-color: var(--background-color);
+    padding: 20px;
+    font-family: var(--font-family);
+    font-weight: var(--subsection-header-font-weight);
+    font-size: var(--section-header-font-size);
+}
+
+.Photo {
+    max-width: 100%;
+    border-radius: 6px;
 }

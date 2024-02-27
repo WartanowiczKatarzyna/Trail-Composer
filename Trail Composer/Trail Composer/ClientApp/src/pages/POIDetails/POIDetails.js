@@ -80,7 +80,10 @@ const PoiDetails = () => {
       {isOwner && (<Col sm={1}><i role="button" onClick={deletePoi} class="bi bi-trash fs-4"></i></Col>)}
     </Row>
     <Row>
-      <Col sm={6}>
+      <Col sm={8}>
+        {!!imagePreview && ( <img src={imagePreview} alt="Preview" className={styles.Photo} /> )}
+      </Col>
+      <Col sm={4}>
         <Row>{poi && (`Typy: ${poi.poiTypes}`)}</Row>
         <Row>{poi && (`Kraj: ${poi.countryId}`)}</Row>
         <Row>{poi && (`Współrzędne geograficzne`)}</Row>
@@ -88,9 +91,7 @@ const PoiDetails = () => {
         <Row>{poi && (`długość: ${poi.longitude}`)}</Row>
         <Row>{poi && poi.description!=null && (`opis: ${poi.description}`)}</Row>
       </Col>
-      <Col sm={6}>
-        {!!imagePreview && ( <img src={imagePreview} alt="Preview" className={styles.Photo} /> )}
-      </Col>
+      
     </Row>
   </Container>  
   );
