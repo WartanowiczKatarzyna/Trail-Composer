@@ -3,6 +3,7 @@ import { Route, Routes } from 'react-router-dom';
 import AppRoutes from './AppRoutes';
 import PageLayout from './structure/PageLayout/PageLayout';
 import './App.css';
+import NotFoundPage from './pages/errorPages/NotFoundPage/NotFoundPage';
 
 export const AppContext = createContext();
 

@@ -23,14 +23,19 @@ const PoiDetails = () => {
   const navigate = useNavigate();
   const isOwner = useIsAuthenticated(poiOwner);
 
-  const fetchData = async () => {
-    try{
-      await fetch(`tc-api/poi/${localPoiId}`)
-        .then(response => response.json())
-        .then(data => {setPoi(data)}); 
-    } catch (error) {
-      console.error("Błąd przy ładowaniu POI", error);
-    }
+  const fetchData = () => {
+    fetch(`tc-api/poi/${localPoiId}`)
+      .then(response => {
+        if (response.status === 200)
+          return response.json()
+        else
+          navigate('/error/page-not-found');
+      })
+      .then(data => {setPoi(data)})
+      .catch(error => {
+        console.log(error);
+        navigate('/');
+      });
   }
 
   useEffect(() => {
