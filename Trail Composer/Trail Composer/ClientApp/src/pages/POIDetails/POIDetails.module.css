@@ -6,7 +6,21 @@
     font-size: var(--section-header-font-size);
 }
 
+.SectionTitle {
+    font-family: var(--font-family);
+    font-weight: var(--section-header-font-weight);
+    font-size: var(--section-header-font-size);
+
+    margin-top: 1rem;
+    margin-bottom: 1rem;
+
+    border-bottom: var(--main-color);
+    border-bottom-style: solid;
+    border-bottom-width: 1px;
+}
+
 .Photo {
     max-width: 100%;
     border-radius: 6px;
+    margin-left: 1rem;
 }

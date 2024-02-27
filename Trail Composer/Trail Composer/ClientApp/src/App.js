@@ -11,9 +11,9 @@ const App = () => {
 
   useEffect(() => {
     // Fetch or set initial data when the component mounts
-    const initialData = // your initial data logic here;
+    const initialData = 
     {
-      Countries: [
+      /*Countries: [
           { id: 1, countryName: "Polska" },
           { id: 2, countryName: "Niemcy" },
           { id: 3, countryName: "Wiekla Brytania" },
@@ -22,7 +22,7 @@ const App = () => {
         { id: 1, name: "apteka" },
         { id: 2, name: "restauracja" },
         { id: 3, name: "schronisko" }
-      ]
+      ]*/
     };
 
     // Function to fetch data from tc-api/country
