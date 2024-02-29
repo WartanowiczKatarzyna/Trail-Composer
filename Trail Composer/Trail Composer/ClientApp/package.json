@@ -5,6 +5,11 @@
   "dependencies": {
     "@azure/msal-browser": "^3.9.0",
     "@azure/msal-react": "^2.0.11",
+    "@emotion/react": "^11.11.3",
+    "@emotion/styled": "^11.11.0",
+    "@mui/icons-material": "^5.15.4",
+    "@mui/material": "^5.15.4",
+    "@tanstack/react-table": "^8.12.0",
     "bootstrap": "^5.2.3",
     "bootstrap-icons": "^1.11.3",
     "http-proxy-middleware": "^2.0.6",
@@ -35,6 +40,10 @@
     "workbox-streams": "^6.5.4"
   },
   "devDependencies": {
+    "@faker-js/faker": "^8.3.1",
+    "@rollup/plugin-replace": "^5.0.5",
+    "@types/react": "^18.2.48",
+    "@types/react-dom": "^18.2.18",
     "ajv": "^8.12.0",
     "cross-env": "^7.0.3",
     "eslint": "^8.39.0",

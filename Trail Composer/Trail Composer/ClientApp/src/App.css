@@ -3,3 +3,4 @@
 @import './styles/colors.css';
 @import './styles/fonts.css';
 @import './styles/global.css';
+@import './tanstack/tableGrid.css';

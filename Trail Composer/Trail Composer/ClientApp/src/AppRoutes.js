@@ -4,6 +4,7 @@ import POIForm from "./pages/POIForm/POIForm"
 import HomePage from "./pages/HomePage/HomePage"
 import PoiDetails from "./pages/POIDetails/POIDetails";
 import NotFoundPage from "./pages/errorPages/NotFoundPage/NotFoundPage";
+import PoiListPage from "./pages/PoiListPage/PoiListPage";
 
 const AppRoutes = [
   {
@@ -25,6 +26,10 @@ const AppRoutes = [
   {
     path: '/details-POI/:poiId',
     element: <PoiDetails />
+  },
+  {
+    path: '/list-poi/:mode',
+    element: <PoiListPage />
   },
   {
     path: '/error/page-not-found',

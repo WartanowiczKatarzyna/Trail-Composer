@@ -1,0 +1,47 @@
+table {
+  font-family: sans-serif;
+  font-size: 14px;
+  border: 1px solid lightgray;
+}
+
+tbody {
+  border-bottom: 1px solid lightgray;
+}
+
+th {
+  border-bottom: 1px solid lightgray;
+  border-right: 1px solid lightgray;
+  padding: 2px 4px;
+}
+
+tfoot {
+  color: gray;
+}
+
+tfoot th {
+  font-weight: normal;
+}
+
+.table-filter-space-x-2 > :not([hidden]) ~ :not([hidden]) {
+  margin-right: 0;
+  margin-left: 0.5rem;
+}
+
+.table-filter-w-24 {
+  width: 6rem;
+}
+
+.table-filter-w-36 {
+  width: 9rem;
+}
+
+.table-filter-border-shadow-rounded {
+  border-width: 1px;
+  box-shadow: 0 1px 3px 0 rgba(0,0,0,0.1), 0 1px 2px 0 rgba(0,0,0,0.06);
+  border-radius: 0.25rem;
+}
+
+.MuiTablePagination-selectLabel,
+.MuiTablePagination-displayedRows{
+  margin-bottom: 0;
+}

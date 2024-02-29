@@ -22,7 +22,7 @@ const PoiForm = () => {
   const [submitting, setSubmitting] = useState(false);
   const [formErrorMessage, setFormErrorMessage] = useState('');
   const [selectedPOITypes, setSelectedPOITypes] = useState([]);
-  const [selectedPOICountry, setSelectedPOICountry] = useState(28);
+  const [selectedPOICountry, setSelectedPOICountry] = useState(29);
   const [poiName, setPoiName] = useState('');
   const [poiDescription, setPoiDescription] = useState('');
   const [poiLatitude, setPoiLatitude] = useState();

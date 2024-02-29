@@ -105,7 +105,7 @@ const PoiDetails = () => {
           </ul>
         </Row>
         <Row className='mt-2'>{poi.description!==null && (`Opis:`)}</Row>
-        <Row className='mt-1'>{`${poi.description}`}</Row>
+        <Row className='mt-1'>{poi.description!==null && `${poi.description}`}</Row>
       </Col>)}
       <Col sm={8}>
         {!!imagePreview && ( <img src={imagePreview} alt="Preview" className={styles.Photo} /> )}
