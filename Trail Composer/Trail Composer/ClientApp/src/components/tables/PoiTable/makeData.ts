@@ -3,7 +3,7 @@ import { faker } from '@faker-js/faker'
 export type RowData = {
   name: string
   longitude: number
-  age: number
+  latitude: number
   visits: number
   progress: number
   status: 'relationship' | 'complicated' | 'single'
@@ -22,7 +22,7 @@ const newRowData = (): RowData => {
   return {
     name: faker.lorem.word({ length: { min: 1, max: 50 } }),
     longitude: faker.number.float({ min: -180, max: 180, fractionDigits: 6 }),
-    age: faker.number.int(40),
+    latitude: faker.number.float({ min: -90, max: 90, fractionDigits: 6 }),
     visits: faker.number.int(1000),
     progress: faker.number.int(100),
     status: faker.helpers.shuffle<RowData['status']>([

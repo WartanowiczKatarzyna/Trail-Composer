@@ -37,14 +37,15 @@ export  function PoiTable() {
         footer: props => props.column.id,
       },
       {
-        accessorKey: 'longitude',
+        accessorKey: 'latitude',
         cell: info => info.getValue(),
-        header: () => <span>Długość geograficzna</span>,
+        header: () => <span>Szerokość geograficzna</span>,
         footer: props => props.column.id,
       },
       {
-        accessorKey: 'age',
-        header: () => 'Age',
+        accessorKey: 'longitude',
+        cell: info => info.getValue(),
+        header: () => <span>Długość geograficzna</span>,
         footer: props => props.column.id,
       },
       {
