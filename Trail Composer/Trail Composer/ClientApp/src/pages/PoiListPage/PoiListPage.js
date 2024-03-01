@@ -5,7 +5,7 @@ import { useMsal, useAccount, useIsAuthenticated } from "@azure/msal-react";
 import PropTypes from 'prop-types';
 import styles from './PoiListPage.module.css';
 
-import { TableGrid } from '../../tanstack/tableGrid.tsx';
+import { PoiTable } from '../../components/tables/PoiTable/PoiTable.tsx';
 
 import App, { AppContext } from '../../App.js';
 
@@ -23,7 +23,7 @@ const PoiListPage = () => {
   }, []);
   
   return (
-    <TableGrid />
+    <PoiTable />
   );
 };
 

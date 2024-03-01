@@ -20,12 +20,12 @@ import {
   flexRender, Column,
 } from '@tanstack/react-table'
 
-import TablePaginationActions from './actions'
+import TablePaginationActions from '../actions'
 import { makeData, RowData } from './makeData'
 import {Table as ReactTable} from "@tanstack/table-core/build/lib/types";
 import InputBase from "@mui/material/InputBase";
 
-export  function TableGrid() {
+export  function PoiTable() {
   const rerender = React.useReducer(() => ({}), {})[1]
 
   const columns = React.useMemo<ColumnDef<RowData>[]>(

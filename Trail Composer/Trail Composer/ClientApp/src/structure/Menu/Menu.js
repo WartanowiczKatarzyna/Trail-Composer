@@ -13,7 +13,7 @@ const Menu = () => (
       <AccordionBody accordionId='1'>
         <NavLink tag={Link} className={styles.NavLink} to="/">- Trasy</NavLink>
         <NavLink tag={Link} className={styles.NavLink} to="/">- Odcinki</NavLink>
-        <NavLink tag={Link} className={styles.NavLink} to="/">- POI</NavLink>
+        <NavLink tag={Link} className={styles.NavLink} to="/list-poi/user">- POI</NavLink>
       </AccordionBody>
 
     </UncontrolledAccordion>
