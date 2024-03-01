@@ -1,4 +1,4 @@
-import React from 'react'
+import { useContext } from 'react';
 import ReactDOM from 'react-dom/client'
 
 import Box from '@mui/material/Box'
@@ -24,8 +24,12 @@ import TablePaginationActions from '../actions';
 import { makeData, RowData } from './makeData';
 import {Table as ReactTable} from "@tanstack/table-core/build/lib/types";
 import InputBase from "@mui/material/InputBase";
+import AppContextT from '../AppContextT'; 
+import { AppContext } from '../../../App.js';
 
 export  function PoiTable() {
+  const appData = useContext(AppContext);
+  
   const rerender = React.useReducer(() => ({}), {})[1]
 
   const columns = React.useMemo<ColumnDef<RowData>[]>(
@@ -55,8 +59,11 @@ export  function PoiTable() {
         footer: props => props.column.id,
       },
       {
-        accessorKey: 'status',
-        header: 'Status',
+        accessorKey: 'countryId',
+        cell: info => {
+          let id = info.getValue();
+        },
+        header: () => <span>Kraj</span>,
         footer: props => props.column.id,
       },
       {
