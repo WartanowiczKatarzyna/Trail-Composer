@@ -20,8 +20,8 @@ import {
   flexRender, Column,
 } from '@tanstack/react-table'
 
-import TablePaginationActions from '../actions'
-import { makeData, RowData } from './makeData'
+import TablePaginationActions from '../actions';
+import { makeData, RowData } from './makeData';
 import {Table as ReactTable} from "@tanstack/table-core/build/lib/types";
 import InputBase from "@mui/material/InputBase";
 
@@ -31,60 +31,47 @@ export  function PoiTable() {
   const columns = React.useMemo<ColumnDef<RowData>[]>(
     () => [
       {
-        header: 'Name',
+        accessorKey: 'name',
+        cell: info => info.getValue(),
+        header: () => <span>Nazwa</span>,
         footer: props => props.column.id,
-        columns: [
-          {
-            accessorKey: 'firstName',
-            cell: info => info.getValue(),
-            footer: props => props.column.id,
-          },
-          {
-            accessorFn: row => row.lastName,
-            id: 'lastName',
-            cell: info => info.getValue(),
-            header: () => <span>Last Name</span>,
-            footer: props => props.column.id,
-          },
-        ],
       },
       {
-        header: 'Info',
+        accessorKey: 'longitude',
+        cell: info => info.getValue(),
+        header: () => <span>Długość geograficzna</span>,
         footer: props => props.column.id,
-        columns: [
-          {
-            accessorKey: 'age',
-            header: () => 'Age',
-            footer: props => props.column.id,
-          },
-          {
-            header: 'More Info',
-            columns: [
-              {
-                accessorKey: 'visits',
-                header: () => <span>Visits</span>,
-                footer: props => props.column.id,
-              },
-              {
-                accessorKey: 'status',
-                header: 'Status',
-                footer: props => props.column.id,
-              },
-              {
-                accessorKey: 'progress',
-                header: 'Profile Progress',
-                footer: props => props.column.id,
-              },
-            ],
-          },
-        ],
       },
+      {
+        accessorKey: 'age',
+        header: () => 'Age',
+        footer: props => props.column.id,
+      },
+      {
+        accessorKey: 'visits',
+        header: () => <span>Visits</span>,
+        footer: props => props.column.id,
+      },
+      {
+        accessorKey: 'status',
+        header: 'Status',
+        footer: props => props.column.id,
+      },
+      {
+        accessorKey: 'progress',
+        header: 'Profile Progress',
+        footer: props => props.column.id,
+      }
     ],
     []
   )
 
-  const [data, setData] = React.useState(() => makeData(1000))
-  const refreshData = () => setData(() => makeData(1000))
+  const [data, setData] = React.useState(() => makeData(10))
+  const refreshData = () => setData(() => makeData(10))
+
+  data.forEach(row => {
+    console.log(row);
+  });
 
   return (
     <>
@@ -240,7 +227,7 @@ function Filter({
     <InputBase
       value={(columnFilterValue ?? '') as string}
       onChange={e => column.setFilterValue(e.target.value)}
-      placeholder={`Search...`}
+      placeholder={`Wyszukaj...`}
       className="table-filter-w-36 table-filter-border-shadow-rounded"
       inputProps={{ 'aria-label': 'search' }}
     />

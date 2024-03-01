@@ -1,8 +1,8 @@
 import { faker } from '@faker-js/faker'
 
 export type RowData = {
-  firstName: string
-  lastName: string
+  name: string
+  longitude: number
   age: number
   visits: number
   progress: number
@@ -20,8 +20,8 @@ const range = (len: number) => {
 
 const newRowData = (): RowData => {
   return {
-    firstName: faker.person.firstName(),
-    lastName: faker.person.lastName(),
+    name: faker.lorem.word({ length: { min: 1, max: 50 } }),
+    longitude: faker.number.float({ min: -180, max: 180, fractionDigits: 6 }),
     age: faker.number.int(40),
     visits: faker.number.int(1000),
     progress: faker.number.int(100),
@@ -37,6 +37,7 @@ export function makeData(...lens: number[]) {
   const makeDataLevel = (depth = 0): RowData[] => {
     const len = lens[depth]!
     return range(len).map((d): RowData => {
+      
       return {
         ...newRowData(),
         subRows: lens[depth + 1] ? makeDataLevel(depth + 1) : undefined,
