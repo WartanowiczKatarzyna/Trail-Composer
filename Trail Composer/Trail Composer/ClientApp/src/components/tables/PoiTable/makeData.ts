@@ -4,7 +4,7 @@ export type RowData = {
   name: string
   longitude: number
   latitude: number
-  visits: number
+  description: string
   progress: number
   status: 'relationship' | 'complicated' | 'single'
   subRows?: RowData[]
@@ -23,7 +23,7 @@ const newRowData = (): RowData => {
     name: faker.lorem.word({ length: { min: 1, max: 50 } }),
     longitude: faker.number.float({ min: -180, max: 180, fractionDigits: 6 }),
     latitude: faker.number.float({ min: -90, max: 90, fractionDigits: 6 }),
-    visits: faker.number.int(1000),
+    description: faker.lorem.paragraph({min: 0, max:10}),
     progress: faker.number.int(100),
     status: faker.helpers.shuffle<RowData['status']>([
       'relationship',

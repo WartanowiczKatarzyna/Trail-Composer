@@ -49,8 +49,9 @@ export  function PoiTable() {
         footer: props => props.column.id,
       },
       {
-        accessorKey: 'visits',
-        header: () => <span>Visits</span>,
+        accessorKey: 'description',
+        cell: info => info.getValue(),
+        header: () => <span>Opis</span>,
         footer: props => props.column.id,
       },
       {
