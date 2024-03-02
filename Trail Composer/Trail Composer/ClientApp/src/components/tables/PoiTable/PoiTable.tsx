@@ -1,4 +1,4 @@
-import { useContext } from 'react';
+import React, { useContext, useEffect } from 'react';
 import ReactDOM from 'react-dom/client'
 
 import Box from '@mui/material/Box'
@@ -24,52 +24,52 @@ import TablePaginationActions from '../actions';
 import { makeData, RowData } from './makeData';
 import {Table as ReactTable} from "@tanstack/table-core/build/lib/types";
 import InputBase from "@mui/material/InputBase";
-import AppContextT from '../AppContextT'; 
-import { AppContext } from '../../../App.js';
+import { AppContext, AppContextValueType } from '../../../App';
 
 export  function PoiTable() {
-  const appData = useContext(AppContext);
-  
-  const rerender = React.useReducer(() => ({}), {})[1]
+  const appData = useContext<AppContextValueType>(AppContext);
+
+  const rerender = React.useReducer(() => ({}), {})[1];
+
+  useEffect(() => {
+    console.log(appData);
+    console.log(appData?.POITypes);
+    console.log(appData?.Countries);
+  }, [appData]);
 
   const columns = React.useMemo<ColumnDef<RowData>[]>(
     () => [
       {
         accessorKey: 'name',
-        cell: info => info.getValue(),
+        cell: (info: { getValue: () => any; }) => info.getValue(),
         header: () => <span>Nazwa</span>,
-        footer: props => props.column.id,
+        footer: (props: { column: { id: any; }; }) => props.column.id,
       },
       {
         accessorKey: 'latitude',
-        cell: info => info.getValue(),
+        cell: (info: { getValue: () => any; }) => info.getValue(),
         header: () => <span>Szerokość geograficzna</span>,
-        footer: props => props.column.id,
+        footer: (props: { column: { id: any; }; }) => props.column.id,
       },
       {
         accessorKey: 'longitude',
-        cell: info => info.getValue(),
+        cell: (info: { getValue: () => any; }) => info.getValue(),
         header: () => <span>Długość geograficzna</span>,
-        footer: props => props.column.id,
+        footer: (props: { column: { id: any; }; }) => props.column.id,
       },
       {
         accessorKey: 'description',
-        cell: info => info.getValue(),
+        cell: (info: { getValue: () => any; }) => info.getValue(),
         header: () => <span>Opis</span>,
-        footer: props => props.column.id,
+        footer: (props: { column: { id: any; }; }) => props.column.id,
       },
       {
         accessorKey: 'countryId',
-        cell: info => {
+        cell: (info: { getValue: () => any; }) => {
           let id = info.getValue();
         },
         header: () => <span>Kraj</span>,
-        footer: props => props.column.id,
-      },
-      {
-        accessorKey: 'progress',
-        header: 'Profile Progress',
-        footer: props => props.column.id,
+        footer: (props: { column: { id: any; }; }) => props.column.id,
       }
     ],
     []
@@ -78,9 +78,9 @@ export  function PoiTable() {
   const [data, setData] = React.useState(() => makeData(10))
   const refreshData = () => setData(() => makeData(10))
 
-  data.forEach(row => {
+  /*data.forEach(row => {
     console.log(row);
-  });
+  });*/
 
   return (
     <>
@@ -166,7 +166,7 @@ function LocalTable({
         </Table>
       </TableContainer>
       <TablePagination
-        rowsPerPageOptions={[5, 10, 25, { label: 'All', value: data.length }]}
+        rowsPerPageOptions={[5, 10, 25]}
         component="div"
         count={table.getFilteredRowModel().rows.length}
         rowsPerPage={pageSize}

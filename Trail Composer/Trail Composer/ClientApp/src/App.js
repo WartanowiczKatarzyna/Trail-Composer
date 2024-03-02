@@ -3,9 +3,8 @@ import { Route, Routes } from 'react-router-dom';
 import AppRoutes from './AppRoutes';
 import PageLayout from './structure/PageLayout/PageLayout';
 import './App.css';
-import NotFoundPage from './pages/errorPages/NotFoundPage/NotFoundPage';
 
-export const AppContext = createContext();
+export const AppContext = createContext(null);
 
 const App = () => {
   const [appData, setAppData] = useState(null);
@@ -14,7 +13,7 @@ const App = () => {
     // Fetch or set initial data when the component mounts
     const initialData = 
     {
-      /*Countries: [
+      Countries: [
           { id: 1, countryName: "Polska" },
           { id: 2, countryName: "Niemcy" },
           { id: 3, countryName: "Wiekla Brytania" },
@@ -23,11 +22,12 @@ const App = () => {
         { id: 1, name: "apteka" },
         { id: 2, name: "restauracja" },
         { id: 3, name: "schronisko" }
-      ]*/
+      ]
     };
+    setAppData(initialData);
 
     // Function to fetch data from tc-api/country
-    const fetchCountries = () => fetch("tc-api/country").then(response => response.json());
+    /*const fetchCountries = () => fetch("tc-api/country").then(response => response.json());
 
     // Function to fetch data from tc-api/poi-type
     const fetchPOITypes = () => fetch("tc-api/poi-type").then(response => response.json());
@@ -43,7 +43,7 @@ const App = () => {
       })
       .catch(error => {
         console.error('Error:', error);
-      });
+      });*/
 
   }, []);
 
