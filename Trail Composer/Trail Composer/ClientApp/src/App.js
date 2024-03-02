@@ -22,8 +22,15 @@ const App = () => {
         { id: 1, name: "apteka" },
         { id: 2, name: "restauracja" },
         { id: 3, name: "schronisko" }
-      ]
+      ], 
+      CountryNamesMap: new Map()
     };
+
+    //initialData.CountryNamesMap = new Map();
+    initialData.Countries.forEach(country => {
+      initialData.CountryNamesMap.set(country.id, country.countryName);
+    });
+
     setAppData(initialData);
 
     // Function to fetch data from tc-api/country
@@ -38,6 +45,11 @@ const App = () => {
         // Both promises have resolved successfully
         initialData.Countries = Countries.sort((countryA, countryB) => (countryA.countryName > countryB.countryName) ? 1 : -1);;
         initialData.POITypes = POITypes.sort((typeA, typeB) => (typeA.name > typeB.name) ? 1 : -1);
+
+        initialData.CountryNamesMap = new Map();
+        initialData.Countries.forEach(country => {
+          initialData.CountryNamesMap.set(country.id, country.countryName);
+        });
 
         setAppData(initialData);
       })

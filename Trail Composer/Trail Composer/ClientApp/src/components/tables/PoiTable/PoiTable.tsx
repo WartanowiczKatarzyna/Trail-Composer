@@ -1,5 +1,4 @@
 import React, { useContext, useEffect } from 'react';
-import ReactDOM from 'react-dom/client'
 
 import Box from '@mui/material/Box'
 import Table from '@mui/material/Table'
@@ -29,12 +28,17 @@ import { AppContext, AppContextValueType } from '../../../App';
 export  function PoiTable() {
   const appData = useContext<AppContextValueType>(AppContext);
 
+  function getCountryNameById(id : number) {
+    return appData.CountryNamesMap.get(id) || null;
+  }
+
   const rerender = React.useReducer(() => ({}), {})[1];
 
   useEffect(() => {
     console.log(appData);
     console.log(appData?.POITypes);
     console.log(appData?.Countries);
+    
   }, [appData]);
 
   const columns = React.useMemo<ColumnDef<RowData>[]>(
@@ -65,9 +69,7 @@ export  function PoiTable() {
       },
       {
         accessorKey: 'countryId',
-        cell: (info: { getValue: () => any; }) => {
-          let id = info.getValue();
-        },
+        cell: (info: { getValue: () => any; }) => getCountryNameById(info.getValue()),
         header: () => <span>Kraj</span>,
         footer: (props: { column: { id: any; }; }) => props.column.id,
       }

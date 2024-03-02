@@ -24,7 +24,7 @@ const newRowData = (): RowData => {
     longitude: faker.number.float({ min: -180, max: 180, fractionDigits: 6 }),
     latitude: faker.number.float({ min: -90, max: 90, fractionDigits: 6 }),
     description: faker.lorem.paragraph({min: 0, max:10}),
-    countryId: faker.number.int({min: 1, max: 35}),
+    countryId: faker.number.int({min: 1, max: 4}),
     status: faker.helpers.shuffle<RowData['status']>([
       'relationship',
       'complicated',
