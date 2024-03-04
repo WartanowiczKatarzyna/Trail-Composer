@@ -1,4 +1,4 @@
-import React, { useContext, useEffect } from 'react';
+import React, { useContext, useEffect, useRef } from 'react';
 
 import Box from '@mui/material/Box'
 import Table from '@mui/material/Table'
@@ -27,10 +27,23 @@ import { AppContext, AppContextValueType } from '../../../App';
 
 export  function PoiTable() {
   const appData = useContext<AppContextValueType>(AppContext);
+  const rowNumFaker = useRef(100000);
+  
+  function flattenData(freshData: RowData[]): RowData[] {    
+    return freshData.map(row => {
+      return {
+        name: row.name,
+        longitude: row.longitude,
+        latitude: row.latitude,
+        countryId: row.countryId,
+        subRows: row.subRows,
+        country: appData?.CountryNamesMap?.get(row.countryId) || 'nieznany kraj'
+      };
+    });
+  };
 
-  function getCountryNameById(id : number) {
-    return appData.CountryNamesMap.get(id) || null;
-  }
+  const [data, setData] = React.useState(() => flattenData(makeData(rowNumFaker.current)));
+  const refreshData = () => setData(() => flattenData(makeData(rowNumFaker.current)));
 
   const rerender = React.useReducer(() => ({}), {})[1];
 
@@ -39,6 +52,7 @@ export  function PoiTable() {
     console.log(appData?.POITypes);
     console.log(appData?.Countries);
     
+    setData(() => flattenData(makeData(rowNumFaker.current)));
   }, [appData]);
 
   const columns = React.useMemo<ColumnDef<RowData>[]>(
@@ -62,24 +76,15 @@ export  function PoiTable() {
         footer: (props: { column: { id: any; }; }) => props.column.id,
       },
       {
-        accessorKey: 'description',
+        accessorKey: 'country',
         cell: (info: { getValue: () => any; }) => info.getValue(),
-        header: () => <span>Opis</span>,
-        footer: (props: { column: { id: any; }; }) => props.column.id,
-      },
-      {
-        accessorKey: 'countryId',
-        cell: (info: { getValue: () => any; }) => getCountryNameById(info.getValue()),
         header: () => <span>Kraj</span>,
         footer: (props: { column: { id: any; }; }) => props.column.id,
       }
     ],
-    []
-  )
-
-  const [data, setData] = React.useState(() => makeData(10))
-  const refreshData = () => setData(() => makeData(10))
-
+    [appData]
+  );
+  
   /*data.forEach(row => {
     console.log(row);
   });*/

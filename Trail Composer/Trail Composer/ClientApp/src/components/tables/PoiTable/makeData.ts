@@ -1,12 +1,12 @@
-import { faker } from '@faker-js/faker'
+import { faker } from '@faker-js/faker';
 
 export type RowData = {
   name: string
   longitude: number
   latitude: number
-  description: string
+  // description: string
   countryId: number
-  status: 'relationship' | 'complicated' | 'single'
+  country?: string
   subRows?: RowData[]
 }
 
@@ -23,14 +23,14 @@ const newRowData = (): RowData => {
     name: faker.lorem.word({ length: { min: 1, max: 50 } }),
     longitude: faker.number.float({ min: -180, max: 180, fractionDigits: 6 }),
     latitude: faker.number.float({ min: -90, max: 90, fractionDigits: 6 }),
-    description: faker.lorem.paragraph({min: 0, max:10}),
+    //description: faker.lorem.paragraph({min: 0, max:10}),
     countryId: faker.number.int({min: 1, max: 4}),
-    status: faker.helpers.shuffle<RowData['status']>([
-      'relationship',
-      'complicated',
-      'single',
-    ])[0]!,
-  }
+    /*country: faker.helpers.shuffle<RowData['country']>([
+      'Polska',
+      'Niemcy',
+      'Francja',
+    ])[0]!,*/
+  };
 }
 
 export function makeData(...lens: number[]) {
