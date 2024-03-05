@@ -23,13 +23,17 @@ const App = () => {
         { id: 2, name: "restauracja" },
         { id: 3, name: "schronisko" }
       ], 
-      CountryNamesMap: new Map()
+      CountryNamesMap: new Map(),
+      PoiTypesMap: new Map()
     };
 
     //initialData.CountryNamesMap = new Map();
     initialData.Countries.forEach(country => {
       initialData.CountryNamesMap.set(country.id, country.countryName);
     });
+    initialData.POITypes.forEach(poi => {
+      initialData.PoiTypesMap.set(poi.id, poi.name);
+    })
 
     setAppData(initialData);
 

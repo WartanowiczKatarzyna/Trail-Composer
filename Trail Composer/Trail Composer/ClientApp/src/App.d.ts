@@ -21,5 +21,6 @@ import React from "react";
     Countries: CountryListType;
     POITypes: PoiTypeListType;
     CountryNamesMap: Map<number, string>;
+    PoiTypesMap: Map<number, string>;
   }
   declare const AppContext: React.Context<AppContextValueType>;

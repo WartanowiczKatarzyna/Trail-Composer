@@ -37,7 +37,9 @@ export  function PoiTable() {
         latitude: row.latitude,
         countryId: row.countryId,
         subRows: row.subRows,
-        country: appData?.CountryNamesMap?.get(row.countryId) || 'nieznany kraj'
+        country: appData?.CountryNamesMap?.get(row.countryId) || 'nieznany kraj',
+        poiTypeIds: row.poiTypeIds,
+        poiTypes: row.poiTypeIds.map(poiTypeId => appData?.PoiTypesMap?.get(poiTypeId)).join(', ')
       };
     });
   };
@@ -79,6 +81,12 @@ export  function PoiTable() {
         accessorKey: 'country',
         cell: (info: { getValue: () => any; }) => info.getValue(),
         header: () => <span>Kraj</span>,
+        footer: (props: { column: { id: any; }; }) => props.column.id,
+      },
+      {
+        accessorKey: 'poiTypes',
+        cell: (info: { getValue: () => any; }) => info.getValue(),
+        header: () => <span>Typy POI</span>,
         footer: (props: { column: { id: any; }; }) => props.column.id,
       }
     ],
@@ -180,7 +188,7 @@ function LocalTable({
         page={pageIndex}
         slotProps={{
           select: {
-            inputProps: { 'aria-label': 'rows per page' },
+            inputProps: { 'aria-label': 'Liczba widocznych wierszy' },
             native: true,
           },
         }}

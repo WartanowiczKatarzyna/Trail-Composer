@@ -7,6 +7,8 @@ export type RowData = {
   // description: string
   countryId: number
   country?: string
+  poiTypeIds: number[]
+  poiTypes?: string
   subRows?: RowData[]
 }
 
@@ -19,6 +21,11 @@ const range = (len: number) => {
 }
 
 const newRowData = (): RowData => {
+  const poiTypeIdsSize = faker.number.int({min: 1, max: 3});
+  const poiTypeIds : number[] = [];
+  for (let i=1; i<poiTypeIdsSize; i++){
+    poiTypeIds.push(faker.number.int({min: 2, max: 4}));
+  };
   return {
     name: faker.lorem.word({ length: { min: 1, max: 50 } }),
     longitude: faker.number.float({ min: -180, max: 180, fractionDigits: 6 }),
@@ -30,6 +37,7 @@ const newRowData = (): RowData => {
       'Niemcy',
       'Francja',
     ])[0]!,*/
+    poiTypeIds: poiTypeIds
   };
 }
 
