@@ -9,6 +9,7 @@ import TableHead from '@mui/material/TableHead'
 import TableRow from '@mui/material/TableRow'
 import TablePagination from '@mui/material/TablePagination'
 import Paper from '@mui/material/Paper'
+import { Checkbox } from '@mui/material';
 
 import {
   useReactTable,
@@ -88,6 +89,11 @@ export  function PoiTable() {
         cell: (info: { getValue: () => any; }) => info.getValue(),
         header: () => <span>Typy POI</span>,
         footer: (props: { column: { id: any; }; }) => props.column.id,
+      },
+      {
+        id: 'select',
+        cell: () => <Checkbox></Checkbox>,
+        header: () => <span>Select</span>,
       }
     ],
     [appData]
