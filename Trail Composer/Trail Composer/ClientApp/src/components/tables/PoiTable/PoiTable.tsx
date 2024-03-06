@@ -92,7 +92,18 @@ export  function PoiTable() {
       },
       {
         id: 'select',
-        cell: () => <Checkbox></Checkbox>,
+        cell: ({row}) => <Checkbox
+          checked={row.getIsSelected()}
+          disabled={!row.getCanSelect()}
+          indeterminate={row.getIsSomeSelected()}
+          onChange={row.getToggleSelectedHandler()}
+          sx={{
+            color: "#141614",
+            '&.Mui-checked': {
+              color: "#0E901B",
+              },
+          }}
+        />,
         header: () => <span>Select</span>,
       }
     ],
@@ -124,9 +135,15 @@ function LocalTable({
   data: RowData[]
   columns: ColumnDef<RowData>[]
 }) {
+  const [rowSelection, setRowSelection] = React.useState({});
   const table = useReactTable({
     data,
     columns,
+    state: {
+      rowSelection,
+    },
+    enableRowSelection: true,
+    onRowSelectionChange: setRowSelection,
     // Pipeline
     getCoreRowModel: getCoreRowModel(),
     getFilteredRowModel: getFilteredRowModel(),
@@ -208,6 +225,23 @@ function LocalTable({
         ActionsComponent={TablePaginationActions}
       />
       <pre>{JSON.stringify(table.getState().pagination, null, 2)}</pre>
+      <div>
+        {Object.keys(rowSelection).length} of{' '}
+        {table.getPreFilteredRowModel().rows.length} Total Rows Selected
+      </div>
+      <div>
+        <button
+          className="border rounded p-2 mb-2"
+          onClick={() =>
+            console.info(
+              'table.getSelectedRowModel().flatRows',
+              table.getSelectedRowModel().flatRows
+            )
+          }
+        >
+          Log table.getSelectedRowModel().flatRows
+        </button>
+      </div>
     </Box>
   )
 }
