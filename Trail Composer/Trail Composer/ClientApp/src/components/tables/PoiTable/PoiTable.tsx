@@ -18,7 +18,7 @@ import {
   getFilteredRowModel,
   getPaginationRowModel,
   ColumnDef,
-  flexRender, Column,
+  flexRender, Column, Row
 } from '@tanstack/react-table'
 
 import TablePaginationActions from '../actions';
@@ -169,7 +169,20 @@ function LocalTable({
     debugTable: true,
   })
 
-  const { pageSize, pageIndex } = table.getState().pagination
+  const { pageSize, pageIndex } = table.getState().pagination;
+  
+  /*const handleClick = (
+    event: React.MouseEvent<any>,
+    row: Row<RowData>
+    ) => {
+      event.preventDefault();
+      console.log("click row")
+      /*handleContextMenuOpen({
+          mouseX: event.clientX - 2,
+          mouseY: event.clientY - 4,
+          project: row.original
+      });
+    };*/
 
   return (
     <div>
@@ -207,7 +220,11 @@ function LocalTable({
             <TableBody>
               {table.getRowModel().rows.map(row => {
                 return (
-                  <TableRow key={row.id} hover={true}>
+                  <TableRow key={row.id} 
+                    hover={true}
+                    //onContextMenu={event => handleClick(event, row)}
+                    onClick={() => console.log("click row")}
+                  >
                     {row.getVisibleCells().map(cell => {
                       return (
                         <TableCell key={cell.id}>
