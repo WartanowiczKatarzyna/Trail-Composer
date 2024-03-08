@@ -10,6 +10,7 @@ import TableRow from '@mui/material/TableRow'
 import TablePagination from '@mui/material/TablePagination'
 import Paper from '@mui/material/Paper'
 import { Checkbox } from '@mui/material';
+import { Button } from 'reactstrap';
 
 import {
   useReactTable,
@@ -57,6 +58,16 @@ export  function PoiTable() {
     
     setData(() => flattenData(makeData(rowNumFaker.current)));
   }, [appData]);
+
+  function onDelete(): void {
+    console.log("click delete");
+  }
+  function onEdit(): void {
+    console.log("click edit");
+  }
+  function onDetails(): void {
+    console.log("click details");
+  }
 
   const columns = React.useMemo<ColumnDef<RowData>[]>(
     () => [
@@ -116,7 +127,7 @@ export  function PoiTable() {
 
   return (
     <>
-      <LocalTable {...{ data, columns }} />
+      <LocalTable {...{ data, columns, onDelete, onEdit, onDetails }} />
       <hr />
       <div>
         <button onClick={() => rerender()}>Force Rerender</button>
@@ -131,9 +142,15 @@ export  function PoiTable() {
 function LocalTable({
   data,
   columns,
+  onDelete,
+  onEdit,
+  onDetails
 }: {
   data: RowData[]
-  columns: ColumnDef<RowData>[]
+  columns: ColumnDef<RowData>[],
+  onDelete: () => void,
+  onEdit: () => void,
+  onDetails: () => void
 }) {
   const [rowSelection, setRowSelection] = React.useState({});
   const table = useReactTable({
@@ -155,94 +172,99 @@ function LocalTable({
   const { pageSize, pageIndex } = table.getState().pagination
 
   return (
-    <Box sx={{ width: '100%' }}>
-      <TableContainer component={Paper}>
-        <Table sx={{ minWidth: 650 }} aria-label="simple table">
-          <TableHead>
-            {table.getHeaderGroups().map(headerGroup => (
-              <TableRow key={headerGroup.id}>
-                {headerGroup.headers.map(header => {
-                  return (
-                    <TableCell key={header.id} colSpan={header.colSpan}>
-                      {header.isPlaceholder ? null : (
-                        <div>
-                          {flexRender(
-                            header.column.columnDef.header,
-                            header.getContext()
-                          )}
-                          {header.column.getCanFilter() ? (
-                            <div>
-                              <Filter column={header.column} table={table} />
-                            </div>
-                          ) : null}
-                        </div>
-                      )}
-                    </TableCell>
-                  )
-                })}
-              </TableRow>
-            ))}
-          </TableHead>
-          <TableBody>
-            {table.getRowModel().rows.map(row => {
-              return (
-                <TableRow key={row.id}>
-                  {row.getVisibleCells().map(cell => {
+    <div>
+      <Button onClick={onDelete}>Usuń</Button>
+      <Button onClick={onEdit}>Edytuj</Button>
+      <Button onClick={onDetails}>Szczegóły</Button>
+      <Box sx={{ width: '100%' }}>
+        <TableContainer component={Paper}>
+          <Table sx={{ minWidth: 650 }} aria-label="simple table">
+            <TableHead>
+              {table.getHeaderGroups().map(headerGroup => (
+                <TableRow key={headerGroup.id}>
+                  {headerGroup.headers.map(header => {
                     return (
-                      <TableCell key={cell.id}>
-                        {flexRender(
-                          cell.column.columnDef.cell,
-                          cell.getContext()
+                      <TableCell key={header.id} colSpan={header.colSpan}>
+                        {header.isPlaceholder ? null : (
+                          <div>
+                            {flexRender(
+                              header.column.columnDef.header,
+                              header.getContext()
+                            )}
+                            {header.column.getCanFilter() ? (
+                              <div>
+                                <Filter column={header.column} table={table} />
+                              </div>
+                            ) : null}
+                          </div>
                         )}
                       </TableCell>
                     )
                   })}
                 </TableRow>
+              ))}
+            </TableHead>
+            <TableBody>
+              {table.getRowModel().rows.map(row => {
+                return (
+                  <TableRow key={row.id}>
+                    {row.getVisibleCells().map(cell => {
+                      return (
+                        <TableCell key={cell.id}>
+                          {flexRender(
+                            cell.column.columnDef.cell,
+                            cell.getContext()
+                          )}
+                        </TableCell>
+                      )
+                    })}
+                  </TableRow>
+                )
+              })}
+            </TableBody>
+          </Table>
+        </TableContainer>
+        <TablePagination
+          rowsPerPageOptions={[5, 10, 25]}
+          component="div"
+          count={table.getFilteredRowModel().rows.length}
+          rowsPerPage={pageSize}
+          page={pageIndex}
+          slotProps={{
+            select: {
+              inputProps: { 'aria-label': 'Liczba widocznych wierszy' },
+              native: true,
+            },
+          }}
+          onPageChange={(_, page) => {
+            table.setPageIndex(page)
+          }}
+          onRowsPerPageChange={e => {
+            const size = e.target.value ? Number(e.target.value) : 10
+            table.setPageSize(size)
+          }}
+          ActionsComponent={TablePaginationActions}
+        />
+        <pre>{JSON.stringify(table.getState().pagination, null, 2)}</pre>
+        <div>
+          {Object.keys(rowSelection).length} of{' '}
+          {table.getPreFilteredRowModel().rows.length} Total Rows Selected
+        </div>
+        <div>
+          <button
+            className="border rounded p-2 mb-2"
+            onClick={() =>
+              console.info(
+                'table.getSelectedRowModel().flatRows',
+                table.getSelectedRowModel().flatRows
               )
-            })}
-          </TableBody>
-        </Table>
-      </TableContainer>
-      <TablePagination
-        rowsPerPageOptions={[5, 10, 25]}
-        component="div"
-        count={table.getFilteredRowModel().rows.length}
-        rowsPerPage={pageSize}
-        page={pageIndex}
-        slotProps={{
-          select: {
-            inputProps: { 'aria-label': 'Liczba widocznych wierszy' },
-            native: true,
-          },
-        }}
-        onPageChange={(_, page) => {
-          table.setPageIndex(page)
-        }}
-        onRowsPerPageChange={e => {
-          const size = e.target.value ? Number(e.target.value) : 10
-          table.setPageSize(size)
-        }}
-        ActionsComponent={TablePaginationActions}
-      />
-      <pre>{JSON.stringify(table.getState().pagination, null, 2)}</pre>
-      <div>
-        {Object.keys(rowSelection).length} of{' '}
-        {table.getPreFilteredRowModel().rows.length} Total Rows Selected
-      </div>
-      <div>
-        <button
-          className="border rounded p-2 mb-2"
-          onClick={() =>
-            console.info(
-              'table.getSelectedRowModel().flatRows',
-              table.getSelectedRowModel().flatRows
-            )
-          }
-        >
-          Log table.getSelectedRowModel().flatRows
-        </button>
-      </div>
-    </Box>
+            }
+          >
+            Log table.getSelectedRowModel().flatRows
+          </button>
+        </div>
+      </Box>
+    </div>
   )
 }
 
