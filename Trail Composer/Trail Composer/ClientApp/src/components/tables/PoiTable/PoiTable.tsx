@@ -207,7 +207,7 @@ function LocalTable({
             <TableBody>
               {table.getRowModel().rows.map(row => {
                 return (
-                  <TableRow key={row.id}>
+                  <TableRow key={row.id} hover={true}>
                     {row.getVisibleCells().map(cell => {
                       return (
                         <TableCell key={cell.id}>
