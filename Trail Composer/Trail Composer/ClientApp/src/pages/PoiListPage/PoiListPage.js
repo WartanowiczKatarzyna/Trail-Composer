@@ -19,11 +19,21 @@ const PoiListPage = () => {
   const fetchData = () => {
   }
 
+  function onDelete(row) {
+    console.info("click onDelete", row);
+  }
+  function onEdit(row) {
+    console.info("click onEdit", row);
+  }
+  function onRowSelect(row) {
+    console.info("click onRowSelect", row);
+  }
+
   useEffect(() => {
   }, []);
   
   return (
-    <PoiTable />
+    <PoiTable {...{onDelete, onEdit, onRowSelect}}/>
   );
 };
 

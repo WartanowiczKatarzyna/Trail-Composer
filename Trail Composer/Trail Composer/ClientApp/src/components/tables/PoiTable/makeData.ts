@@ -1,7 +1,9 @@
 import { faker } from '@faker-js/faker';
 
 export type RowData = {
+  id: number
   name: string
+  username: string
   longitude: number
   latitude: number
   // description: string
@@ -27,7 +29,9 @@ const newRowData = (): RowData => {
     poiTypeIds.push(faker.number.int({min: 2, max: 4}));
   };
   return {
+    id: faker.number.int({min: 1, max: 4}),
     name: faker.lorem.word({ length: { min: 1, max: 50 } }),
+    username: faker.lorem.word({ length: { min: 1, max: 50 } }),
     longitude: faker.number.float({ min: -180, max: 180, fractionDigits: 6 }),
     latitude: faker.number.float({ min: -90, max: 90, fractionDigits: 6 }),
     //description: faker.lorem.paragraph({min: 0, max:10}),

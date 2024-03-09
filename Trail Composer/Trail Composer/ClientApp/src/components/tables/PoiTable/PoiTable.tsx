@@ -9,8 +9,9 @@ import TableHead from '@mui/material/TableHead'
 import TableRow from '@mui/material/TableRow'
 import TablePagination from '@mui/material/TablePagination'
 import Paper from '@mui/material/Paper'
-import { Checkbox } from '@mui/material';
-import { Button } from 'reactstrap';
+import DeleteIcon from '@mui/icons-material/Delete';
+import EditIcon from '@mui/icons-material/Edit';
+import IconButton from '@mui/material/IconButton';
 
 import {
   useReactTable,
@@ -27,21 +28,31 @@ import {Table as ReactTable} from "@tanstack/table-core/build/lib/types";
 import InputBase from "@mui/material/InputBase";
 import { AppContext, AppContextValueType } from '../../../App';
 
-export  function PoiTable() {
+export  function PoiTable({
+  onDelete,
+  onEdit,
+  onRowSelect
+} : {
+  onDelete?: (row: Row<RowData>) => void | null,
+  onEdit?: (row: Row<RowData>) => void | null,
+  onRowSelect?: (row: Row<RowData>) => void | null
+}) {
   const appData = useContext<AppContextValueType>(AppContext);
   const rowNumFaker = useRef(100000);
   
   function flattenData(freshData: RowData[]): RowData[] {    
     return freshData.map(row => {
       return {
+        id: row.id,
         name: row.name,
+        username: row.username,
         longitude: row.longitude,
         latitude: row.latitude,
         countryId: row.countryId,
         subRows: row.subRows,
-        country: appData?.CountryNamesMap?.get(row.countryId) || 'nieznany kraj',
+        country: appData?.CountryNamesMap?.get(row.countryId) || 'nieznany',
         poiTypeIds: row.poiTypeIds,
-        poiTypes: row.poiTypeIds.map(poiTypeId => appData?.PoiTypesMap?.get(poiTypeId)).join(', ')
+        poiTypes: row.poiTypeIds.map(poiTypeId => appData?.PoiTypesMap?.get(poiTypeId) || 'nieznany').join(', ')
       };
     });
   };
@@ -59,22 +70,24 @@ export  function PoiTable() {
     setData(() => flattenData(makeData(rowNumFaker.current)));
   }, [appData]);
 
-  function onDelete(): void {
-    console.log("click delete");
-  }
-  function onEdit(): void {
-    console.log("click edit");
-  }
-  function onDetails(): void {
-    console.log("click details");
-  }
-
   const columns = React.useMemo<ColumnDef<RowData>[]>(
     () => [
+      {
+        accessorKey: 'id',
+        cell: (info: { getValue: () => any; }) => info.getValue(),
+        header: () => <span>Id</span>,
+        footer: (props: { column: { id: any; }; }) => props.column.id,
+      },
       {
         accessorKey: 'name',
         cell: (info: { getValue: () => any; }) => info.getValue(),
         header: () => <span>Nazwa</span>,
+        footer: (props: { column: { id: any; }; }) => props.column.id,
+      },
+      {
+        accessorKey: 'username',
+        cell: (info: { getValue: () => any; }) => info.getValue(),
+        header: () => <span>Autor</span>,
         footer: (props: { column: { id: any; }; }) => props.column.id,
       },
       {
@@ -102,32 +115,30 @@ export  function PoiTable() {
         footer: (props: { column: { id: any; }; }) => props.column.id,
       },
       {
-        id: 'select',
-        cell: ({row}) => <Checkbox
-          checked={row.getIsSelected()}
-          disabled={!row.getCanSelect()}
-          indeterminate={row.getIsSomeSelected()}
-          onChange={row.getToggleSelectedHandler()}
-          sx={{
-            color: "#141614",
-            '&.Mui-checked': {
-              color: "#0E901B",
-              },
-          }}
-        />,
-        header: () => <span>Select</span>,
+        id: 'actions',
+        cell: ({row}) => (
+          <div>
+            { !!onEdit && (
+              <IconButton
+                onClick={(e) => { e.stopPropagation(); onEdit(row); }}
+                aria-label="delete"><EditIcon />
+              </IconButton>) }
+            { !!onDelete && (
+            <IconButton
+              onClick={(e) => { e.stopPropagation(); onDelete(row); }}
+              aria-label="delete"><DeleteIcon />
+            </IconButton>) }
+          </div>
+        ) ,
+        header: () => <span></span>,
       }
     ],
     [appData]
   );
-  
-  /*data.forEach(row => {
-    console.log(row);
-  });*/
 
   return (
     <>
-      <LocalTable {...{ data, columns, onDelete, onEdit, onDetails }} />
+      <LocalTable {...{ data, columns, onRowSelect }} />
       <hr />
       <div>
         <button onClick={() => rerender()}>Force Rerender</button>
@@ -142,15 +153,11 @@ export  function PoiTable() {
 function LocalTable({
   data,
   columns,
-  onDelete,
-  onEdit,
-  onDetails
+  onRowSelect
 }: {
   data: RowData[]
   columns: ColumnDef<RowData>[],
-  onDelete: () => void,
-  onEdit: () => void,
-  onDetails: () => void
+  onRowSelect?: (row: Row<RowData>) => void | null
 }) {
   const [rowSelection, setRowSelection] = React.useState({});
   const table = useReactTable({
@@ -170,25 +177,9 @@ function LocalTable({
   })
 
   const { pageSize, pageIndex } = table.getState().pagination;
-  
-  /*const handleClick = (
-    event: React.MouseEvent<any>,
-    row: Row<RowData>
-    ) => {
-      event.preventDefault();
-      console.log("click row")
-      /*handleContextMenuOpen({
-          mouseX: event.clientX - 2,
-          mouseY: event.clientY - 4,
-          project: row.original
-      });
-    };*/
 
   return (
     <div>
-      <Button onClick={onDelete}>Usuń</Button>
-      <Button onClick={onEdit}>Edytuj</Button>
-      <Button onClick={onDetails}>Szczegóły</Button>
       <Box sx={{ width: '100%' }}>
         <TableContainer component={Paper}>
           <Table sx={{ minWidth: 650 }} aria-label="simple table">
@@ -221,9 +212,13 @@ function LocalTable({
               {table.getRowModel().rows.map(row => {
                 return (
                   <TableRow key={row.id} 
-                    hover={true}
-                    //onContextMenu={event => handleClick(event, row)}
-                    onClick={() => console.log("click row")}
+                  hover = {!!onRowSelect}
+                  onClick={() => onRowSelect && onRowSelect(row)}
+                  role="checkbox"
+                  aria-checked={row.getIsSelected()}
+                  tabIndex={-1}
+                  selected={row.getIsSelected()}
+                  sx={ onRowSelect && { cursor: 'pointer' }}
                   >
                     {row.getVisibleCells().map(cell => {
                       return (
