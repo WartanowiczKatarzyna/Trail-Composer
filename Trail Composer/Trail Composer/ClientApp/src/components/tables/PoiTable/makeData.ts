@@ -1,18 +1,5 @@
 import { faker } from '@faker-js/faker';
-
-export type RowData = {
-  id: number
-  name: string
-  username: string
-  longitude: number
-  latitude: number
-  // description: string
-  countryId: number
-  country?: string
-  poiTypeIds: number[]
-  poiTypes?: string
-  subRows?: RowData[]
-}
+import { RowData } from './RowData';
 
 const range = (len: number) => {
   const arr: number[] = []
