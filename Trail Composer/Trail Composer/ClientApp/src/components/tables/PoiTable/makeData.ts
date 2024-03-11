@@ -22,14 +22,14 @@ const range = (len: number) => {
   return arr
 }
 
-const newRowData = (): RowData => {
+const newRowData = (d:number): RowData => {
   const poiTypeIdsSize = faker.number.int({min: 1, max: 3});
   const poiTypeIds : number[] = [];
   for (let i=1; i<poiTypeIdsSize; i++){
     poiTypeIds.push(faker.number.int({min: 2, max: 4}));
   };
   return {
-    id: faker.number.int({min: 1, max: 4}),
+    id: d+1000,
     name: faker.lorem.word({ length: { min: 1, max: 50 } }),
     username: faker.lorem.word({ length: { min: 1, max: 50 } }),
     longitude: faker.number.float({ min: -180, max: 180, fractionDigits: 6 }),
@@ -51,7 +51,7 @@ export function makeData(...lens: number[]) {
     return range(len).map((d): RowData => {
       
       return {
-        ...newRowData(),
+        ...newRowData(d),
         subRows: lens[depth + 1] ? makeDataLevel(depth + 1) : undefined,
       }
     })

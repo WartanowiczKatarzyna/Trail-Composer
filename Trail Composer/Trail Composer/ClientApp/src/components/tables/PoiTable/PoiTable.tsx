@@ -1,4 +1,4 @@
-import React, { useContext, useEffect, useRef } from 'react';
+import React, { useContext } from 'react';
 
 import Box from '@mui/material/Box'
 import Table from '@mui/material/Table'
@@ -12,6 +12,9 @@ import Paper from '@mui/material/Paper'
 import DeleteIcon from '@mui/icons-material/Delete';
 import EditIcon from '@mui/icons-material/Edit';
 import IconButton from '@mui/material/IconButton';
+import ArrowDropUpIcon from '@mui/icons-material/ArrowDropUp';
+import ArrowDropDownIcon from '@mui/icons-material/ArrowDropDown';
+
 
 import {
   useReactTable,
@@ -23,52 +26,27 @@ import {
 } from '@tanstack/react-table'
 
 import TablePaginationActions from '../actions';
-import { makeData, RowData } from './makeData';
+import { RowData } from './makeData';
 import {Table as ReactTable} from "@tanstack/table-core/build/lib/types";
 import InputBase from "@mui/material/InputBase";
 import { AppContext, AppContextValueType } from '../../../App';
 
 export  function PoiTable({
+  data,
   onDelete,
   onEdit,
-  onRowSelect
+  onRowSelect,
+  onMoveUp,
+  onMoveDown
 } : {
+  data: RowData[],
   onDelete?: (row: Row<RowData>) => void | null,
   onEdit?: (row: Row<RowData>) => void | null,
-  onRowSelect?: (row: Row<RowData>) => void | null
+  onRowSelect?: (row: Row<RowData>) => void | null,
+  onMoveUp?: (row: Row<RowData>) => void | null,
+  onMoveDown?: (row: Row<RowData>) => void | null
 }) {
   const appData = useContext<AppContextValueType>(AppContext);
-  const rowNumFaker = useRef(100000);
-  
-  function flattenData(freshData: RowData[]): RowData[] {    
-    return freshData.map(row => {
-      return {
-        id: row.id,
-        name: row.name,
-        username: row.username,
-        longitude: row.longitude,
-        latitude: row.latitude,
-        countryId: row.countryId,
-        subRows: row.subRows,
-        country: appData?.CountryNamesMap?.get(row.countryId) || 'nieznany',
-        poiTypeIds: row.poiTypeIds,
-        poiTypes: row.poiTypeIds.map(poiTypeId => appData?.PoiTypesMap?.get(poiTypeId) || 'nieznany').join(', ')
-      };
-    });
-  };
-
-  const [data, setData] = React.useState(() => flattenData(makeData(rowNumFaker.current)));
-  const refreshData = () => setData(() => flattenData(makeData(rowNumFaker.current)));
-
-  const rerender = React.useReducer(() => ({}), {})[1];
-
-  useEffect(() => {
-    console.log(appData);
-    console.log(appData?.POITypes);
-    console.log(appData?.Countries);
-    
-    setData(() => flattenData(makeData(rowNumFaker.current)));
-  }, [appData]);
 
   const columns = React.useMemo<ColumnDef<RowData>[]>(
     () => [
@@ -115,13 +93,25 @@ export  function PoiTable({
         footer: (props: { column: { id: any; }; }) => props.column.id,
       },
       {
-        id: 'actions',
+        accessorKey: 'actions',
         cell: ({row}) => (
-          <div>
+          <div style={{display: 'inline-flex'}}>
+            { !!onMoveUp && (
+              <IconButton
+                onClick={(e) => { e.stopPropagation(); onMoveUp(row); }}
+                aria-label="move up">
+                <ArrowDropUpIcon />
+              </IconButton>) }
+            { !!onMoveDown && (
+              <IconButton
+                onClick={(e) => { e.stopPropagation(); onMoveDown(row); }}
+                aria-label="move down">
+                <ArrowDropDownIcon />
+              </IconButton>) }
             { !!onEdit && (
               <IconButton
                 onClick={(e) => { e.stopPropagation(); onEdit(row); }}
-                aria-label="delete"><EditIcon />
+                aria-label="edit"><EditIcon />
               </IconButton>) }
             { !!onDelete && (
             <IconButton
@@ -136,18 +126,7 @@ export  function PoiTable({
     [appData]
   );
 
-  return (
-    <>
-      <LocalTable {...{ data, columns, onRowSelect }} />
-      <hr />
-      <div>
-        <button onClick={() => rerender()}>Force Rerender</button>
-      </div>
-      <div>
-        <button onClick={() => refreshData()}>Refresh Data</button>
-      </div>
-    </>
-  )
+  return (<LocalTable {...{ data, columns, onRowSelect }} />)
 }
 
 function LocalTable({
@@ -170,6 +149,7 @@ function LocalTable({
     onRowSelectionChange: setRowSelection,
     // Pipeline
     getCoreRowModel: getCoreRowModel(),
+    getRowId: row => row.id.toString(),
     getFilteredRowModel: getFilteredRowModel(),
     getPaginationRowModel: getPaginationRowModel(),
     //
@@ -222,7 +202,7 @@ function LocalTable({
                   >
                     {row.getVisibleCells().map(cell => {
                       return (
-                        <TableCell key={cell.id}>
+                        <TableCell key={cell.id} align={'center'}>
                           {flexRender(
                             cell.column.columnDef.cell,
                             cell.getContext()
@@ -292,6 +272,8 @@ function Filter({
     .flatRows[0]?.getValue(column.id)
 
   const columnFilterValue = column.getFilterValue()
+
+  if(column.id === 'actions') return (<div></div>)
 
   return typeof firstValue === 'number' ? (
     <div className="d-flex table-filter-space-x-2">

@@ -1,4 +1,4 @@
-import { useState, useContext, useEffect, useRef } from 'react';
+import React, { useState, useContext, useEffect, useRef } from 'react';
 import { useNavigate, useParams } from 'react-router-dom';
 import { Button, Label, Col, Row, Container } from 'reactstrap';
 import { useMsal, useAccount, useIsAuthenticated } from "@azure/msal-react";
@@ -9,12 +9,85 @@ import { PoiTable } from '../../components/tables/PoiTable/PoiTable.tsx';
 
 import App, { AppContext } from '../../App.js';
 
+import { makeData } from "../../components/tables/PoiTable/makeData.ts";
+
 const PoiListPage = () => {
   const appData = useContext(AppContext);
   const { instance: pca, accounts } = useMsal();
   const account = useAccount(accounts[0] || {});
 
   const navigate = useNavigate();
+  const rowNumFaker = useRef(10);
+
+  function flattenData(freshData){
+    return freshData.map(row => {
+      return {
+        id: row.id,
+        name: row.name,
+        username: row.username,
+        longitude: row.longitude,
+        latitude: row.latitude,
+        countryId: row.countryId,
+        subRows: row.subRows,
+        country: appData?.CountryNamesMap?.get(row.countryId) || 'nieznany',
+        poiTypeIds: row.poiTypeIds,
+        poiTypes: row.poiTypeIds.map(poiTypeId => appData?.PoiTypesMap?.get(poiTypeId) || 'nieznany').join(', ')
+      };
+    });
+  };
+
+  const [data, setData] = React.useState(() => flattenData(makeData(rowNumFaker.current)));
+  const refreshData = () => setData(() => flattenData(makeData(rowNumFaker.current)));
+  const rerender = React.useReducer(() => ({}), {})[1];
+
+  useEffect(() => {
+
+  }, []);
+
+  useEffect(() => {
+    console.log(appData);
+    console.log(appData?.POITypes);
+    console.log(appData?.Countries);
+    setData(() => flattenData(makeData(rowNumFaker.current)));
+  }, [appData]);
+
+  function colIdMap(dataTab) {
+    const m = new Map();
+    dataTab.forEach((row, index) => {
+      m.set(row.id.toString(), index);
+    });
+    return m;
+  }
+  function move(dataTab, index, newIndex) {
+    const rowTemporary = dataTab[newIndex];
+    dataTab[newIndex] = dataTab[index];
+    dataTab[index] = rowTemporary;
+  }
+
+  function moveUp(dataTab, row) {
+    console.info(`click onMoveUp`, row);
+    const index = colIdMap(dataTab).get(row.id);
+    if(typeof index === 'undefined' || index <= 0) return;
+    const  newIndex =  index - 1 ;
+    move(dataTab, index, newIndex);
+  }
+
+  function moveDown(dataTab,row) {
+    console.info(`click onMoveDown`, row);
+    const index = colIdMap(dataTab).get(row.id);
+    if(typeof index === 'undefined' || index >= dataTab.length - 1) return;
+    const  newIndex =  index + 1 ;
+    move(dataTab, index, newIndex);
+  }
+  function onMoveUp(row) {
+    moveUp(data, row);
+    setData(() => [...data]);
+  }
+
+  function onMoveDown(row) {
+    moveDown(data, row);
+    setData(() => [...data]);
+  }
 
   const fetchData = () => {
   }
@@ -33,8 +106,18 @@ const PoiListPage = () => {
   }, []);
   
   return (
-    <PoiTable {...{onDelete, onEdit, onRowSelect}}/>
-  );
+    <>
+      <PoiTable {...{data, onDelete, onEdit, onRowSelect, onMoveUp, onMoveDown}}/>
+      <hr/>
+      <div>
+        <button onClick={() => rerender()}>Force Rerender</button>
+      </div>
+      <div>
+        <button onClick={() => refreshData()}>Refresh Data</button>
+      </div>
+    </>
+)
+  ;
 };
 
 PoiListPage.propTypes = {};
