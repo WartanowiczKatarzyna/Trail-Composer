@@ -33,6 +33,25 @@ namespace Trail_Composer.Controllers
             return Ok(poi);
         }
 
+        [HttpGet]
+        public async Task<ActionResult> GetFilteredPOIList(int countryId, [FromQuery] double[] latitudes, [FromQuery] double[] longitudes)
+        {
+            return Ok();
+        }
+
+        [HttpGet]
+        public async Task<ActionResult> GetPOIListBySegments([FromQuery] int[] segmentIds)
+        {
+            return Ok();
+        }
+
+        //[Authorize]
+        [HttpGet("/user")]
+        public async Task<ActionResult> GetPOIListByUser()
+        {
+            return Ok();
+        }
+
         [Authorize]
         [HttpPost]
         [Consumes("multipart/form-data")]
