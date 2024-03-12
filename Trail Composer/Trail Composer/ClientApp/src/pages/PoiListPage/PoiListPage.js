@@ -40,6 +40,9 @@ const PoiListPage = () => {
   const [data, setData] = React.useState(() => flattenData(makeData(rowNumFaker.current)));
   const refreshData = () => setData(() => flattenData(makeData(rowNumFaker.current)));
   const rerender = React.useReducer(() => ({}), {})[1];
+  const hiddenColumns = {
+    'id': false
+  }
 
   useEffect(() => {
 
@@ -81,7 +84,7 @@ const PoiListPage = () => {
   
   return (
     <>
-      <PoiTable {...{data, onDelete, onEdit, onRowSelect, onMoveUp, onMoveDown}}/>
+      <PoiTable {...{data, onDelete, onEdit, onRowSelect, onMoveUp, onMoveDown, hiddenColumns}}/>
       <hr/>
       <div>
         <button onClick={() => rerender()}>Force Rerender</button>

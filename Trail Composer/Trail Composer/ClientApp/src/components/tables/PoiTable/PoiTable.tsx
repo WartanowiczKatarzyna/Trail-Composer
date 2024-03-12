@@ -11,6 +11,7 @@ import { ColumnDef, Row } from '@tanstack/react-table'
 import { RowData } from './RowData';
 import { AppContext, AppContextValueType } from '../../../App';
 import { LocalTable } from '../LocalTable/LocalTable';
+import { ColumnVisibility } from '../LocalTable/ColumnVisibility';
 
 export  function PoiTable({
   data,
@@ -18,14 +19,16 @@ export  function PoiTable({
   onEdit,
   onRowSelect,
   onMoveUp,
-  onMoveDown
+  onMoveDown,
+  hiddenColumns
 } : {
   data: RowData[],
   onDelete?: (row: Row<RowData>) => void | null,
   onEdit?: (row: Row<RowData>) => void | null,
   onRowSelect?: (row: Row<RowData>) => void | null,
   onMoveUp?: (row: Row<RowData>) => void | null,
-  onMoveDown?: (row: Row<RowData>) => void | null
+  onMoveDown?: (row: Row<RowData>) => void | null,
+  hiddenColumns?: ColumnVisibility
 }) {
   const appData = useContext<AppContextValueType>(AppContext);
 
@@ -107,5 +110,5 @@ export  function PoiTable({
     [appData]
   );
 
-  return (<LocalTable<RowData> {...{ data, columns, onRowSelect }} />)
+  return (<LocalTable<RowData> {...{ data, columns, onRowSelect, hiddenColumns }} />)
 }

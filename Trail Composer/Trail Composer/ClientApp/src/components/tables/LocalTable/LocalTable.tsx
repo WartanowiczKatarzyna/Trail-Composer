@@ -23,20 +23,26 @@ import TablePaginationActions from '../actions';
 import {Table as ReactTable} from "@tanstack/table-core/build/lib/types";
 import InputBase from "@mui/material/InputBase";
 import { WithId } from './WithId';
+import { ColumnVisibility } from './ColumnVisibility';
 
 export function LocalTable<T extends WithId>({
     data,
     columns,
-    onRowSelect
+    onRowSelect,
+    hiddenColumns
   }: {
     data: T[]
     columns: ColumnDef<T>[],
     onRowSelect?: (row: Row<T>) => void | null
+    hiddenColumns?: ColumnVisibility
   }) {
     const [rowSelection, setRowSelection] = React.useState({});
     const table = useReactTable({
       data,
       columns,
+      initialState: {
+        columnVisibility: hiddenColumns
+      },
       state: {
         rowSelection,
       },
