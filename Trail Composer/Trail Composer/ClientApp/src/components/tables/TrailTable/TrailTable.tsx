@@ -8,12 +8,12 @@ import ArrowDropDownIcon from '@mui/icons-material/ArrowDropDown';
 
 import { ColumnDef, Row } from '@tanstack/react-table'
 
-import { PoiRowData } from './PoiRowData';
+import { TrailRowData } from './TrailRowData';
 import { AppContext, AppContextValueType } from '../../../App';
 import { LocalTable } from '../LocalTable/LocalTable';
 import { ColumnVisibility } from '../LocalTable/ColumnVisibility';
 
-export  function PoiTable({
+export  function TrailTable({
   data,
   onDelete,
   onEdit,
@@ -22,17 +22,17 @@ export  function PoiTable({
   onMoveDown,
   hiddenColumns
 } : {
-  data: PoiRowData[],
-  onDelete?: (row: Row<PoiRowData>) => void | null,
-  onEdit?: (row: Row<PoiRowData>) => void | null,
-  onRowSelect?: (row: Row<PoiRowData>) => void | null,
-  onMoveUp?: (row: Row<PoiRowData>) => void | null,
-  onMoveDown?: (row: Row<PoiRowData>) => void | null,
+  data: TrailRowData[],
+  onDelete?: (row: Row<TrailRowData>) => void | null,
+  onEdit?: (row: Row<TrailRowData>) => void | null,
+  onRowSelect?: (row: Row<TrailRowData>) => void | null,
+  onMoveUp?: (row: Row<TrailRowData>) => void | null,
+  onMoveDown?: (row: Row<TrailRowData>) => void | null,
   hiddenColumns?: ColumnVisibility
 }) {
   const appData = useContext<AppContextValueType>(AppContext);
 
-  const columns = React.useMemo<ColumnDef<PoiRowData>[]>(
+  const columns = React.useMemo<ColumnDef<TrailRowData>[]>(
     () => [
       {
         accessorKey: 'id',
@@ -53,15 +53,15 @@ export  function PoiTable({
         footer: (props: { column: { id: any; }; }) => props.column.id,
       },
       {
-        accessorKey: 'latitude',
+        accessorKey: 'length',
         cell: (info: { getValue: () => any; }) => info.getValue(),
-        header: () => <span>Szerokość geograficzna</span>,
+        header: () => <span>Długość</span>,
         footer: (props: { column: { id: any; }; }) => props.column.id,
       },
       {
-        accessorKey: 'longitude',
+        accessorKey: 'level',
         cell: (info: { getValue: () => any; }) => info.getValue(),
-        header: () => <span>Długość geograficzna</span>,
+        header: () => <span>Poziom trudności</span>,
         footer: (props: { column: { id: any; }; }) => props.column.id,
       },
       {
@@ -71,9 +71,9 @@ export  function PoiTable({
         footer: (props: { column: { id: any; }; }) => props.column.id,
       },
       {
-        accessorKey: 'poiTypes',
+        accessorKey: 'trailTypes',
         cell: (info: { getValue: () => any; }) => info.getValue(),
-        header: () => <span>Typy POI</span>,
+        header: () => <span>Typ odcinka</span>,
         footer: (props: { column: { id: any; }; }) => props.column.id,
       },
       {
@@ -110,5 +110,5 @@ export  function PoiTable({
     [appData]
   );
 
-  return (<LocalTable<PoiRowData> {...{ data, columns, onRowSelect, hiddenColumns }} />)
+  return (<LocalTable<TrailRowData> {...{ data, columns, onRowSelect, hiddenColumns }} />)
 }

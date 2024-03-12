@@ -1,5 +1,5 @@
 import { faker } from '@faker-js/faker';
-import { RowData } from './RowData';
+import { PoiRowData } from './PoiRowData';
 
 const range = (len: number) => {
   const arr: number[] = []
@@ -9,7 +9,7 @@ const range = (len: number) => {
   return arr
 }
 
-const newRowData = (d:number): RowData => {
+const newRowData = (d:number): PoiRowData => {
   const poiTypeIdsSize = faker.number.int({min: 1, max: 3});
   const poiTypeIds : number[] = [];
   for (let i=1; i<poiTypeIdsSize; i++){
@@ -33,9 +33,9 @@ const newRowData = (d:number): RowData => {
 }
 
 export function makeData(...lens: number[]) {
-  const makeDataLevel = (depth = 0): RowData[] => {
+  const makeDataLevel = (depth = 0): PoiRowData[] => {
     const len = lens[depth]!
-    return range(len).map((d): RowData => {
+    return range(len).map((d): PoiRowData => {
       
       return {
         ...newRowData(d),

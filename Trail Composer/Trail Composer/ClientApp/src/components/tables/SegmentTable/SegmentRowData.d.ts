@@ -1,15 +1,14 @@
 import { WithId } from "../LocalTable/WithId";
 
-export interface RowData extends WithId {
+export interface SegmentRowData extends WithId {
   id: number
   name: string
   username: string
-  longitude: number
-  latitude: number
-  // description: string
+  length: number
   countryId: number
   country?: string
-  poiTypeIds: number[]
-  poiTypes?: string
+  segmentTypeIds: number[]
+  segmentTypes?: string
   subRows?: RowData[]
+  level: string
 }
