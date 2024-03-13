@@ -11,6 +11,8 @@ public partial class TrailSegment
 
     public int SegmentId { get; set; }
 
+    public int SegmentOrder { get; set; }
+
     public virtual Segment Segment { get; set; } = null!;
 
     public virtual Trail Trail { get; set; } = null!;

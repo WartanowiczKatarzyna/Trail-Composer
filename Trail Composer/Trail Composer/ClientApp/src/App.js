@@ -27,7 +27,7 @@ const App = () => {
       PoiTypesMap: new Map()
     };
 
-    //initialData.CountryNamesMap = new Map();
+    /*//initialData.CountryNamesMap = new Map();
     initialData.Countries.forEach(country => {
       initialData.CountryNamesMap.set(country.id, country.countryName);
     });
@@ -35,10 +35,10 @@ const App = () => {
       initialData.PoiTypesMap.set(poi.id, poi.name);
     })
 
-    setAppData(initialData);
+    setAppData(initialData);*/
 
     // Function to fetch data from tc-api/country
-    /*const fetchCountries = () => fetch("tc-api/country").then(response => response.json());
+    const fetchCountries = () => fetch("tc-api/country").then(response => response.json());
 
     // Function to fetch data from tc-api/poi-type
     const fetchPOITypes = () => fetch("tc-api/poi-type").then(response => response.json());
@@ -55,11 +55,16 @@ const App = () => {
           initialData.CountryNamesMap.set(country.id, country.countryName);
         });
 
+        initialData.PoiTypesMap = new Map();
+        initialData.POITypes.forEach(poiType => {
+          initialData.PoiTypesMap.set(poiType.id, poiType.name);
+        });
+
         setAppData(initialData);
       })
       .catch(error => {
         console.error('Error:', error);
-      });*/
+      });
 
   }, []);
 

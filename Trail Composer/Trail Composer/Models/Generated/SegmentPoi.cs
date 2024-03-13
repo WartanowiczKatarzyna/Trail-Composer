@@ -11,6 +11,8 @@ public partial class SegmentPoi
 
     public int PoiId { get; set; }
 
+    public int PoiOrder { get; set; }
+
     public virtual Poi Poi { get; set; } = null!;
 
     public virtual Segment Segment { get; set; } = null!;

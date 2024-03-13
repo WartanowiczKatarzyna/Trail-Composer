@@ -36,6 +36,8 @@ public partial class TrailComposerDbContext : DbContext
 
     public virtual DbSet<SegmentType> SegmentTypes { get; set; }
 
+    public virtual DbSet<Tcuser> Tcusers { get; set; }
+
     public virtual DbSet<Trail> Trails { get; set; }
 
     public virtual DbSet<TrailCountry> TrailCountries { get; set; }
@@ -63,9 +65,8 @@ public partial class TrailComposerDbContext : DbContext
                 .IsFixedLength()
                 .HasColumnName("country_code");
             entity.Property(e => e.CountryName)
-                .HasMaxLength(255)
+                .HasMaxLength(256)
                 .IsUnicode(false)
-                .IsFixedLength()
                 .HasColumnName("country_name");
         });
 
@@ -103,7 +104,6 @@ public partial class TrailComposerDbContext : DbContext
 
             entity.Property(e => e.Id).HasColumnName("id");
             entity.Property(e => e.CountryId).HasColumnName("Country_id");
-            entity.Property(e => e.Deleted).HasColumnName("deleted");
             entity.Property(e => e.Description)
                 .HasColumnType("text")
                 .HasColumnName("description");
@@ -126,6 +126,11 @@ public partial class TrailComposerDbContext : DbContext
                 .HasForeignKey(d => d.CountryId)
                 .OnDelete(DeleteBehavior.ClientSetNull)
                 .HasConstraintName("POI_Country");
+
+            entity.HasOne(d => d.Tcuser).WithMany(p => p.Pois)
+                .HasForeignKey(d => d.TcuserId)
+                .OnDelete(DeleteBehavior.ClientSetNull)
+                .HasConstraintName("POI_User");
         });
 
         modelBuilder.Entity<PoiPoitype>(entity =>
@@ -156,7 +161,6 @@ public partial class TrailComposerDbContext : DbContext
             entity.ToTable("POIPhoto");
 
             entity.Property(e => e.Id).HasColumnName("id");
-            entity.Property(e => e.Deleted).HasColumnName("deleted");
             entity.Property(e => e.Photo).HasColumnName("photo");
             entity.Property(e => e.PoiId).HasColumnName("POI_id");
 
@@ -187,7 +191,6 @@ public partial class TrailComposerDbContext : DbContext
 
             entity.Property(e => e.Id).HasColumnName("id");
             entity.Property(e => e.CountryId).HasColumnName("Country_id");
-            entity.Property(e => e.Deleted).HasColumnName("deleted");
             entity.Property(e => e.Desciption)
                 .HasColumnType("text")
                 .HasColumnName("desciption");
@@ -196,6 +199,10 @@ public partial class TrailComposerDbContext : DbContext
                 .HasColumnName("gpx_file");
             entity.Property(e => e.Length).HasColumnName("length");
             entity.Property(e => e.LevelId).HasColumnName("Level_id");
+            entity.Property(e => e.Name)
+                .HasMaxLength(50)
+                .IsUnicode(false)
+                .HasColumnName("name");
             entity.Property(e => e.TcuserId)
                 .HasMaxLength(256)
                 .IsUnicode(false)
@@ -210,6 +217,11 @@ public partial class TrailComposerDbContext : DbContext
                 .HasForeignKey(d => d.LevelId)
                 .OnDelete(DeleteBehavior.ClientSetNull)
                 .HasConstraintName("Segment_Level");
+
+            entity.HasOne(d => d.Tcuser).WithMany(p => p.Segments)
+                .HasForeignKey(d => d.TcuserId)
+                .OnDelete(DeleteBehavior.ClientSetNull)
+                .HasConstraintName("Segment_User");
         });
 
         modelBuilder.Entity<SegmentPoi>(entity =>
@@ -220,6 +232,7 @@ public partial class TrailComposerDbContext : DbContext
 
             entity.Property(e => e.Id).HasColumnName("id");
             entity.Property(e => e.PoiId).HasColumnName("POI_id");
+            entity.Property(e => e.PoiOrder).HasColumnName("poi_order");
             entity.Property(e => e.SegmentId).HasColumnName("Segment_id");
 
             entity.HasOne(d => d.Poi).WithMany(p => p.SegmentPois)
@@ -254,20 +267,36 @@ public partial class TrailComposerDbContext : DbContext
                 .HasConstraintName("Segment_Type_Segment");
         });
 
+        modelBuilder.Entity<Tcuser>(entity =>
+        {
+            entity.HasKey(e => e.Id).HasName("TCUser_pk");
+
+            entity.ToTable("TCUser");
+
+            entity.Property(e => e.Id)
+                .HasMaxLength(256)
+                .IsUnicode(false)
+                .HasColumnName("id");
+            entity.Property(e => e.Name)
+                .IsUnicode(false)
+                .HasColumnName("name");
+        });
+
         modelBuilder.Entity<Trail>(entity =>
         {
             entity.HasKey(e => e.Id).HasName("Trail_pk");
 
             entity.ToTable("Trail");
 
-            entity.Property(e => e.Id)
-                .ValueGeneratedNever()
-                .HasColumnName("id");
-            entity.Property(e => e.Deleted).HasColumnName("deleted");
+            entity.Property(e => e.Id).HasColumnName("id");
             entity.Property(e => e.Description)
                 .HasColumnType("text")
                 .HasColumnName("description");
             entity.Property(e => e.LevelId).HasColumnName("Level_id");
+            entity.Property(e => e.Name)
+                .HasMaxLength(50)
+                .IsUnicode(false)
+                .HasColumnName("name");
             entity.Property(e => e.TcuserId)
                 .HasMaxLength(256)
                 .IsUnicode(false)
@@ -278,6 +307,11 @@ public partial class TrailComposerDbContext : DbContext
                 .HasForeignKey(d => d.LevelId)
                 .OnDelete(DeleteBehavior.ClientSetNull)
                 .HasConstraintName("Trail_Level");
+
+            entity.HasOne(d => d.Tcuser).WithMany(p => p.Trails)
+                .HasForeignKey(d => d.TcuserId)
+                .OnDelete(DeleteBehavior.ClientSetNull)
+                .HasConstraintName("Trail_User");
         });
 
         modelBuilder.Entity<TrailCountry>(entity =>
@@ -286,9 +320,7 @@ public partial class TrailComposerDbContext : DbContext
 
             entity.ToTable("Trail_Country");
 
-            entity.Property(e => e.Id)
-                .ValueGeneratedNever()
-                .HasColumnName("id");
+            entity.Property(e => e.Id).HasColumnName("id");
             entity.Property(e => e.CountryId).HasColumnName("Country_id");
             entity.Property(e => e.TrailId).HasColumnName("Trail_id");
 
@@ -309,10 +341,9 @@ public partial class TrailComposerDbContext : DbContext
 
             entity.ToTable("Trail_Segment");
 
-            entity.Property(e => e.Id)
-                .ValueGeneratedNever()
-                .HasColumnName("id");
+            entity.Property(e => e.Id).HasColumnName("id");
             entity.Property(e => e.SegmentId).HasColumnName("Segment_id");
+            entity.Property(e => e.SegmentOrder).HasColumnName("segment_order");
             entity.Property(e => e.TrailId).HasColumnName("Trail_id");
 
             entity.HasOne(d => d.Segment).WithMany(p => p.TrailSegments)
@@ -332,9 +363,7 @@ public partial class TrailComposerDbContext : DbContext
 
             entity.ToTable("Trail_Type");
 
-            entity.Property(e => e.Id)
-                .ValueGeneratedNever()
-                .HasColumnName("id");
+            entity.Property(e => e.Id).HasColumnName("id");
             entity.Property(e => e.PathTypeId).HasColumnName("PathType_id");
             entity.Property(e => e.TrailId).HasColumnName("Trail_id");
 

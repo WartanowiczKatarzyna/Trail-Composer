@@ -11,7 +11,5 @@ public partial class Poiphoto
 
     public byte[] Photo { get; set; } = null!;
 
-    public bool Deleted { get; set; }
-
     public virtual Poi Poi { get; set; } = null!;
 }

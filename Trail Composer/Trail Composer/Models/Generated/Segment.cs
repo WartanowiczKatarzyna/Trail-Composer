@@ -13,13 +13,13 @@ public partial class Segment
 
     public int CountryId { get; set; }
 
+    public string Name { get; set; } = null!;
+
     public int Length { get; set; }
 
     public string? Desciption { get; set; }
 
     public string GpxFile { get; set; } = null!;
-
-    public bool Deleted { get; set; }
 
     public virtual Country Country { get; set; } = null!;
 
@@ -28,6 +28,8 @@ public partial class Segment
     public virtual ICollection<SegmentPoi> SegmentPois { get; set; } = new List<SegmentPoi>();
 
     public virtual ICollection<SegmentType> SegmentTypes { get; set; } = new List<SegmentType>();
+
+    public virtual Tcuser Tcuser { get; set; } = null!;
 
     public virtual ICollection<TrailSegment> TrailSegments { get; set; } = new List<TrailSegment>();
 }

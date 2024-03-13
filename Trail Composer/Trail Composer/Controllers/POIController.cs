@@ -5,7 +5,6 @@ using Microsoft.EntityFrameworkCore;
 using Trail_Composer.Models.Services;
 using Trail_Composer.Models.DTOs;
 using Microsoft.AspNetCore.Authorization;
-using Trail_Composer.Controllers.Utils;
 
 namespace Trail_Composer.Controllers
 {
@@ -33,8 +32,8 @@ namespace Trail_Composer.Controllers
             return Ok(poi);
         }
 
-        [HttpGet]
-        public async Task<ActionResult> GetFilteredPOIList(int countryId, [FromQuery] double[] latitudes, [FromQuery] double[] longitudes)
+        [HttpGet("/user")]
+        public async Task<ActionResult> GetPOIListByUser()
         {
             return Ok();
         }
@@ -45,12 +44,11 @@ namespace Trail_Composer.Controllers
             return Ok();
         }
 
-        //[Authorize]
-        [HttpGet("/user")]
-        public async Task<ActionResult> GetPOIListByUser()
+        [HttpGet]
+        public async Task<ActionResult> GetFilteredPOIList(int countryId, bool owned, [FromQuery] double[] latitudes, [FromQuery] double[] longitudes)
         {
             return Ok();
-        }
+        }             
 
         [Authorize]
         [HttpPost]
@@ -59,11 +57,11 @@ namespace Trail_Composer.Controllers
         // Also adds photos to database
         public async Task<ActionResult> CreatePOI([FromForm]PoiFromAPI poi)
         {
-            var userId = UserId.GetUserIdFromContext(this.HttpContext);
-            if (userId == null)
+            var user = TCUserDTO.GetUserFromContext(this.HttpContext);
+            if (user == null)
                 return StatusCode(401, "Authenticated but not authorized");
 
-            var newPoiId = await _poiService.AddPoiAsync(poi, userId);
+            var newPoiId = await _poiService.AddPoiAsync(poi, user);
 
             if (newPoiId > -1)
                 return new CreatedResult($"/tc-api/poi/{newPoiId}", newPoiId);
@@ -92,7 +90,7 @@ namespace Trail_Composer.Controllers
         [HttpDelete("{id}")]
         public async Task<IActionResult> DeletePOI(int id)
         {
-            var userId = UserId.GetUserIdFromContext(this.HttpContext);
+            var userId = TCUserDTO.GetUserIdFromContext(this.HttpContext);
             bool deletedSuccess = await _poiService.DeletePoiAsync(id, userId);
 
             if (deletedSuccess)

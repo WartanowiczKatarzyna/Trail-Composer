@@ -19,8 +19,6 @@ public partial class Poi
 
     public string? Description { get; set; }
 
-    public bool Deleted { get; set; }
-
     public virtual Country Country { get; set; } = null!;
 
     public virtual ICollection<PoiPoitype> PoiPoitypes { get; set; } = new List<PoiPoitype>();
@@ -28,4 +26,6 @@ public partial class Poi
     public virtual ICollection<Poiphoto> Poiphotos { get; set; } = new List<Poiphoto>();
 
     public virtual ICollection<SegmentPoi> SegmentPois { get; set; } = new List<SegmentPoi>();
+
+    public virtual Tcuser Tcuser { get; set; } = null!;
 }

@@ -11,13 +11,15 @@ public partial class Trail
 
     public int LevelId { get; set; }
 
+    public string Name { get; set; } = null!;
+
     public int TotalLength { get; set; }
 
     public string? Description { get; set; }
 
-    public bool Deleted { get; set; }
-
     public virtual PathLevel Level { get; set; } = null!;
+
+    public virtual Tcuser Tcuser { get; set; } = null!;
 
     public virtual ICollection<TrailCountry> TrailCountries { get; set; } = new List<TrailCountry>();
 

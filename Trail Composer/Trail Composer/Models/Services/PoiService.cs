@@ -2,7 +2,6 @@
 using System.Diagnostics.Metrics;
 using System.Linq;
 using System.Threading.Tasks.Dataflow;
-using Trail_Composer.Controllers.Utils;
 using Trail_Composer.Data;
 using Trail_Composer.Models.DTOs;
 using Trail_Composer.Models.Generated;
@@ -22,12 +21,12 @@ namespace Trail_Composer.Models.Services
             _context = context;
         }
 
-        public async Task<PoiToAPI> GetPoiByIdAsync (int id)
+        public async Task<PoiToApiDetails> GetPoiByIdAsync (int id)
         {
             var poi = await _context.Pois
                 .Include(poi => poi.PoiPoitypes)
                 .Include(poi => poi.Poiphotos)
-                .Select(poi => new PoiToAPI
+                .Select(poi => new PoiToApiDetails
                 {
                     Id = poi.Id,
                     TcuserId = poi.TcuserId,
@@ -45,19 +44,30 @@ namespace Trail_Composer.Models.Services
             return poi;
         }
 
-        public async Task<int> AddPoiAsync (PoiFromAPI poi, string userId) 
+        public async Task<int> AddPoiAsync (PoiFromAPI poi, TCUserDTO user) 
         {
             using var transaction = await _context.Database.BeginTransactionAsync();
             try
             {
                 var country = await _context.Countries.FindAsync(poi.CountryId);
+                var tcuser = await _context.Tcusers.FindAsync(user.Id);
+
+                if (tcuser == null)
+                {
+                    tcuser = new Tcuser
+                    {
+                        Id = user.Id,
+                        Name = user.Name
+                    };
+                    _context.Tcusers.Add(tcuser);
+                }
 
                 if ( country != null)
                 {
                     // adding Poi
                     var newPoi = new Poi
                     {
-                        TcuserId = userId,
+                        TcuserId = user.Id,
                         CountryId = poi.CountryId,
                         Name = poi.Name,
                         Latitude = poi.Latitude,
