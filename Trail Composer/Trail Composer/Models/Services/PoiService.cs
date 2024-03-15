@@ -59,7 +59,7 @@ namespace Trail_Composer.Models.Services
                     Latitude = poi.Latitude,
                     Longitude = poi.Longitude,
                     CountryId = poi.CountryId,
-                    PoiTypes = poi.PoiPoitypes.Select(poiPoiType => poiPoiType.Poitype).Select(poiType => poiType.Id).ToList()
+                    PoiTypeIds = poi.PoiPoitypes.Select(poiPoiType => poiPoiType.Poitype).Select(poiType => poiType.Id).ToList()
                 })
                 .Where(poi => poi.TcuserId == userId)
                 .ToListAsync();
