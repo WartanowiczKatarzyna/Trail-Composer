@@ -44,6 +44,28 @@ namespace Trail_Composer.Models.Services
             return poi;
         }
 
+        public async Task<IEnumerable<PoiListElementToApi>> GetUserPoiListAsync (string userId)
+        {
+            var poiList = await _context.Pois
+                .Include(poi => poi.PoiPoitypes)
+                .Include(poi => poi.Poiphotos)
+                .Include(poi => poi.Tcuser)
+                .Select(poi => new PoiListElementToApi
+                {
+                    Id = poi.Id,
+                    TcuserId = poi.TcuserId,
+                    Username = poi.Tcuser.Name,
+                    Name = poi.Name,
+                    Latitude = poi.Latitude,
+                    Longitude = poi.Longitude,
+                    CountryId = poi.CountryId,
+                    PoiTypes = poi.PoiPoitypes.Select(poiPoiType => poiPoiType.Poitype).Select(poiType => poiType.Id).ToList()
+                })
+                .Where(poi => poi.TcuserId == userId)
+                .ToListAsync();
+
+            return poiList;
+        }
         public async Task<int> AddPoiAsync (PoiFromAPI poi, TCUserDTO user) 
         {
             using var transaction = await _context.Database.BeginTransactionAsync();
@@ -134,6 +156,7 @@ namespace Trail_Composer.Models.Services
 
             return -1;
         }
+        
         public async Task<bool> EditPoiAsync(int poiId, PoiFromAPI poiApi, string userId)
         {
             using var transaction = await _context.Database.BeginTransactionAsync();

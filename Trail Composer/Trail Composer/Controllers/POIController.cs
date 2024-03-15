@@ -21,7 +21,7 @@ namespace Trail_Composer.Controllers
             _poiService = poiService;
         }
 
-        [HttpGet("{id}")]
+        [HttpGet("{id:int}")]
         public async Task<ActionResult<PoiFromAPI>> GetPOI(int id)
         {
             var poi = await _poiService.GetPoiByIdAsync(id);
@@ -32,19 +32,23 @@ namespace Trail_Composer.Controllers
             return Ok(poi);
         }
 
-        [HttpGet("/user")]
+        [Authorize]
+        [HttpGet("list/user")]
         public async Task<ActionResult> GetPOIListByUser()
         {
-            return Ok();
+            var userId = TCUserDTO.GetUserIdFromContext(this.HttpContext);
+            //var userId = "703645aa-f169-4aa8-9fc9-e3dbb01960d9";
+            var result = await _poiService.GetUserPoiListAsync(userId);
+            return Ok(result);
         }
 
-        [HttpGet]
+        [HttpGet("list/segments")]
         public async Task<ActionResult> GetPOIListBySegments([FromQuery] int[] segmentIds)
         {
             return Ok();
         }
 
-        [HttpGet]
+        [HttpGet("list/filtered")]
         public async Task<ActionResult> GetFilteredPOIList(int countryId, bool owned, [FromQuery] double[] latitudes, [FromQuery] double[] longitudes)
         {
             return Ok();

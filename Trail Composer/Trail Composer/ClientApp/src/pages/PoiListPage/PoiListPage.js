@@ -37,6 +37,37 @@ const PoiListPage = () => {
     });
   };
 
+  const fetchData = async () => {
+    var request = {
+      account: account,
+      scopes:['openid', 'offline_access', pca.getConfiguration().auth.clientId]
+    }
+    var response = await pca.acquireTokenSilent(request);
+    const authorizationHeader = `Bearer ${response.accessToken}`;
+
+    fetch(`tc-api/poi/list/user`,
+      {
+        method: "GET",
+        headers: {
+          Authorization: authorizationHeader
+        }
+      })
+      .then(response => {
+        if (response.status)
+          return response.json()
+        else
+          navigate('/error/page-not-found');
+      })
+      .then(data => {
+        console.log(data);
+        setData(flattenData(data));
+      })
+      .catch(error => {
+        console.log(error);
+        navigate('/');
+      });
+  }
+
   const [data, setData] = React.useState(() => flattenData(makeData(rowNumFaker.current)));
   const refreshData = () => setData(() => flattenData(makeData(rowNumFaker.current)));
   const rerender = React.useReducer(() => ({}), {})[1];
@@ -45,8 +76,8 @@ const PoiListPage = () => {
   }
 
   useEffect(() => {
-
-  }, []);
+    fetchData();
+  }, [account, appData]);
 
   useEffect(() => {
     console.log(appData);
@@ -64,9 +95,6 @@ const PoiListPage = () => {
   function onMoveDown(row) {
     moveDown(data, row);
     setData(() => [...data]);
-  }
-
-  const fetchData = () => {
   }
 
   function onDelete(row) {
