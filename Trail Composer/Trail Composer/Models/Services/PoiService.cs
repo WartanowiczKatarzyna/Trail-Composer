@@ -64,7 +64,7 @@ namespace Trail_Composer.Models.Services
             return poiList;
         }
         public async Task<IEnumerable<PoiListElementToApi>> GetPoiListBySegmentAsync (int segmentId) 
-        {            
+        {
             var poiList = await _context.Pois
                 .Include(poi => poi.PoiPoitypes)
                 .Include(poi => poi.Tcuser)
@@ -72,9 +72,10 @@ namespace Trail_Composer.Models.Services
                     _context.SegmentPois,
                     poi => poi.Id,
                     sp => sp.PoiId,
-                    (poi, sp) => new { poi, sp}
+                    (poi, sp) => new { poi, sp }
                 )
-                .Where(mergedElem => mergedElem.sp.SegmentId==segmentId)
+                .Where(mergedElem => mergedElem.sp.SegmentId == segmentId)
+                .OrderBy(mergedElem => mergedElem.sp.PoiOrder)
                 .Select(mergedElem => new PoiListElementToApi
                 {
                     Id = mergedElem.poi.Id,
@@ -86,8 +87,6 @@ namespace Trail_Composer.Models.Services
                     PoiTypeIds = mergedElem.poi.PoiPoitypes.Select(poiPoiType => poiPoiType.Poitype).Select(poiType => poiType.Id).ToList()
                 })
                 .ToListAsync();
-
-            poiList = poiList.Distinct(new PoiListElementToApiComparer()).ToList();
 
             return poiList;
         }
@@ -109,6 +108,8 @@ namespace Trail_Composer.Models.Services
                     (mergedElem, ts) => new { mergedElem.poi, mergedElem.sp, ts}
                 )
                 .Where(mergedElem => mergedElem.ts.TrailId == trailId)
+                .OrderBy(mergedElem => mergedElem.ts.SegmentOrder)
+                .ThenBy(mergedElem => mergedElem.sp.PoiOrder)
                 .Select(mergedElem => new PoiListElementToApi
                 {
                     Id = mergedElem.poi.Id,
