@@ -9,6 +9,7 @@ using Serilog;
 using Microsoft.IdentityModel.Tokens;
 using Microsoft.EntityFrameworkCore.Metadata.Internal;
 using Humanizer.Bytes;
+using Trail_Composer.Models.DTOs.Comparers;
 
 namespace Trail_Composer.Models.Services
 {
@@ -20,7 +21,6 @@ namespace Trail_Composer.Models.Services
         {
             _context = context;
         }
-
         public async Task<PoiToApiDetails> GetPoiByIdAsync (int id)
         {
             var poi = await _context.Pois
@@ -43,17 +43,15 @@ namespace Trail_Composer.Models.Services
 
             return poi;
         }
-
         public async Task<IEnumerable<PoiListElementToApi>> GetUserPoiListAsync (string userId)
         {
             var poiList = await _context.Pois
                 .Include(poi => poi.PoiPoitypes)
-                .Include(poi => poi.Poiphotos)
                 .Include(poi => poi.Tcuser)
+                .Where(poi => poi.TcuserId == userId)
                 .Select(poi => new PoiListElementToApi
                 {
                     Id = poi.Id,
-                    TcuserId = poi.TcuserId,
                     Username = poi.Tcuser.Name,
                     Name = poi.Name,
                     Latitude = poi.Latitude,
@@ -61,8 +59,69 @@ namespace Trail_Composer.Models.Services
                     CountryId = poi.CountryId,
                     PoiTypeIds = poi.PoiPoitypes.Select(poiPoiType => poiPoiType.Poitype).Select(poiType => poiType.Id).ToList()
                 })
-                .Where(poi => poi.TcuserId == userId)
                 .ToListAsync();
+
+            return poiList;
+        }
+        public async Task<IEnumerable<PoiListElementToApi>> GetPoiListBySegmentAsync (int segmentId) 
+        {            
+            var poiList = await _context.Pois
+                .Include(poi => poi.PoiPoitypes)
+                .Include(poi => poi.Tcuser)
+                .Join(
+                    _context.SegmentPois,
+                    poi => poi.Id,
+                    sp => sp.PoiId,
+                    (poi, sp) => new { poi, sp}
+                )
+                .Where(mergedElem => mergedElem.sp.SegmentId==segmentId)
+                .Select(mergedElem => new PoiListElementToApi
+                {
+                    Id = mergedElem.poi.Id,
+                    Username = mergedElem.poi.Tcuser.Name,
+                    Name = mergedElem.poi.Name,
+                    Latitude = mergedElem.poi.Latitude,
+                    Longitude = mergedElem.poi.Longitude,
+                    CountryId = mergedElem.poi.CountryId,
+                    PoiTypeIds = mergedElem.poi.PoiPoitypes.Select(poiPoiType => poiPoiType.Poitype).Select(poiType => poiType.Id).ToList()
+                })
+                .ToListAsync();
+
+            poiList = poiList.Distinct(new PoiListElementToApiComparer()).ToList();
+
+            return poiList;
+        }
+        public async Task<IEnumerable<PoiListElementToApi>> GetPoiListByTrailAsync (int trailId)
+        {
+            var poiList = await _context.Pois
+                .Include(poi => poi.PoiPoitypes)
+                .Include(poi => poi.Tcuser)
+                .Join(
+                    _context.SegmentPois,
+                    poi => poi.Id,
+                    sp => sp.PoiId,
+                    (poi, sp) => new { poi, sp }
+                )
+                .Join(
+                    _context.TrailSegments,
+                    mergedElem => mergedElem.sp.SegmentId,
+                    ts => ts.SegmentId,
+                    (mergedElem, ts) => new { mergedElem.poi, mergedElem.sp, ts}
+                )
+                .Where(mergedElem => mergedElem.ts.TrailId == trailId)
+                .Select(mergedElem => new PoiListElementToApi
+                {
+                    Id = mergedElem.poi.Id,
+                    Username = mergedElem.poi.Tcuser.Name,
+                    Name = mergedElem.poi.Name,
+                    Latitude = mergedElem.poi.Latitude,
+                    Longitude = mergedElem.poi.Longitude,
+                    CountryId = mergedElem.poi.CountryId,
+                    PoiTypeIds = mergedElem.poi.PoiPoitypes.Select(poiPoiType => poiPoiType.Poitype).Select(poiType => poiType.Id).ToList()
+                })
+                .ToListAsync();
+
+            poiList = poiList.Distinct(new PoiListElementToApiComparer()).ToList();
 
             return poiList;
         }
@@ -156,7 +215,6 @@ namespace Trail_Composer.Models.Services
 
             return -1;
         }
-        
         public async Task<bool> EditPoiAsync(int poiId, PoiFromAPI poiApi, string userId)
         {
             using var transaction = await _context.Database.BeginTransactionAsync();

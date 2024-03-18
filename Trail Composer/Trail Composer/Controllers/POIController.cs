@@ -21,10 +21,10 @@ namespace Trail_Composer.Controllers
             _poiService = poiService;
         }
 
-        [HttpGet("{id:int}")]
-        public async Task<ActionResult<PoiFromAPI>> GetPOI(int id)
+        [HttpGet("{poiId:int}")]
+        public async Task<ActionResult<PoiFromAPI>> GetPOI(int poiId)
         {
-            var poi = await _poiService.GetPoiByIdAsync(id);
+            var poi = await _poiService.GetPoiByIdAsync(poiId);
             
             if (poi == null)
                 return NotFound(); // 404 Not Found
@@ -37,22 +37,38 @@ namespace Trail_Composer.Controllers
         public async Task<ActionResult> GetPOIListByUser()
         {
             var userId = TCUserDTO.GetUserIdFromContext(this.HttpContext);
-            //var userId = "703645aa-f169-4aa8-9fc9-e3dbb01960d9";
             var result = await _poiService.GetUserPoiListAsync(userId);
             return Ok(result);
         }
 
-        [HttpGet("list/segments")]
-        public async Task<ActionResult> GetPOIListBySegments([FromQuery] int[] segmentIds)
+        [HttpGet("list/filtered")]
+        public async Task<ActionResult> GetFilteredPOIList(int[] countryIds, [FromQuery] double minLatitude, [FromQuery] double maxLatitude,
+            [FromQuery] double minLongitude, [FromQuery] double maxLongitude)
         {
             return Ok();
         }
 
-        [HttpGet("list/filtered")]
-        public async Task<ActionResult> GetFilteredPOIList(int countryId, bool owned, [FromQuery] double[] latitudes, [FromQuery] double[] longitudes)
+        [Authorize]
+        [HttpGet("list/user/filtered")]
+        public async Task<ActionResult> GetFilteredUserPOIList(int[] countryIds, [FromQuery] double minLatitude, [FromQuery] double maxLatitude,
+            [FromQuery] double minLongitude, [FromQuery] double maxLongitude)
         {
             return Ok();
-        }             
+        }
+
+        [HttpGet("list/segment/{segmentId:int}")]
+        public async Task<ActionResult> GetPOIListBySegment(int segmentId)
+        {
+            var result = await _poiService.GetPoiListBySegmentAsync(segmentId);
+            return Ok(result);
+        }
+
+        [HttpGet("list/trail/{trailId:int}")]
+        public async Task<ActionResult> GetPOIListByTrail(int trailId)
+        {
+            var result = await _poiService.GetPoiListByTrailAsync(trailId);
+            return Ok(result);
+        }
 
         [Authorize]
         [HttpPost]
@@ -74,16 +90,16 @@ namespace Trail_Composer.Controllers
         }
 
         [Authorize]
-        [HttpPut("{id}")]
+        [HttpPut("{poiId:int}")]
         [Consumes("multipart/form-data")]
         [RequestSizeLimit(10485760)] // Limiting to 10 MB (in bytes)
         // Also responsible for handling photos related to the poi
-        public async Task<ActionResult> DeletePOI([FromForm]PoiFromAPI poi, int id)
+        public async Task<ActionResult> DeletePOI([FromForm]PoiFromAPI poi, int poiId)
         {
-            //var userId = UserId.GetUserIdFromContext(this.HttpContext);
-            var userId = "703645aa-f169-4aa8-9fc9-e3dbb01960d9";
+            var userId = TCUserDTO.GetUserIdFromContext(this.HttpContext);
+            //var userId = "703645aa-f169-4aa8-9fc9-e3dbb01960d9";
 
-            var result = await _poiService.EditPoiAsync(id, poi, userId);
+            var result = await _poiService.EditPoiAsync(poiId, poi, userId);
 
             if (!result)
                 return StatusCode(400, "Error when editing poi");
@@ -91,11 +107,11 @@ namespace Trail_Composer.Controllers
         }
 
         [Authorize]
-        [HttpDelete("{id}")]
-        public async Task<IActionResult> DeletePOI(int id)
+        [HttpDelete("{poiId:int}")]
+        public async Task<IActionResult> DeletePOI(int poiId)
         {
             var userId = TCUserDTO.GetUserIdFromContext(this.HttpContext);
-            bool deletedSuccess = await _poiService.DeletePoiAsync(id, userId);
+            bool deletedSuccess = await _poiService.DeletePoiAsync(poiId, userId);
 
             if (deletedSuccess)
                 return Ok();
