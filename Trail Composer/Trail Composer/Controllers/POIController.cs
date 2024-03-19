@@ -42,8 +42,8 @@ namespace Trail_Composer.Controllers
         }
 
         [HttpGet("list/filtered")]
-        public async Task<ActionResult> GetFilteredPOIList([FromQuery] int[] countryIds, [FromQuery] double minLatitude, [FromQuery] double maxLatitude,
-            [FromQuery] double minLongitude, [FromQuery] double maxLongitude)
+        public async Task<ActionResult> GetFilteredPOIList([FromQuery] int[] countryIds, [FromQuery] decimal minLatitude, [FromQuery] decimal maxLatitude,
+            [FromQuery] decimal minLongitude, [FromQuery] decimal maxLongitude)
         {
             var result = await _poiService.GetFilteredPoiListAsync(countryIds, minLatitude, maxLatitude, minLongitude, maxLongitude);
             return Ok(result);
@@ -51,8 +51,8 @@ namespace Trail_Composer.Controllers
 
         [Authorize]
         [HttpGet("list/user/filtered")]
-        public async Task<ActionResult> GetFilteredUserPOIList([FromQuery]int[] countryIds, [FromQuery] double minLatitude, [FromQuery] double maxLatitude,
-            [FromQuery] double minLongitude, [FromQuery] double maxLongitude)
+        public async Task<ActionResult> GetFilteredUserPOIList([FromQuery]int[] countryIds, [FromQuery] decimal minLatitude, [FromQuery] decimal maxLatitude,
+            [FromQuery] decimal minLongitude, [FromQuery] decimal maxLongitude)
         {
             return Ok();
         }

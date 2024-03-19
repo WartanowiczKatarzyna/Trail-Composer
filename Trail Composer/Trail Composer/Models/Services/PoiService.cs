@@ -64,13 +64,19 @@ namespace Trail_Composer.Models.Services
 
             return poiList;
         }
-        public async Task<IEnumerable<PoiListElementToApi>> GetFilteredPoiListAsync (int[] countryIds, double minLatitude, double maxLatitude,
-            double minLongitude, double maxLongitude)
+        public async Task<IEnumerable<PoiListElementToApi>> GetFilteredPoiListAsync (int[] countryIds, decimal minLatitude, decimal maxLatitude,
+            decimal minLongitude, decimal maxLongitude)
         {
             var poiList = await _context.Pois
                 .Include(poi => poi.PoiPoitypes)
                 .Include(poi => poi.Tcuser)
-                .Where(poi => countryIds.Contains(poi.CountryId))
+                .Where(poi => (
+                                countryIds.Contains(poi.CountryId) &&
+                                (poi.Latitude >= minLatitude) &&
+                                (poi.Latitude <= maxLatitude) &&
+                                (poi.Longitude >= minLongitude) &&
+                                (poi.Longitude <= maxLongitude)
+                            ))
                 .Select(poi => new PoiListElementToApi
                 {
                     Id = poi.Id,
