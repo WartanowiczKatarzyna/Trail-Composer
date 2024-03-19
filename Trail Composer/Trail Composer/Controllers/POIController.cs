@@ -54,7 +54,9 @@ namespace Trail_Composer.Controllers
         public async Task<ActionResult> GetFilteredUserPOIList([FromQuery]int[] countryIds, [FromQuery] decimal minLatitude, [FromQuery] decimal maxLatitude,
             [FromQuery] decimal minLongitude, [FromQuery] decimal maxLongitude)
         {
-            return Ok();
+            var userId = TCUserDTO.GetUserIdFromContext(this.HttpContext);
+            var result = await _poiService.GetFilteredUserPoiListAsync(userId, countryIds, minLatitude, maxLatitude, minLongitude, maxLongitude);
+            return Ok(result);
         }
 
         [HttpGet("list/segment/{segmentId:int}")]

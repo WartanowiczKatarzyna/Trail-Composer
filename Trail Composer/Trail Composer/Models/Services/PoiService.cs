@@ -91,6 +91,34 @@ namespace Trail_Composer.Models.Services
 
             return poiList;
         }
+        public async Task<IEnumerable<PoiListElementToApi>> GetFilteredUserPoiListAsync (string userId, int[] countryIds, decimal minLatitude, decimal maxLatitude,
+            decimal minLongitude, decimal maxLongitude)
+        {
+            var poiList = await _context.Pois
+                .Include(poi => poi.PoiPoitypes)
+                .Include(poi => poi.Tcuser)
+                .Where(poi => (
+                                poi.TcuserId == userId &&
+                                countryIds.Contains(poi.CountryId) &&
+                                (poi.Latitude >= minLatitude) &&
+                                (poi.Latitude <= maxLatitude) &&
+                                (poi.Longitude >= minLongitude) &&
+                                (poi.Longitude <= maxLongitude)
+                            ))
+                .Select(poi => new PoiListElementToApi
+                {
+                    Id = poi.Id,
+                    Username = poi.Tcuser.Name,
+                    Name = poi.Name,
+                    Latitude = poi.Latitude,
+                    Longitude = poi.Longitude,
+                    CountryId = poi.CountryId,
+                    PoiTypeIds = poi.PoiPoitypes.Select(poiPoiType => poiPoiType.Poitype).Select(poiType => poiType.Id).ToList()
+                })
+                .ToListAsync();
+
+            return poiList;
+        }
         public async Task<IEnumerable<PoiListElementToApi>> GetPoiListBySegmentAsync (int segmentId) 
         {
             var poiList = await _context.Pois
