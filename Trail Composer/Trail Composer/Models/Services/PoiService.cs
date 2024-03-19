@@ -10,6 +10,7 @@ using Microsoft.IdentityModel.Tokens;
 using Microsoft.EntityFrameworkCore.Metadata.Internal;
 using Humanizer.Bytes;
 using Trail_Composer.Models.DTOs.Comparers;
+using Microsoft.AspNetCore.Mvc;
 
 namespace Trail_Composer.Models.Services
 {
@@ -49,6 +50,27 @@ namespace Trail_Composer.Models.Services
                 .Include(poi => poi.PoiPoitypes)
                 .Include(poi => poi.Tcuser)
                 .Where(poi => poi.TcuserId == userId)
+                .Select(poi => new PoiListElementToApi
+                {
+                    Id = poi.Id,
+                    Username = poi.Tcuser.Name,
+                    Name = poi.Name,
+                    Latitude = poi.Latitude,
+                    Longitude = poi.Longitude,
+                    CountryId = poi.CountryId,
+                    PoiTypeIds = poi.PoiPoitypes.Select(poiPoiType => poiPoiType.Poitype).Select(poiType => poiType.Id).ToList()
+                })
+                .ToListAsync();
+
+            return poiList;
+        }
+        public async Task<IEnumerable<PoiListElementToApi>> GetFilteredPoiListAsync (int[] countryIds, double minLatitude, double maxLatitude,
+            double minLongitude, double maxLongitude)
+        {
+            var poiList = await _context.Pois
+                .Include(poi => poi.PoiPoitypes)
+                .Include(poi => poi.Tcuser)
+                .Where(poi => countryIds.Contains(poi.CountryId))
                 .Select(poi => new PoiListElementToApi
                 {
                     Id = poi.Id,
