@@ -7,6 +7,7 @@ import styles from './PoiListPage.module.css';
 
 import { PoiTable } from '../../../components/tables/PoiTable/PoiTable.tsx';
 import { moveUp, moveDown } from '../../../components/tables/moveRow.js';
+import { flattenData } from '../../../components/tables/PoiTable/flattenData.js';
 
 import App, { AppContext } from '../../../App.js';
 
@@ -19,23 +20,6 @@ const PoiListPage = () => {
 
   const navigate = useNavigate();
   const rowNumFaker = useRef(10);
-
-  function flattenData(freshData){
-    return freshData.map(row => {
-      return {
-        id: row.id,
-        name: row.name,
-        username: row.username,
-        longitude: row.longitude,
-        latitude: row.latitude,
-        countryId: row.countryId,
-        subRows: row.subRows,
-        country: appData?.CountryNamesMap?.get(row.countryId) || 'nieznany',
-        poiTypeIds: row.poiTypeIds,
-        poiTypes: row.poiTypeIds.map(poiTypeId => appData?.PoiTypesMap?.get(poiTypeId) || 'nieznany').join(', ')
-      };
-    });
-  };
 
   const fetchData = async () => {
     var request = {

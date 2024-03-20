@@ -6,9 +6,9 @@ import PropTypes from 'prop-types';
 import styles from './UserPoiListPage.module.css';
 
 import { PoiTable } from '../../../components/tables/PoiTable/PoiTable.tsx';
-import { moveUp, moveDown } from '../../../components/tables/moveRow.js';
+import { flattenData } from '../../../components/tables/PoiTable/flattenData.js';
 
-import App, { AppContext } from '../../../App.js';
+import { AppContext } from '../../../App.js';
 
 import { makeData } from "../../../components/tables/PoiTable/makeData.ts";
 
@@ -19,23 +19,6 @@ const UserPoiListPage = () => {
 
   const navigate = useNavigate();
   const rowNumFaker = useRef(10);
-
-  function flattenData(freshData){
-    return freshData.map(row => {
-      return {
-        id: row.id,
-        name: row.name,
-        username: row.username,
-        longitude: row.longitude,
-        latitude: row.latitude,
-        countryId: row.countryId,
-        subRows: row.subRows,
-        country: appData?.CountryNamesMap?.get(row.countryId) || 'nieznany',
-        poiTypeIds: row.poiTypeIds,
-        poiTypes: row.poiTypeIds.map(poiTypeId => appData?.PoiTypesMap?.get(poiTypeId) || 'nieznany').join(', ')
-      };
-    });
-  };
 
   const fetchData = async () => {
     var request = {
@@ -68,9 +51,7 @@ const UserPoiListPage = () => {
       });
   }
 
-  const [data, setData] = React.useState(() => flattenData(makeData(rowNumFaker.current)));
-  const refreshData = () => setData(() => flattenData(makeData(rowNumFaker.current)));
-  const rerender = React.useReducer(() => ({}), {})[1];
+  const [data, setData] = React.useState(() => flattenData(makeData(rowNumFaker.current), appData));
   const showColumns = {
     'id': false,
     'username': false
