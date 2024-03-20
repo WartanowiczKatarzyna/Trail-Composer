@@ -20,7 +20,7 @@ export  function TrailTable({
   onRowSelect,
   onMoveUp,
   onMoveDown,
-  hiddenColumns
+  showColumns
 } : {
   data: TrailRowData[],
   onDelete?: (row: Row<TrailRowData>) => void | null,
@@ -28,7 +28,7 @@ export  function TrailTable({
   onRowSelect?: (row: Row<TrailRowData>) => void | null,
   onMoveUp?: (row: Row<TrailRowData>) => void | null,
   onMoveDown?: (row: Row<TrailRowData>) => void | null,
-  hiddenColumns?: ColumnVisibility
+  showColumns?: ColumnVisibility
 }) {
   const appData = useContext<AppContextValueType>(AppContext);
 
@@ -110,5 +110,5 @@ export  function TrailTable({
     [appData]
   );
 
-  return (<LocalTable<TrailRowData> {...{ data, columns, onRowSelect, hiddenColumns }} />)
+  return (<LocalTable<TrailRowData> {...{ data, columns, onRowSelect, showColumns }} />)
 }

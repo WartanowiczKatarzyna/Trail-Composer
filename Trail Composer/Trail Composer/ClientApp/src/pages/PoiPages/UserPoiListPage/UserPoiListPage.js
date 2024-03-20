@@ -3,16 +3,16 @@ import { useNavigate, useParams } from 'react-router-dom';
 import { Button, Label, Col, Row, Container } from 'reactstrap';
 import { useMsal, useAccount, useIsAuthenticated } from "@azure/msal-react";
 import PropTypes from 'prop-types';
-import styles from './PoiListPage.module.css';
+import styles from './UserPoiListPage.module.css';
 
-import { PoiTable } from '../../components/tables/PoiTable/PoiTable.tsx';
-import { moveUp, moveDown } from '../../components/tables/moveRow.js';
+import { PoiTable } from '../../../components/tables/PoiTable/PoiTable.tsx';
+import { moveUp, moveDown } from '../../../components/tables/moveRow.js';
 
-import App, { AppContext } from '../../App.js';
+import App, { AppContext } from '../../../App.js';
 
-import { makeData } from "../../components/tables/PoiTable/makeData.ts";
+import { makeData } from "../../../components/tables/PoiTable/makeData.ts";
 
-const PoiListPage = () => {
+const UserPoiListPage = () => {
   const appData = useContext(AppContext);
   const { instance: pca, accounts } = useMsal();
   const account = useAccount(accounts[0] || {});
@@ -71,8 +71,9 @@ const PoiListPage = () => {
   const [data, setData] = React.useState(() => flattenData(makeData(rowNumFaker.current)));
   const refreshData = () => setData(() => flattenData(makeData(rowNumFaker.current)));
   const rerender = React.useReducer(() => ({}), {})[1];
-  const hiddenColumns = {
-    'id': false
+  const showColumns = {
+    'id': false,
+    'username': false
   }
 
   useEffect(() => {
@@ -85,48 +86,44 @@ const PoiListPage = () => {
     console.log(appData?.Countries);
     setData(() => flattenData(makeData(rowNumFaker.current)));
   }, [appData]);
-
   
-  function onMoveUp(row) {
-    moveUp(data, row);
-    setData(() => [...data]);
-  }
-
-  function onMoveDown(row) {
-    moveDown(data, row);
-    setData(() => [...data]);
-  }
-
   function onDelete(row) {
-    console.info("click onDelete", row);
+    var request = {
+      account: account,
+      scopes:['openid', 'offline_access', pca.getConfiguration().auth.clientId]
+    }
+    var response = pca.acquireTokenSilent(request);
+    const authorizationHeader = `Bearer ${response.accessToken}`;
+
+    fetch(`tc-api/poi/${row.id}`, {
+      method: "DELETE",
+      headers: {
+        Authorization: authorizationHeader
+      }})
+      .then(response => {
+        console.log(response.status);
+        navigate("/");
+      })
+      .catch(error => {
+        console.error('Error deleting POI:', error);
+      });
   }
   function onEdit(row) {
-    console.info("click onEdit", row);
+    navigate(`/edit-POI/${row.id}`);
   }
+  //przerobić POI details na modal
   function onRowSelect(row) {
-    console.info("click onRowSelect", row);
+    navigate(`/details-POI/${row.id}`);
   }
 
   useEffect(() => {
   }, []);
   
-  return (
-    <>
-      <PoiTable {...{data, onDelete, onEdit, onRowSelect, onMoveUp, onMoveDown, hiddenColumns}}/>
-      <hr/>
-      <div>
-        <button onClick={() => rerender()}>Force Rerender</button>
-      </div>
-      <div>
-        <button onClick={() => refreshData()}>Refresh Data</button>
-      </div>
-    </>
-)
-  ;
+  return (<PoiTable {...{data, onDelete, onEdit, onRowSelect, showColumns}} />);
 };
 
-PoiListPage.propTypes = {};
+UserPoiListPage.propTypes = {};
 
-PoiListPage.defaultProps = {};
+UserPoiListPage.defaultProps = {};
 
-export default PoiListPage;
+export default UserPoiListPage;

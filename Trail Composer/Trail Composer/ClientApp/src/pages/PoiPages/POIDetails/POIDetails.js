@@ -5,7 +5,7 @@ import { useMsal, useAccount, useIsAuthenticated } from "@azure/msal-react";
 import PropTypes from 'prop-types';
 import styles from './POIDetails.module.css';
 
-import App, { AppContext } from '../../App.js';
+import App, { AppContext } from '../../../App.js';
 
 const PoiDetails = () => {
   const appData = useContext(AppContext);

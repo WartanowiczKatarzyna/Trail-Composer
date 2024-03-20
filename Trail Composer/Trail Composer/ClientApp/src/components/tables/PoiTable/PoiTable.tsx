@@ -20,7 +20,7 @@ export  function PoiTable({
   onRowSelect,
   onMoveUp,
   onMoveDown,
-  hiddenColumns
+  showColumns
 } : {
   data: PoiRowData[],
   onDelete?: (row: Row<PoiRowData>) => void | null,
@@ -28,7 +28,7 @@ export  function PoiTable({
   onRowSelect?: (row: Row<PoiRowData>) => void | null,
   onMoveUp?: (row: Row<PoiRowData>) => void | null,
   onMoveDown?: (row: Row<PoiRowData>) => void | null,
-  hiddenColumns?: ColumnVisibility
+  showColumns?: ColumnVisibility
 }) {
   const appData = useContext<AppContextValueType>(AppContext);
 
@@ -110,5 +110,5 @@ export  function PoiTable({
     [appData]
   );
 
-  return (<LocalTable<PoiRowData> {...{ data, columns, onRowSelect, hiddenColumns }} />)
+  return (<LocalTable<PoiRowData> {...{ data, columns, onRowSelect, showColumns }} />)
 }

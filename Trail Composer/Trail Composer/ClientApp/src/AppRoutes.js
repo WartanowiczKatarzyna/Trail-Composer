@@ -1,10 +1,11 @@
 import { FetchPOI } from "./components/FetchPOI";
 
-import POIForm from "./pages/POIForm/POIForm"
 import HomePage from "./pages/HomePage/HomePage"
-import PoiDetails from "./pages/POIDetails/POIDetails";
 import NotFoundPage from "./pages/errorPages/NotFoundPage/NotFoundPage";
-import PoiListPage from "./pages/PoiListPage/PoiListPage";
+import POIForm from "./pages/PoiPages/POIForm/POIForm"
+import PoiDetails from "./pages/PoiPages/POIDetails/POIDetails";
+import PoiListPage from "./pages/PoiPages/PoiListPage/PoiListPage";
+import UserPoiListPage from "./pages/PoiPages/UserPoiListPage/UserPoiListPage";
 
 const AppRoutes = [
   {
@@ -30,6 +31,10 @@ const AppRoutes = [
   {
     path: '/list-poi/:mode',
     element: <PoiListPage />
+  },
+  {
+    path: '/list-poi/user',
+    element: <UserPoiListPage />
   },
   {
     path: '/error/page-not-found',

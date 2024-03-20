@@ -29,19 +29,19 @@ export function LocalTable<T extends WithId>({
     data,
     columns,
     onRowSelect,
-    hiddenColumns
+    showColumns
   }: {
     data: T[]
     columns: ColumnDef<T>[],
     onRowSelect?: (row: Row<T>) => void | null
-    hiddenColumns?: ColumnVisibility
+    showColumns?: ColumnVisibility
   }) {
     const [rowSelection, setRowSelection] = React.useState({});
     const table = useReactTable({
       data,
       columns,
       initialState: {
-        columnVisibility: hiddenColumns
+        columnVisibility: showColumns
       },
       state: {
         rowSelection,
