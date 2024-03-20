@@ -11,6 +11,7 @@ import { flattenData } from '../../../components/tables/PoiTable/flattenData.js'
 import { AppContext } from '../../../App.js';
 
 import { makeData } from "../../../components/tables/PoiTable/makeData.ts";
+import { getAuthHeader } from '../../../components/auth/getAuthHeader.js';
 
 const UserPoiListPage = () => {
   const appData = useContext(AppContext);
@@ -21,12 +22,7 @@ const UserPoiListPage = () => {
   const rowNumFaker = useRef(10);
 
   const fetchData = async () => {
-    var request = {
-      account: account,
-      scopes:['openid', 'offline_access', pca.getConfiguration().auth.clientId]
-    }
-    var response = await pca.acquireTokenSilent(request);
-    const authorizationHeader = `Bearer ${response.accessToken}`;
+    const authorizationHeader = await getAuthHeader(pca, account);
 
     fetch(`tc-api/poi/list/user`,
       {
@@ -69,25 +65,6 @@ const UserPoiListPage = () => {
   }, [appData]);
   
   function onDelete(row) {
-    var request = {
-      account: account,
-      scopes:['openid', 'offline_access', pca.getConfiguration().auth.clientId]
-    }
-    var response = pca.acquireTokenSilent(request);
-    const authorizationHeader = `Bearer ${response.accessToken}`;
-
-    fetch(`tc-api/poi/${row.id}`, {
-      method: "DELETE",
-      headers: {
-        Authorization: authorizationHeader
-      }})
-      .then(response => {
-        console.log(response.status);
-        navigate("/");
-      })
-      .catch(error => {
-        console.error('Error deleting POI:', error);
-      });
   }
   function onEdit(row) {
     navigate(`/edit-POI/${row.id}`);

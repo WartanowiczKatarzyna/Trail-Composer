@@ -6,6 +6,7 @@ import Multiselect from 'multiselect-react-dropdown';
 import { useMsal, useAccount, useMsalAuthentication, AuthenticatedTemplate } from "@azure/msal-react";
 import { InteractionType } from '@azure/msal-browser';
 import styles from './POIForm.module.css';
+import { getAuthHeader } from '../../../components/auth/getAuthHeader.js';
 
 const PoiForm = () => {
   const appData = useContext(AppContext);
@@ -186,12 +187,7 @@ const PoiForm = () => {
 
     showFormData(formData.current, "przed fetch");
 
-    var request = {
-      account: account,
-      scopes:['openid', 'offline_access', pca.getConfiguration().auth.clientId]
-    }
-    var response = await pca.acquireTokenSilent(request);
-    const authorizationHeader = `Bearer ${response.accessToken}`;
+    const authorizationHeader = await getAuthHeader(pca, account);
 
     // TO-DO: after sending go back to prev page 
     let connString = 'tc-api/poi';
