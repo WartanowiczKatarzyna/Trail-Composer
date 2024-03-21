@@ -39,11 +39,11 @@ const UserPoiListPage = () => {
       })
       .then(data => {
         console.log(data);
-        setData(flattenData(data));
+        setData(flattenData(data, appData));
       })
       .catch(error => {
         console.log(error);
-        navigate('/');
+        navigate(-1);
       });
   }
 
@@ -61,7 +61,7 @@ const UserPoiListPage = () => {
     console.log(appData);
     console.log(appData?.POITypes);
     console.log(appData?.Countries);
-    setData(() => flattenData(makeData(rowNumFaker.current)));
+    setData(() => flattenData(makeData(rowNumFaker.current), appData));
   }, [appData]);
   
   function onDelete(row) {

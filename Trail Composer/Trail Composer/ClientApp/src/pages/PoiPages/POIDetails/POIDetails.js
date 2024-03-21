@@ -35,7 +35,7 @@ const PoiDetails = () => {
       .then(data => {setPoi(data)})
       .catch(error => {
         console.log(error);
-        navigate('/');
+        navigate(-1);
       });
   }
 
@@ -68,7 +68,7 @@ const PoiDetails = () => {
       }})
       .then(response => {
         console.log(response.status);
-        navigate("/");
+        navigate(-1);
       })
       .catch(error => {
         console.error('Error deleting POI:', error);

@@ -216,7 +216,8 @@ const PoiForm = () => {
         }
         setSubmitting(false);
         if(editMode)
-          navigate(`/details-poi/${localPoiId}`);  
+          //navigate(`/details-poi/${localPoiId}`); 
+          navigate(-1); 
         else
           navigate(`/details-poi/${data}`);
       })
