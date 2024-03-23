@@ -188,8 +188,7 @@ const PoiForm = () => {
     showFormData(formData.current, "przed fetch");
 
     const authorizationHeader = await getAuthHeader(pca, account);
-
-    // TO-DO: after sending go back to prev page 
+ 
     let connString = 'tc-api/poi';
     let connMethod = 'POST'
     if (editMode) {
@@ -228,6 +227,10 @@ const PoiForm = () => {
       });
     
   };
+
+  const handleCancel = () => {
+    navigate(-1);
+  }
 
   // Callback when POITypes are selected or removed
   const handlePoiTypes = (selectedList) => {
@@ -391,7 +394,7 @@ const PoiForm = () => {
               </FormGroup>
               
               <div className={styles.Buttons + ' d-none d-sm-block'}>
-                <Button>
+                <Button onClick={handleCancel}>
                   Anuluj
                 </Button>
                 <Button type="submit" disabled={submitting}>
@@ -434,8 +437,9 @@ const PoiForm = () => {
 
           <p className={styles.FormErrorMessage}>{formErrorMessage}</p>
 
+          {/* Button group showed on narrowe screens */}
           <div className={styles.Buttons + ' d-sm-none'}>
-            <Button>
+            <Button onClick={handleCancel}>
               Anuluj
             </Button>
             <Button type="submit" disabled={submitting}>
