@@ -11,7 +11,7 @@ import { flattenData } from '../../../components/tables/PoiTable/flattenData.js'
 import { AppContext } from '../../../App.js';
 
 import { makeData } from "../../../components/tables/PoiTable/makeData.ts";
-import { getAuthHeader } from '../../../components/auth/getAuthHeader.js';
+import { getAuthHeader } from '../../../utils/auth/getAuthHeader.js';
 
 const UserPoiListPage = () => {
   const appData = useContext(AppContext);

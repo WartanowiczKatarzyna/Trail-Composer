@@ -1,12 +1,12 @@
 import { useState, useContext, useEffect, useRef } from 'react';
-import { useNavigate, useParams } from 'react-router-dom';
+import { useNavigate, useParams, useLocation } from 'react-router-dom';
 import { Button, Label, Col, Row, Container } from 'reactstrap';
 import { useMsal, useAccount, useIsAuthenticated } from "@azure/msal-react";
 import PropTypes from 'prop-types';
 import styles from './POIDetails.module.css';
 
 import App, { AppContext } from '../../../App.js';
-import { getAuthHeader } from '../../../components/auth/getAuthHeader.js';
+import { getAuthHeader } from '../../../utils/auth/getAuthHeader.js';
 
 const PoiDetails = () => {
   const appData = useContext(AppContext);
@@ -38,10 +38,10 @@ const PoiDetails = () => {
         navigate(-1);
       });
   }
-
+  
   useEffect(() => {
-    setLocalPoiId(poiId);
-    fetchData();
+      setLocalPoiId(poiId);
+      fetchData();
   }, []);
 
   useEffect(() => {
