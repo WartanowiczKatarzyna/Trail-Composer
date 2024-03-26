@@ -24,7 +24,7 @@ const Menu = () => (
       <AccordionHeader targetId='3' className={styles.SectionHeader}> POI </AccordionHeader>
       <AccordionBody accordionId='3'>
         <NavLink tag={Link} className={styles.NavLink} to="/add-poi">Nowe POI</NavLink>
-        <NavLink tag={Link} className={styles.NavLink} to="/">Moje POI</NavLink>
+        <NavLink tag={Link} className={styles.NavLink} to="/list-poi/user">MojePOI</NavLink>
       </AccordionBody>
 
     </UncontrolledAccordion>

@@ -9,8 +9,6 @@ import { PoiTable } from '../../../components/tables/PoiTable/PoiTable.tsx';
 import { flattenData } from '../../../components/tables/PoiTable/flattenData.js';
 
 import { AppContext } from '../../../App.js';
-
-import { makeData } from "../../../components/tables/PoiTable/makeData.ts";
 import { getAuthHeader } from '../../../utils/auth/getAuthHeader.js';
 
 const UserPoiListPage = () => {
@@ -19,7 +17,8 @@ const UserPoiListPage = () => {
   const account = useAccount(accounts[0] || {});
 
   const navigate = useNavigate();
-  const rowNumFaker = useRef(10);
+
+  const [data, setData] = useState(null);
 
   const fetchData = async () => {
     const authorizationHeader = await getAuthHeader(pca, account);
@@ -47,7 +46,6 @@ const UserPoiListPage = () => {
       });
   }
 
-  const [data, setData] = React.useState(() => flattenData(makeData(rowNumFaker.current), appData));
   const showColumns = {
     'id': false,
     'username': false
@@ -56,20 +54,26 @@ const UserPoiListPage = () => {
   useEffect(() => {
     fetchData();
   }, [account, appData]);
-
-  useEffect(() => {
-    console.log(appData);
-    console.log(appData?.POITypes);
-    console.log(appData?.Countries);
-    setData(() => flattenData(makeData(rowNumFaker.current), appData));
-  }, [appData]);
   
-  function onDelete(row) {
+  async function onDelete(row) {
+    const authorizationHeader = await getAuthHeader(pca, account);
+    
+    fetch(`tc-api/poi/${row.id}`, {
+      method: "DELETE",
+      headers: {
+        Authorization: authorizationHeader
+      }})
+      .then(response => {
+        console.log(response.status);
+        fetchData();
+      })
+      .catch(error => {
+        console.error('Error deleting POI:', error);
+      });
   }
   function onEdit(row) {
     navigate(`/edit-POI/${row.id}`);
   }
-  //przerobić POI details na modal
   function onRowSelect(row) {
     navigate(`/details-POI/${row.id}`);
   }
@@ -77,7 +81,11 @@ const UserPoiListPage = () => {
   useEffect(() => {
   }, []);
   
-  return (<PoiTable {...{data, onDelete, onEdit, onRowSelect, showColumns}} />);
+  return (
+    data ? 
+      <PoiTable {...{data, onDelete, onEdit, onRowSelect, showColumns}} />
+      : 'Ładuję'
+    );
 };
 
 UserPoiListPage.propTypes = {};

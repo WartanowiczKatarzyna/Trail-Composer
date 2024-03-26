@@ -34,10 +34,6 @@ const AppRoutes = [
     element: <PoiDetails />
   },
   {
-    path: '/list-poi/:mode',
-    element: <PoiListPage />
-  },
-  {
     path: '/list-poi/user',
     element: <UserPoiListPage />
   },

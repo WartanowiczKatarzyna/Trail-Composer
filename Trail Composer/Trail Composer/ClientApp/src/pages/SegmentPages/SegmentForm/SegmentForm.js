@@ -33,6 +33,7 @@ const SegmentForm = () => {
   const [poiLongitude, setPoiLongitude] = useState();
   const [imagePreview, setImagePreview] = useState(null);
   const [photoValue, setPhotoValue] = useState(null);
+  
   const [modal, setModal] = useState(false);
 
   let formData = useRef(new FormData());
@@ -448,6 +449,9 @@ const SegmentForm = () => {
           <p className={styles.FormErrorMessage}>{formErrorMessage}</p>
 
           <div className={styles.Buttons + ' d-sm-none'}>
+            <Button onClick={toggleModal}>
+              Dodaj POI
+            </Button>
             <Button>
               Anuluj
             </Button>

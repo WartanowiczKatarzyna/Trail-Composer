@@ -78,10 +78,17 @@ const PoiDetails = () => {
   const toEditPoi = () => {
     navigate(`/edit-poi/${localPoiId}`);
   };
+
+  const toPrevPage = () => {
+    navigate(-1);
+  };
   
   return (
   <Container className={styles.PoiDetails}>
     <Row className={styles.SectionTitle}>
+      <Col sm={1} className="d-flex justify-content-start" >
+          <div className="d-inline-block"><i role="button" onClick={toPrevPage} className="bi bi-arrow-left fs-4"></i></div>
+      </Col>
       <Col>{poi ? poi.name : 'Ładuję...'}</Col>
       {isOwner && 
         (<Col sm={2} className="d-flex justify-content-end" >
