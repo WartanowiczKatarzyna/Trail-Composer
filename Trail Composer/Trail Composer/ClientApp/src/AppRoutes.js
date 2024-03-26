@@ -6,11 +6,16 @@ import POIForm from "./pages/PoiPages/POIForm/POIForm"
 import PoiDetails from "./pages/PoiPages/POIDetails/POIDetails";
 import PoiListPage from "./pages/PoiPages/PoiListPage/PoiListPage";
 import UserPoiListPage from "./pages/PoiPages/UserPoiListPage/UserPoiListPage";
+import SegmentForm from "./pages/SegmentPages/SegmentForm/SegmentForm";
 
 const AppRoutes = [
   {
     index: true,
     element: <HomePage />
+  },
+  {
+    path: '/add-segment',
+    element: <SegmentForm />
   },
   {
     path: '/fetch-POI',
