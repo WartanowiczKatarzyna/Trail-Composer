@@ -27,9 +27,6 @@ const Header = () => {
             height="35"
           />
         </NavbarBrand>
-        <NavLink tag={Link} className="text-dark" to="/">
-          <Button size="sm">Znajdź trasy</Button>
-        </NavLink>
       </Nav>
 
       <Nav className="flex-row" navbar>

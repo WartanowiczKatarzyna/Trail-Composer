@@ -138,24 +138,6 @@ export function LocalTable<T extends WithId>({
             }}
             ActionsComponent={TablePaginationActions}
           />
-          <pre>{JSON.stringify(table.getState().pagination, null, 2)}</pre>
-          <div>
-            {Object.keys(rowSelection).length} of{' '}
-            {table.getPreFilteredRowModel().rows.length} Total Rows Selected
-          </div>
-          <div>
-            <button
-              className="border rounded p-2 mb-2"
-              onClick={() =>
-                console.info(
-                  'table.getSelectedRowModel().flatRows',
-                  table.getSelectedRowModel().flatRows
-                )
-              }
-            >
-              Log table.getSelectedRowModel().flatRows
-            </button>
-          </div>
         </Box>
       </div>
     )
