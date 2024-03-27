@@ -81,7 +81,7 @@ const PoiForm = () => {
       
       fetchData();
     }
-  }, [editMode, localPoiId, appData, poiId]);
+  }, [appData, editMode, localPoiId, poiId]);
 
   const validateInput = (name, value) => {
     const emptyMsg = 'Pole jest wymagane.';
@@ -255,7 +255,11 @@ const PoiForm = () => {
     formData.current.set("deletePhoto", photoId.current);
 
     showFormData(formData.current, "after deletePhoto");
-  }
+  };
+
+  const toPrevPage = () => {
+    navigate(-1);
+  };
 
   const showFormData = (formDataArg, comment) => {
     console.log(comment);
@@ -268,7 +272,14 @@ const PoiForm = () => {
     <div className={styles.PoiForm}>
       <Form id="POIForm" onSubmit={handleSubmit} encType="multipart/form-data">
         <Container>
-          <Row className={styles.SectionTitle}>{editMode ? 'Edytowanie POI' : 'Tworzenie POI'}</Row>
+          <Row className={styles.SectionTitle}>
+            <Col sm={1} className="d-flex justify-content-start" >
+              <div className="d-inline-block"><i role="button" onClick={toPrevPage} className="bi bi-arrow-left fs-4"></i></div>
+            </Col>
+            <Col>
+            {editMode ? 'Edytowanie POI' : 'Tworzenie POI'}
+            </Col>
+          </Row>
 
           <Row>
             <Col sm={6}>

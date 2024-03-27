@@ -7,6 +7,7 @@ import styles from './UserPoiListPage.module.css';
 
 import { PoiTable } from '../../../components/tables/PoiTable/PoiTable.tsx';
 import { flattenData } from '../../../components/tables/PoiTable/flattenData.js';
+import TcSpinner from '../../../components/TCSpinner/TCSpinner.js';
 
 import { AppContext } from '../../../App.js';
 import { getAuthHeader } from '../../../utils/auth/getAuthHeader.js';
@@ -84,7 +85,7 @@ const UserPoiListPage = () => {
   return (
     data ? 
       <PoiTable {...{data, onDelete, onEdit, onRowSelect, showColumns}} />
-      : 'Ładuję'
+      : <TcSpinner />
     );
 };
 
