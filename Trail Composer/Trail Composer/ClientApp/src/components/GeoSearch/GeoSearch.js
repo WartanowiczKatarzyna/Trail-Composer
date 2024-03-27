@@ -48,12 +48,11 @@ const GeoSearch = ({selectedCountries, minLatitude, maxLatitude,
   }, [appData]);
 
   const validateInput = (name, value) => {
+    debugger;
     const emptyMsg = 'Pole jest wymagane.';
 
     switch(name) {
-      case "Countries":
-        if (value.length < 1)
-          return 'Wybierz co najmniej jedną opcję.';
+      case "countryIds":
         break;
       case "minLatitude":
       case "maxLatitude":
@@ -117,7 +116,6 @@ const GeoSearch = ({selectedCountries, minLatitude, maxLatitude,
       setFormErrors(errors);
       return;
     }
-    setFormErrorMessage('test');
     setFormErrors({});
 
     setSubmitting(true);
@@ -154,11 +152,11 @@ const GeoSearch = ({selectedCountries, minLatitude, maxLatitude,
       <Form id="GeoSearch" onSubmit={handleSubmit} encType="multipart/form-data">
         <Container>
           <FormGroup>
-            <Label for="Countries" className="text-start">Kraje</Label>
+            <Label for="countryIds" className="text-start">Kraje</Label>
             {
               !!appData &&
               (<Multiselect
-                id="Countries"
+                id="countryIds"
                 options={countriesOptions}
                 selectedValues={selectedCountriesLocal}
                 onSelect={handleCountries}
@@ -238,9 +236,6 @@ const GeoSearch = ({selectedCountries, minLatitude, maxLatitude,
             <FormFeedback>{formErrors.maxLongitude}</FormFeedback>
           </FormGroup>
           <div className={styles.Buttons}>
-            <Button>
-              Anuluj
-            </Button>
             <Button type="submit" disabled={submitting}>
               {submitting ? 'Szukam...' : 'Szukaj'}
             </Button>

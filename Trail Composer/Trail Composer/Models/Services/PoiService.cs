@@ -71,7 +71,7 @@ namespace Trail_Composer.Models.Services
                 .Include(poi => poi.PoiPoitypes)
                 .Include(poi => poi.Tcuser)
                 .Where(poi => (
-                                countryIds.Contains(poi.CountryId) &&
+                                (countryIds.Contains(poi.CountryId) || (countryIds.Length == 0)) &&
                                 (poi.Latitude >= minLatitude) &&
                                 (poi.Latitude <= maxLatitude) &&
                                 (poi.Longitude >= minLongitude) &&
@@ -87,6 +87,7 @@ namespace Trail_Composer.Models.Services
                     CountryId = poi.CountryId,
                     PoiTypeIds = poi.PoiPoitypes.Select(poiPoiType => poiPoiType.Poitype).Select(poiType => poiType.Id).ToList()
                 })
+                .Take(1000)
                 .ToListAsync();
 
             return poiList;
@@ -99,7 +100,7 @@ namespace Trail_Composer.Models.Services
                 .Include(poi => poi.Tcuser)
                 .Where(poi => (
                                 poi.TcuserId == userId &&
-                                countryIds.Contains(poi.CountryId) &&
+                                (countryIds.Contains(poi.CountryId) || (countryIds.Length == 0)) &&
                                 (poi.Latitude >= minLatitude) &&
                                 (poi.Latitude <= maxLatitude) &&
                                 (poi.Longitude >= minLongitude) &&
@@ -115,6 +116,7 @@ namespace Trail_Composer.Models.Services
                     CountryId = poi.CountryId,
                     PoiTypeIds = poi.PoiPoitypes.Select(poiPoiType => poiPoiType.Poitype).Select(poiType => poiType.Id).ToList()
                 })
+                .Take(1000)
                 .ToListAsync();
 
             return poiList;
