@@ -7,6 +7,7 @@ import { useMsal, useAccount, useMsalAuthentication, AuthenticatedTemplate } fro
 import { InteractionType } from '@azure/msal-browser';
 import styles from './POIForm.module.css';
 import { getAuthHeader } from '../../../utils/auth/getAuthHeader.js';
+import BackArrow from '../../../components/BackArrow/BackArrow.js';
 
 const PoiForm = () => {
   const appData = useContext(AppContext);
@@ -274,7 +275,7 @@ const PoiForm = () => {
         <Container>
           <Row className={styles.SectionTitle}>
             <Col sm={1} className="d-flex justify-content-start" >
-              <div className="d-inline-block"><i role="button" onClick={toPrevPage} className="bi bi-arrow-left fs-4"></i></div>
+              <BackArrow />
             </Col>
             <Col>
             {editMode ? 'Edytowanie POI' : 'Tworzenie POI'}

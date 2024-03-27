@@ -7,6 +7,7 @@ import styles from './POIDetails.module.css';
 
 import App, { AppContext } from '../../../App.js';
 import { getAuthHeader } from '../../../utils/auth/getAuthHeader.js';
+import BackArrow from '../../../components/BackArrow/BackArrow.js';
 
 const PoiDetails = () => {
   const appData = useContext(AppContext);
@@ -87,7 +88,7 @@ const PoiDetails = () => {
   <Container className={styles.PoiDetails}>
     <Row className={styles.SectionTitle}>
       <Col sm={1} className="d-flex justify-content-start" >
-          <div className="d-inline-block"><i role="button" onClick={toPrevPage} className="bi bi-arrow-left fs-4"></i></div>
+        <BackArrow />
       </Col>
       <Col>{poi ? poi.name : 'Ładuję...'}</Col>
       {isOwner && 
@@ -110,7 +111,7 @@ const PoiDetails = () => {
         <Row className='mt-2'>{poi.description!==null && (`Opis:`)}</Row>
         <Row className='mt-1'>{poi.description!==null && `${poi.description}`}</Row>
       </Col>)}
-      <Col sm={8}>
+      <Col sm={8} className='d-flex justify-content-center'>
         {!!imagePreview && ( <img src={imagePreview} alt="Preview" className={styles.Photo} /> )}
       </Col>
     </Row>

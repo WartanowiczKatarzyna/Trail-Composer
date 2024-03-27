@@ -110,7 +110,15 @@ const PoiModal = ({ isOpen, toggle, onRowSelect }) => {
               <Container fluid className="p-0">
                 <Row fluid noGutters>
                   <Col md="3" xl="2" fluid className={styles.MenuContainer}>
-                    <GeoSearch/>
+                    <GeoSearch 
+                      //selectedCountries={[{id: 30, name: 'Portugalia'}]} 
+                      //minLatitude={1} 
+                      //maxLatitude={1} 
+                      //minLongitude={1} 
+                      //maxLongitude={1} 
+                      //newDataFlag={1} 
+                      //search={()=>{}}
+                    />
                   </Col>
                   <Col md="9" xl="10" fluid className={styles.ContentContainer}>
                     <PoiTable {...{data, onRowSelect, showColumns}}/>
@@ -122,7 +130,15 @@ const PoiModal = ({ isOpen, toggle, onRowSelect }) => {
               <Container fluid className="p-4">
                 <Row fluid noGutters>
                   <Col md="3" xl="2" fluid className={styles.MenuContainer}>
-                    <GeoSearch/>
+                    <GeoSearch
+                      selectedCountries={[]} 
+                      minLatitude={2} 
+                      maxLatitude={2} 
+                      minLongitude={2} 
+                      maxLongitude={2} 
+                      newDataFlag={2} 
+                      search={()=>{}}
+                    />
                   </Col>
                   <Col md="9" xl="10" fluid className={styles.ContentContainer}>
                     <PoiTable {...{data, onRowSelect, showColumns}}/>

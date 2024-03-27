@@ -3,35 +3,48 @@ import { Button, Form, FormGroup, Label, Input, FormFeedback, Row, Container } f
 import { AppContext } from '../../App.js';
 import Multiselect from 'multiselect-react-dropdown';
 import styles from './GeoSearch.module.css';
+import PropTypes from 'prop-types';
 
-const GeoSearch = () => {
+const GeoSearch = ({selectedCountries, minLatitude, maxLatitude, minLongitude, maxLongitude, newDataFlag, search}) => {
   const appData = useContext(AppContext);
   const [formErrors, setFormErrors] = useState({});
   const [submitting, setSubmitting] = useState(false);
   const [formErrorMessage, setFormErrorMessage] = useState('');
   const [countriesOptions, setCountriesOptions] = useState([]);
 
-  const [selectedCountries, setSelectedCountries] = useState([{id: 29, name: 'Polska'}]);
-  const [minLatitude, setMinLatitude] = useState(-90);
-  const [maxLatitude, setMaxLatitude] = useState(90);
-  const [minLongitude, setMinLongitude] = useState(-180);
-  const [maxLongitude, setMaxLongitude] = useState(180);
+  const [selectedCountriesLocal, setSelectedCountriesLocal] = useState([]);
+  const [minLatitudeLocal, setMinLatitudeLocal] = useState(-89);
+  const [maxLatitudeLocal, setMaxLatitudeLocal] = useState(89);
+  const [minLongitudeLocal, setMinLongitudeLocal] = useState(-179);
+  const [maxLongitudeLocal, setMaxLongitudeLocal] = useState(179);
 
   let formData = useRef(new FormData());
 
   useEffect(() => {
+    setSelectedCountriesLocal(selectedCountries);
+    setMinLatitudeLocal(minLatitude);
+    setMaxLatitudeLocal(maxLatitude);
+    setMinLongitudeLocal(minLongitude);
+    setMaxLongitudeLocal(maxLongitude);
 
-    const form = document.getElementById("GeoSearch");
-    formData.current = new FormData(form);
+    handleCountries(selectedCountriesLocal);
+  }, [selectedCountries, minLatitude, maxLatitude, minLongitude, maxLongitude]);
+
+  useEffect(() => {
+    setSubmitting(false);
+  }, [newDataFlag]);
+  
+  useEffect(() => {
+    //const form = document.getElementById("GeoSearch");
+    //formData.current = new FormData(form);
     const multiselectOptions = appData ? appData.Countries.map((option) => ({ id: option.id, name: option.countryName })) : [];
     setCountriesOptions(multiselectOptions);
-    handleCountries(selectedCountries);
-  }, [appData, selectedCountries]);
+  }, [appData]);
 
   const validateInput = (name, value) => {
     const emptyMsg = 'Pole jest wymagane.';
 
-    switch(name ) {
+    switch(name) {
       case "Countries":
         if (value.length < 1)
           return 'Wybierz co najmniej jedną opcję.';
@@ -63,16 +76,16 @@ const GeoSearch = () => {
 
     switch (name) {
       case "minLatitude":
-        setMinLatitude(value);
+        setMinLatitudeLocal(value);
         break;
       case "maxLatitude":
-        setMaxLatitude(value);
+        setMaxLatitudeLocal(value);
         break;
       case "minLongitude":
-        setMinLongitude(value);
+        setMinLongitudeLocal(value);
         break;
       case "maxLongitude":
-        setMaxLongitude(value);
+        setMaxLongitudeLocal(value);
         break;
       default:
         break;
@@ -83,7 +96,6 @@ const GeoSearch = () => {
       setFormErrors({ ...formErrors, [name]: errors });
   };
 
-  // TO-DO: dodać fetch oraz wartości pól do propsów komponentu
   const handleSubmit = async (e) => {
     e.preventDefault();
     const errors = {};
@@ -104,12 +116,14 @@ const GeoSearch = () => {
     setSubmitting(true);
 
     showFormData(formData.current, "przed fetch");
+
+    search(selectedCountriesLocal, minLatitudeLocal, maxLatitudeLocal, minLongitudeLocal, maxLongitudeLocal);
   };
 
   // Callback when Countries are selected or removed
   const handleCountries = (selectedList) => {
     const name = "countryIds";
-    setSelectedCountries(selectedList);
+    setSelectedCountriesLocal(selectedList);
 
     formData.current.delete(name);
     if (selectedList.length === 0) {
@@ -139,7 +153,7 @@ const GeoSearch = () => {
               (<Multiselect
                 id="Countries"
                 options={countriesOptions}
-                selectedValues={selectedCountries}
+                selectedValues={selectedCountriesLocal}
                 onSelect={handleCountries}
                 onRemove={handleCountries}
                 displayValue="name"
@@ -158,7 +172,7 @@ const GeoSearch = () => {
               name="minLatitude"
               type="number"
               id="minLatitude"
-              value={minLatitude}
+              value={minLatitudeLocal}
               onChange={handleInputChange}
               invalid={!!formErrors.minLatitude}
               placeholder = "wprowadź liczbę dziesiętną"
@@ -174,7 +188,7 @@ const GeoSearch = () => {
               name="maxLatitude"
               type="number"
               id="maxLatitude"
-              value={maxLatitude}
+              value={maxLatitudeLocal}
               onChange={handleInputChange}
               invalid={!!formErrors.maxLatitude}
               placeholder = "wprowadź liczbę dziesiętną"
@@ -190,7 +204,7 @@ const GeoSearch = () => {
               name="minLongitude"
               type="number"
               id="minLongitude"
-              value={minLongitude}
+              value={minLongitudeLocal}
               onChange={handleInputChange}
               invalid={!!formErrors.minLongitude}
               placeholder = "wprowadź liczbę dziesiętną"
@@ -206,7 +220,7 @@ const GeoSearch = () => {
               name="maxLongitude"
               type="number"
               id="maxLongitude"
-              value={maxLongitude}
+              value={maxLongitudeLocal}
               onChange={handleInputChange}
               invalid={!!formErrors.maxLongitude}
               placeholder = "wprowadź liczbę dziesiętną"
@@ -221,7 +235,7 @@ const GeoSearch = () => {
               Anuluj
             </Button>
             <Button type="submit" disabled={submitting}>
-              {submitting ? 'Filtruję...' : 'Filtruj'}
+              {submitting ? 'Szukam...' : 'Szukaj'}
             </Button>
           </div>
           <p className={styles.FormErrorMessage}>{formErrorMessage}</p>
@@ -231,8 +245,24 @@ const GeoSearch = () => {
   );
 };
 
-GeoSearch.propTypes = {};
+GeoSearch.propTypes = {
+  selectedCountries: PropTypes.array,
+  minLatitude: PropTypes.number,
+  maxLatitude: PropTypes.number,
+  minLongitude: PropTypes.number,
+  maxLongitude: PropTypes.number,
+  search: PropTypes.func,
+  newDataFlag: PropTypes.number
+};
 
-GeoSearch.defaultProps = {};
+GeoSearch.defaultProps = {
+  selectedCountries: [{id: 28, name: 'Norwegia'}],
+  minLatitude: -90,
+  maxLatitude: 90,
+  minLongitude: -180,
+  maxLongitude: 180,
+  search: () => {},
+  newDataFlag: 0
+};
 
 export default GeoSearch;
