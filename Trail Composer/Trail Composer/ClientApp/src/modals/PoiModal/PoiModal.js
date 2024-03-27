@@ -65,8 +65,8 @@ const PoiModal = ({ isOpen, toggle, onRowSelect }) => {
   const rerender = React.useReducer(() => ({}), {})[1];
   const showColumns = {
     'id': false
-  }
-
+  };
+  
   useEffect(() => {
     //fetchData();
   }, [account, appData]);
@@ -80,6 +80,23 @@ const PoiModal = ({ isOpen, toggle, onRowSelect }) => {
 
   const toggleTab = tab => {
     if(activeTab !== tab) setActiveTab(tab);
+  }
+
+  const searchUserPoi = (selectedCountries, minLatitude, maxLatitude, minLongitude, maxLongitude) => {
+    console.info('searchUserPoi');
+    console.info('selectedCountries: ', selectedCountries);
+    console.info('minLatitude: ', minLatitude);
+    console.info('maxLatitude: ', maxLatitude);
+    console.info('minLongitude: ', minLongitude);
+    console.info('maxLongitude: ', maxLongitude);
+  }
+  const searchOtherPoi = (selectedCountries, minLatitude, maxLatitude, minLongitude, maxLongitude) => {
+    console.info('searchOtherPoi');
+    console.info('selectedCountries: ', selectedCountries);
+    console.info('minLatitude: ', minLatitude);
+    console.info('maxLatitude: ', maxLatitude);
+    console.info('minLongitude: ', minLongitude);
+    console.info('maxLongitude: ', maxLongitude);
   }
 
   return (
@@ -111,13 +128,13 @@ const PoiModal = ({ isOpen, toggle, onRowSelect }) => {
                 <Row fluid noGutters>
                   <Col md="3" xl="2" fluid className={styles.MenuContainer}>
                     <GeoSearch 
-                      //selectedCountries={[{id: 30, name: 'Portugalia'}]} 
-                      //minLatitude={1} 
-                      //maxLatitude={1} 
-                      //minLongitude={1} 
-                      //maxLongitude={1} 
-                      //newDataFlag={1} 
-                      //search={()=>{}}
+                      selectedCountries={[{id: 28, name: 'Portugalia'}]} 
+                      minLatitude={1} 
+                      maxLatitude={1} 
+                      minLongitude={1} 
+                      maxLongitude={1} 
+                      newDataFlag={1} 
+                      search={searchUserPoi}
                     />
                   </Col>
                   <Col md="9" xl="10" fluid className={styles.ContentContainer}>
@@ -137,7 +154,7 @@ const PoiModal = ({ isOpen, toggle, onRowSelect }) => {
                       minLongitude={2} 
                       maxLongitude={2} 
                       newDataFlag={2} 
-                      search={()=>{}}
+                      search={searchOtherPoi}
                     />
                   </Col>
                   <Col md="9" xl="10" fluid className={styles.ContentContainer}>

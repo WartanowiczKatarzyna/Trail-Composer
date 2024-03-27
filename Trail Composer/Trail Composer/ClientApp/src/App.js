@@ -27,7 +27,8 @@ const App = () => {
       PoiTypesMap: new Map()
     };
 
-    /*//initialData.CountryNamesMap = new Map();
+    /* mapowanie zamockowanych wartości
+    //initialData.CountryNamesMap = new Map();
     initialData.Countries.forEach(country => {
       initialData.CountryNamesMap.set(country.id, country.countryName);
     });

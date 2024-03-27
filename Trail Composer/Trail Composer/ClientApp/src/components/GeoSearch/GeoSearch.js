@@ -5,7 +5,8 @@ import Multiselect from 'multiselect-react-dropdown';
 import styles from './GeoSearch.module.css';
 import PropTypes from 'prop-types';
 
-const GeoSearch = ({selectedCountries, minLatitude, maxLatitude, minLongitude, maxLongitude, newDataFlag, search}) => {
+const GeoSearch = ({selectedCountries, minLatitude, maxLatitude, 
+  minLongitude, maxLongitude, newDataFlag, search}) => {
   const appData = useContext(AppContext);
   const [formErrors, setFormErrors] = useState({});
   const [submitting, setSubmitting] = useState(false);
@@ -21,13 +22,19 @@ const GeoSearch = ({selectedCountries, minLatitude, maxLatitude, minLongitude, m
   let formData = useRef(new FormData());
 
   useEffect(() => {
-    setSelectedCountriesLocal(selectedCountries);
+    const form = document.getElementById("GeoSearch");
+    formData.current = new FormData(form);
+    
     setMinLatitudeLocal(minLatitude);
     setMaxLatitudeLocal(maxLatitude);
     setMinLongitudeLocal(minLongitude);
     setMaxLongitudeLocal(maxLongitude);
 
-    handleCountries(selectedCountriesLocal);
+    handleCountries(selectedCountries);
+    formData.current.set("minLatitude", minLatitude);
+    formData.current.set("maxLatitude", maxLatitude);
+    formData.current.set("minLongitude", minLongitude);
+    formData.current.set("maxLongitude", maxLongitude);
   }, [selectedCountries, minLatitude, maxLatitude, minLongitude, maxLongitude]);
 
   useEffect(() => {
@@ -35,9 +42,8 @@ const GeoSearch = ({selectedCountries, minLatitude, maxLatitude, minLongitude, m
   }, [newDataFlag]);
   
   useEffect(() => {
-    //const form = document.getElementById("GeoSearch");
-    //formData.current = new FormData(form);
-    const multiselectOptions = appData ? appData.Countries.map((option) => ({ id: option.id, name: option.countryName })) : [];
+    const multiselectOptions = appData ? appData.Countries.map(
+      (option) => ({ id: option.id, name: option.countryName })) : [];
     setCountriesOptions(multiselectOptions);
   }, [appData]);
 
@@ -72,6 +78,7 @@ const GeoSearch = ({selectedCountries, minLatitude, maxLatitude, minLongitude, m
   };
   
   const handleInputChange = (e) => {
+    //debugger;
     const { name, value } = e.target;
 
     switch (name) {
@@ -95,7 +102,7 @@ const GeoSearch = ({selectedCountries, minLatitude, maxLatitude, minLongitude, m
       formData.current.set(name, value);
       setFormErrors({ ...formErrors, [name]: errors });
   };
-
+  
   const handleSubmit = async (e) => {
     e.preventDefault();
     const errors = {};
@@ -123,7 +130,7 @@ const GeoSearch = ({selectedCountries, minLatitude, maxLatitude, minLongitude, m
   // Callback when Countries are selected or removed
   const handleCountries = (selectedList) => {
     const name = "countryIds";
-    setSelectedCountriesLocal(selectedList);
+    setSelectedCountriesLocal([...selectedList]);
 
     formData.current.delete(name);
     if (selectedList.length === 0) {
@@ -256,7 +263,7 @@ GeoSearch.propTypes = {
 };
 
 GeoSearch.defaultProps = {
-  selectedCountries: [{id: 28, name: 'Norwegia'}],
+  selectedCountries: [{id: 27, name: 'Norwegia'}],
   minLatitude: -90,
   maxLatitude: 90,
   minLongitude: -180,
