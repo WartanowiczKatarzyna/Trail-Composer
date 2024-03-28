@@ -6,7 +6,7 @@ import styles from './GeoSearch.module.css';
 import PropTypes from 'prop-types';
 
 const GeoSearch = ({selectedCountries, minLatitude, maxLatitude, 
-  minLongitude, maxLongitude, newDataFlag, search}) => {
+  minLongitude, maxLongitude, newDataFlag, search, tooManyResultsMsg}) => {
   const appData = useContext(AppContext);
   const [formErrors, setFormErrors] = useState({});
   const [submitting, setSubmitting] = useState(false);
@@ -46,6 +46,14 @@ const GeoSearch = ({selectedCountries, minLatitude, maxLatitude,
 
   useEffect(() => {
     setSubmitting(false);
+    
+    /* Po przyjściu danych FormErrorMsg i FormError są puste,
+      tooManyResultMsg pełni funkcję informacyjną
+     */
+    if (tooManyResultsMsg.length > 0)
+    {
+      setFormErrorMessage(tooManyResultsMsg);
+    }     
   }, [newDataFlag]);
   
   useEffect(() => {
@@ -124,6 +132,7 @@ const GeoSearch = ({selectedCountries, minLatitude, maxLatitude,
       return;
     }
     setFormErrors({});
+    setFormErrorMessage('');
 
     setSubmitting(true);
 
@@ -283,7 +292,7 @@ const GeoSearch = ({selectedCountries, minLatitude, maxLatitude,
           </FormGroup>
           <div className={styles.Buttons}>
             <Button type="submit" disabled={submitting && geoSearchChanged}>
-              {submitting ? 'Szukam...' : geoSearchChanged ? 'Szukaj' : 'Dane aktualne'}
+              {submitting ? 'Szukam...' : geoSearchChanged ? 'Szukaj' : 'Zmień dane'}
             </Button>
           </div>
           <p className={styles.FormErrorMessage}>{formErrorMessage}</p>
@@ -300,17 +309,19 @@ GeoSearch.propTypes = {
   minLongitude: PropTypes.number,
   maxLongitude: PropTypes.number,
   search: PropTypes.func,
-  newDataFlag: PropTypes.number
+  newDataFlag: PropTypes.number,
+  tooManyResultsMsg: PropTypes.string
 };
 
 GeoSearch.defaultProps = {
-  selectedCountries: [{id: 27, name: 'Norwegia'}],
+  selectedCountries: [],
   minLatitude: -90,
   maxLatitude: 90,
   minLongitude: -180,
   maxLongitude: 180,
   search: () => {},
-  newDataFlag: 0
+  newDataFlag: 0,
+  tooManyResultsMsg: ''
 };
 
 export default GeoSearch;
