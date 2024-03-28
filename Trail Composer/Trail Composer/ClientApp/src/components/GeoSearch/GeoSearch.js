@@ -10,6 +10,7 @@ const GeoSearch = ({selectedCountries, minLatitude, maxLatitude,
   const appData = useContext(AppContext);
   const [formErrors, setFormErrors] = useState({});
   const [submitting, setSubmitting] = useState(false);
+  const [geoSearchChanged, setGeoSearchChanged] = useState(false);
   const [formErrorMessage, setFormErrorMessage] = useState('');
   const [countriesOptions, setCountriesOptions] = useState([]);
 
@@ -24,6 +25,8 @@ const GeoSearch = ({selectedCountries, minLatitude, maxLatitude,
   useEffect(() => {
     const form = document.getElementById("GeoSearch");
     formData.current = new FormData(form);
+
+    updateGeoSearchChanged();
     
     setMinLatitudeLocal(minLatitude);
     setMaxLatitudeLocal(maxLatitude);
@@ -36,6 +39,10 @@ const GeoSearch = ({selectedCountries, minLatitude, maxLatitude,
     formData.current.set("minLongitude", minLongitude);
     formData.current.set("maxLongitude", maxLongitude);
   }, [selectedCountries, minLatitude, maxLatitude, minLongitude, maxLongitude]);
+
+  useEffect(() => {
+    updateGeoSearchChanged();
+  }, [selectedCountriesLocal, minLatitudeLocal, maxLatitudeLocal, minLongitudeLocal, maxLongitudeLocal]);
 
   useEffect(() => {
     setSubmitting(false);
@@ -120,7 +127,7 @@ const GeoSearch = ({selectedCountries, minLatitude, maxLatitude,
 
     setSubmitting(true);
 
-    showFormData(formData.current, "przed fetch");
+    showFormData(formData.current, "przed search");
 
     search(selectedCountriesLocal, minLatitudeLocal, maxLatitudeLocal, minLongitudeLocal, maxLongitudeLocal);
   };
@@ -140,6 +147,45 @@ const GeoSearch = ({selectedCountries, minLatitude, maxLatitude,
     setFormErrors({ ...formErrors, [name]: errors });    
   };
 
+  const areCoordinatesIdetical = () => (
+    Math.abs(minLatitudeLocal - minLatitude) +
+    Math.abs(maxLatitudeLocal - maxLatitude) +
+    Math.abs(minLongitudeLocal - minLongitude) +
+    Math.abs(minLongitudeLocal - minLongitude) < 0.0001
+  );
+
+  const areSelectedCountriesIdentical = () => {
+    const arr1 = selectedCountries.map(country => country.id);
+    const arr2 = selectedCountriesLocal.map(country => country.id);
+   
+    if (arr1.length !== arr2.length) {
+        return false; // Arrays are not identical
+    }
+   
+    arr1.sort((a, b) => a - b);
+    arr2.sort((a, b) => a - b);
+   
+    for (let i = 0; i < arr1.length; i++) {
+        // Compare each element
+        if (arr1[i] !== arr2[i]) {
+            return false; // Arrays are not identical
+        }
+    }
+
+    // If all elements are the same, arrays are identical
+    return true;
+  };
+
+  const isGeoSearchIdentical = () => (areCoordinatesIdetical() && areSelectedCountriesIdentical());
+
+  const updateGeoSearchChanged = () => {
+    if (isGeoSearchIdentical()){
+      setGeoSearchChanged(false);
+    } else {
+      setGeoSearchChanged(true);
+    }
+  };
+  
   const showFormData = (formDataArg, comment) => {
     console.log(comment);
     for (const pair of formDataArg.entries()) {
@@ -236,8 +282,8 @@ const GeoSearch = ({selectedCountries, minLatitude, maxLatitude,
             <FormFeedback>{formErrors.maxLongitude}</FormFeedback>
           </FormGroup>
           <div className={styles.Buttons}>
-            <Button type="submit" disabled={submitting}>
-              {submitting ? 'Szukam...' : 'Szukaj'}
+            <Button type="submit" disabled={submitting && geoSearchChanged}>
+              {submitting ? 'Szukam...' : geoSearchChanged ? 'Szukaj' : 'Dane aktualne'}
             </Button>
           </div>
           <p className={styles.FormErrorMessage}>{formErrorMessage}</p>
