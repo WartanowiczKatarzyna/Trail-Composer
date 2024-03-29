@@ -10,7 +10,7 @@ import {
   Nav,
   NavItem,
   NavLink,
-  TabContent, TabPane
+  TabContent, TabPane, Button
 } from 'reactstrap';
 import { useMsal, useAccount, useIsAuthenticated } from "@azure/msal-react";
 import PropTypes from 'prop-types';
@@ -23,6 +23,7 @@ import GeoSearch from '../../components/GeoSearch/GeoSearch.js';
 import { PoiTable } from '../../components/tables/PoiTable/PoiTable.tsx';
 import { flattenData } from '../../components/tables/PoiTable/flattenData.js';
 import { getAuthHeader } from '../../utils/auth/getAuthHeader.js';
+import TcSpinner from '../../components/TCSpinner/TCSpinner.js';
 
 const PoiModal = ({ isOpen, toggle, onRowSelect }) => {
   const appData = useContext(AppContext);
@@ -33,6 +34,12 @@ const PoiModal = ({ isOpen, toggle, onRowSelect }) => {
   const rowNumFaker = useRef(1000);
 
   const [activeTab, setActiveTab] = useState('user');
+
+  const [newUserPoiListFlag, setNewUserPoiListFlag] = useState(false);
+  const [newOtherPoiListFlag, setNewOtherPoiListFlag] = useState(false);
+
+  const [data, setData] = React.useState(() => flattenData(makeData(rowNumFaker.current), appData));
+  const [showTcSpinner, setShowTcSpinner] = useState(false);
 
   const fetchData = async () => {
     const authorizationHeader = await getAuthHeader(pca, account);
@@ -59,8 +66,7 @@ const PoiModal = ({ isOpen, toggle, onRowSelect }) => {
         navigate('/');
       });
   }
-
-  const [data, setData] = React.useState(() => flattenData(makeData(rowNumFaker.current), appData));
+  
   const refreshData = () => setData(() => flattenData(makeData(rowNumFaker.current), appData));
   const rerender = React.useReducer(() => ({}), {})[1];
   const showColumns = {
@@ -68,8 +74,14 @@ const PoiModal = ({ isOpen, toggle, onRowSelect }) => {
   };
   
   useEffect(() => {
-    //fetchData();
-  }, [account, appData]);
+    setTimeout(()=>{
+      setNewUserPoiListFlag(true);
+    }, 30000);
+  },[])
+  
+  useEffect(() => {
+    setShowTcSpinner(false);
+  }, [newUserPoiListFlag, newOtherPoiListFlag]);
 
   useEffect(() => {
     console.log(appData);
@@ -89,7 +101,10 @@ const PoiModal = ({ isOpen, toggle, onRowSelect }) => {
     console.info('maxLatitude: ', maxLatitude);
     console.info('minLongitude: ', minLongitude);
     console.info('maxLongitude: ', maxLongitude);
+
+    setShowTcSpinner(true);
   }
+
   const searchOtherPoi = (selectedCountries, minLatitude, maxLatitude, minLongitude, maxLongitude) => {
     console.info('searchOtherPoi');
     console.info('selectedCountries: ', selectedCountries);
@@ -97,10 +112,13 @@ const PoiModal = ({ isOpen, toggle, onRowSelect }) => {
     console.info('maxLatitude: ', maxLatitude);
     console.info('minLongitude: ', minLongitude);
     console.info('maxLongitude: ', maxLongitude);
+
+    setShowTcSpinner(true);
   }
 
   return (
     <>
+      {showTcSpinner && <TcSpinner/>}
       <Modal isOpen={isOpen} toggle={toggle} fullscreen>
         <ModalHeader toggle={toggle}>Dodawanie POI</ModalHeader>
         <ModalBody>
@@ -133,7 +151,7 @@ const PoiModal = ({ isOpen, toggle, onRowSelect }) => {
                       maxLatitude={1} 
                       minLongitude={1} 
                       maxLongitude={1} 
-                      newDataFlag={1} 
+                      newDataFlag={newUserPoiListFlag} 
                       search={searchUserPoi}
                     />
                   </Col>
@@ -153,7 +171,7 @@ const PoiModal = ({ isOpen, toggle, onRowSelect }) => {
                       maxLatitude={2} 
                       minLongitude={2} 
                       maxLongitude={2} 
-                      newDataFlag={2} 
+                      newDataFlag={newOtherPoiListFlag} 
                       search={searchOtherPoi}
                     />
                   </Col>

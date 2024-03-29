@@ -4,6 +4,7 @@ import { AppContext } from '../../App.js';
 import Multiselect from 'multiselect-react-dropdown';
 import styles from './GeoSearch.module.css';
 import PropTypes from 'prop-types';
+import TCSpinner from '../TCSpinner/TCSpinner.js';
 
 const GeoSearch = ({selectedCountries, minLatitude, maxLatitude, 
   minLongitude, maxLongitude, newDataFlag, search, tooManyResultsMsg}) => {
@@ -63,7 +64,6 @@ const GeoSearch = ({selectedCountries, minLatitude, maxLatitude,
   }, [appData]);
 
   const validateInput = (name, value) => {
-    debugger;
     const emptyMsg = 'Pole jest wymagane.';
 
     switch(name) {
@@ -92,7 +92,6 @@ const GeoSearch = ({selectedCountries, minLatitude, maxLatitude,
   };
   
   const handleInputChange = (e) => {
-    //debugger;
     const { name, value } = e.target;
 
     switch (name) {
@@ -291,8 +290,8 @@ const GeoSearch = ({selectedCountries, minLatitude, maxLatitude,
             <FormFeedback>{formErrors.maxLongitude}</FormFeedback>
           </FormGroup>
           <div className={styles.Buttons}>
-            <Button type="submit" disabled={submitting && geoSearchChanged}>
-              {submitting ? 'Szukam...' : geoSearchChanged ? 'Szukaj' : 'Zmień dane'}
+            <Button type="submit" disabled={submitting || !geoSearchChanged}>
+              {submitting ? 'Szukam...' : geoSearchChanged ? 'Szukaj' : 'Zmień dane'} 
             </Button>
           </div>
           <p className={styles.FormErrorMessage}>{formErrorMessage}</p>
