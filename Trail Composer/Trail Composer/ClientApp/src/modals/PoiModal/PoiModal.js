@@ -24,8 +24,9 @@ import { PoiTable } from '../../components/tables/PoiTable/PoiTable.tsx';
 import { flattenData } from '../../components/tables/PoiTable/flattenData.js';
 import { getAuthHeader } from '../../utils/auth/getAuthHeader.js';
 import TcSpinner from '../../components/TCSpinner/TCSpinner.js';
+import { useTcStore } from '../../store/TcStore.js';
 
-const PoiModal = ({ isOpen, toggle, onRowSelect }) => {
+const PoiModal = ({ isOpen, toggle, onRowSelect }) => {    
   const appData = useContext(AppContext);
   const { instance: pca, accounts } = useMsal();
   const account = useAccount(accounts[0] || {});
@@ -41,43 +42,25 @@ const PoiModal = ({ isOpen, toggle, onRowSelect }) => {
   const [data, setData] = React.useState(() => flattenData(makeData(rowNumFaker.current), appData));
   const [showTcSpinner, setShowTcSpinner] = useState(false);
 
-  const fetchData = async () => {
-    const authorizationHeader = await getAuthHeader(pca, account);
+  const userData = useTcStore((state) => state.poiUserFiltered);
+  const userSelectedCountries = useTcStore((state) => state.poiUserFilteredSelectedCountries);
+  const userMinLatitude = useTcStore((state) => state.poiUserFilteredMinLatitude);
+  const userMaxLatitude = useTcStore((state) => state.poiUserFilteredMaxLatitude);
+  const userMinLongitude = useTcStore((state) => state.poiUserFilteredMinLongitude);
+  const userMaxLongitude = useTcStore((state) => state.poiUserFilteredMaxLongitude);
 
-    fetch(`tc-api/poi/list/filtered`,
-      {
-        method: "GET",
-        headers: {
-          Authorization: authorizationHeader
-        }
-      })
-      .then(response => {
-        if (response.status)
-          return response.json()
-        else
-          navigate('/error/page-not-found');
-      })
-      .then(data => {
-        console.log(data);
-        setData(flattenData(data, appData));
-      })
-      .catch(error => {
-        console.log(error);
-        navigate('/');
-      });
-  }
+  const otherData = useTcStore((state) => state.poiOtherFiltered);
+
+  const saveUserGeoSearchOptions = useTcStore((state) => state.savePoiUserGeoSearchOptions);
+  const saveOtherGeoSearchOptions = useTcStore((state) => state.savePoiOtherGeoSearchOptions);
+  const fetchUserData = useTcStore((state) => state.fetchPoiUserFiltered);
+  const fetchOtherData = useTcStore((state) => state.fetchPoiOtherFiltered);
   
   const refreshData = () => setData(() => flattenData(makeData(rowNumFaker.current), appData));
   const rerender = React.useReducer(() => ({}), {})[1];
   const showColumns = {
     'id': false
   };
-  
-  useEffect(() => {
-    setTimeout(()=>{
-      setNewUserPoiListFlag(true);
-    }, 30000);
-  },[])
   
   useEffect(() => {
     setShowTcSpinner(false);
@@ -92,7 +75,7 @@ const PoiModal = ({ isOpen, toggle, onRowSelect }) => {
 
   const toggleTab = tab => {
     if(activeTab !== tab) setActiveTab(tab);
-  }
+  };
 
   const searchUserPoi = (selectedCountries, minLatitude, maxLatitude, minLongitude, maxLongitude) => {
     console.info('searchUserPoi');
@@ -101,9 +84,11 @@ const PoiModal = ({ isOpen, toggle, onRowSelect }) => {
     console.info('maxLatitude: ', maxLatitude);
     console.info('minLongitude: ', minLongitude);
     console.info('maxLongitude: ', maxLongitude);
+    console.info('userData: ', userData);
 
     setShowTcSpinner(true);
-  }
+    fetchUserData(selectedCountries, minLatitude, maxLatitude, minLongitude, maxLongitude, pca, account, appData);
+  };
 
   const searchOtherPoi = (selectedCountries, minLatitude, maxLatitude, minLongitude, maxLongitude) => {
     console.info('searchOtherPoi');
@@ -114,12 +99,13 @@ const PoiModal = ({ isOpen, toggle, onRowSelect }) => {
     console.info('maxLongitude: ', maxLongitude);
 
     setShowTcSpinner(true);
-  }
+    fetchOtherData(selectedCountries, minLatitude, maxLatitude, minLongitude, maxLongitude);
+  };
 
   return (
     <>
       {showTcSpinner && <TcSpinner/>}
-      <Modal isOpen={isOpen} toggle={toggle} fullscreen>
+      <Modal isOpen={isOpen} toggle={toggle} onClosed={saveUserGeoSearchOptions} fullscreen>
         <ModalHeader toggle={toggle}>Dodawanie POI</ModalHeader>
         <ModalBody>
           <Nav tabs>
@@ -146,17 +132,17 @@ const PoiModal = ({ isOpen, toggle, onRowSelect }) => {
                 <Row fluid noGutters>
                   <Col md="3" xl="2" fluid className={styles.MenuContainer}>
                     <GeoSearch 
-                      selectedCountries={[{id: 28, name: 'Portugalia'}]} 
-                      minLatitude={1} 
-                      maxLatitude={1} 
-                      minLongitude={1} 
-                      maxLongitude={1} 
+                      selectedCountries={userSelectedCountries} 
+                      minLatitude={userMinLatitude} 
+                      maxLatitude={userMaxLatitude} 
+                      minLongitude={userMinLongitude} 
+                      maxLongitude={userMaxLongitude} 
                       newDataFlag={newUserPoiListFlag} 
                       search={searchUserPoi}
                     />
                   </Col>
                   <Col md="9" xl="10" fluid className={styles.ContentContainer}>
-                    <PoiTable {...{data, onRowSelect, showColumns}}/>
+                    {userData.length>0 && <PoiTable {...{onRowSelect, showColumns}} data={userData}/>}
                   </Col>
                 </Row>
               </Container>
@@ -176,7 +162,7 @@ const PoiModal = ({ isOpen, toggle, onRowSelect }) => {
                     />
                   </Col>
                   <Col md="9" xl="10" fluid className={styles.ContentContainer}>
-                    <PoiTable {...{data, onRowSelect, showColumns}}/>
+                    {otherData.length>0 && <PoiTable {...{ onRowSelect, showColumns}} data={otherData}/>}
                   </Col>
                 </Row>
               </Container>

@@ -4,11 +4,15 @@ import { AppContext } from '../../App.js';
 import Multiselect from 'multiselect-react-dropdown';
 import styles from './GeoSearch.module.css';
 import PropTypes from 'prop-types';
-import TCSpinner from '../TCSpinner/TCSpinner.js';
+import { useMsal, useAccount, useIsAuthenticated } from "@azure/msal-react";
 
 const GeoSearch = ({selectedCountries, minLatitude, maxLatitude, 
   minLongitude, maxLongitude, newDataFlag, search, tooManyResultsMsg}) => {
   const appData = useContext(AppContext);
+  const { instance: pca, accounts } = useMsal();
+  const account = useAccount(accounts[0] || {});
+
+
   const [formErrors, setFormErrors] = useState({});
   const [submitting, setSubmitting] = useState(false);
   const [geoSearchChanged, setGeoSearchChanged] = useState(false);
@@ -135,9 +139,8 @@ const GeoSearch = ({selectedCountries, minLatitude, maxLatitude,
 
     setSubmitting(true);
 
-    showFormData(formData.current, "przed search");
-
-    search(selectedCountriesLocal, minLatitudeLocal, maxLatitudeLocal, minLongitudeLocal, maxLongitudeLocal);
+    search(selectedCountriesLocal, minLatitudeLocal, maxLatitudeLocal, minLongitudeLocal, maxLongitudeLocal, 
+      pca, account, appData);
   };
 
   // Callback when Countries are selected or removed

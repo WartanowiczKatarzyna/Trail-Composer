@@ -13,7 +13,7 @@ import { AppContext, AppContextValueType } from '../../../App';
 import { LocalTable } from '../LocalTable/LocalTable';
 import { ColumnVisibility } from '../LocalTable/ColumnVisibility';
 
-export  function PoiTable({
+export function PoiTable({
   data,
   onDelete,
   onEdit,
