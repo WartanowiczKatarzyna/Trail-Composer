@@ -55,9 +55,10 @@ export const createPoiUserFilteredSlice = (set) => ({
 
       const connString = 'http://localhost:44491/tc-api/poi/list/filtered';
       const url = new URL(connString);
-      const queryParams = { countryIds, minLatitude, maxLatitude, minLongitude, maxLongitude };
-      const params = new URLSearchParams(queryParams);
-      url.search = params.toString();
+      const queryParams1 = { countryIds };
+      const queryParams2 = { minLatitude, maxLatitude, minLongitude, maxLongitude };
+      queryParams1.countryIds.forEach(id => url.searchParams.append('countryIds', id));
+      Object.entries(queryParams2).forEach(([key, value]) => url.searchParams.append(key, value));
       
       console.info('url: ', url);
       

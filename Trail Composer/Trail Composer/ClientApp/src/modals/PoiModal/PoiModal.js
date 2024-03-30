@@ -64,7 +64,7 @@ const PoiModal = ({ isOpen, toggle, onRowSelect }) => {
   
   useEffect(() => {
     setShowTcSpinner(false);
-  }, [newUserPoiListFlag, newOtherPoiListFlag]);
+  }, [userData, otherData]);
 
   useEffect(() => {
     console.log(appData);
