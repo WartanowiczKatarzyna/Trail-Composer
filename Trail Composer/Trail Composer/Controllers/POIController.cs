@@ -41,11 +41,13 @@ namespace Trail_Composer.Controllers
             return Ok(result);
         }
 
+        [Authorize]
         [HttpGet("list/filtered")]
         public async Task<ActionResult> GetFilteredPOIList([FromQuery] int[] countryIds, [FromQuery] decimal minLatitude, [FromQuery] decimal maxLatitude,
             [FromQuery] decimal minLongitude, [FromQuery] decimal maxLongitude)
         {
-            var result = await _poiService.GetFilteredPoiListAsync(countryIds, minLatitude, maxLatitude, minLongitude, maxLongitude);
+            var userId = TCUserDTO.GetUserIdFromContext(this.HttpContext);
+            var result = await _poiService.GetFilteredPoiListAsync(userId ,countryIds, minLatitude, maxLatitude, minLongitude, maxLongitude);
             return Ok(result);
         }
 

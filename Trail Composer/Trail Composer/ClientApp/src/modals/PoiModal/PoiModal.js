@@ -54,6 +54,11 @@ const PoiModal = ({ isOpen, toggle, onRowSelect }) => {
   const userMaxLongitude = useTcStore((state) => state.poiUserFilteredMaxLongitude);
 
   const otherData = useTcStore((state) => state.poiOtherFiltered);
+  const otherSelectedCountries = useTcStore((state) => state.poiOtherFilteredSelectedCountries);
+  const otherMinLatitude = useTcStore((state) => state.poiOtherFilteredMinLatitude);
+  const otherMaxLatitude = useTcStore((state) => state.poiOtherFilteredMaxLatitude);
+  const otherMinLongitude = useTcStore((state) => state.poiOtherFilteredMinLongitude);
+  const otherMaxLongitude = useTcStore((state) => state.poiOtherFilteredMaxLongitude);
 
   const saveUserGeoSearchOptions = useTcStore((state) => state.savePoiUserGeoSearchOptions);
   const saveOtherGeoSearchOptions = useTcStore((state) => state.savePoiOtherGeoSearchOptions);
@@ -100,34 +105,19 @@ const PoiModal = ({ isOpen, toggle, onRowSelect }) => {
   };
 
   const searchUserPoi = (selectedCountries, minLatitude, maxLatitude, minLongitude, maxLongitude) => {
-    console.info('searchUserPoi');
-    console.info('selectedCountries: ', selectedCountries);
-    console.info('minLatitude: ', minLatitude);
-    console.info('maxLatitude: ', maxLatitude);
-    console.info('minLongitude: ', minLongitude);
-    console.info('maxLongitude: ', maxLongitude);
-    console.info('userData: ', userData);
-
     setShowTcSpinner(true);
     fetchUserData(selectedCountries, minLatitude, maxLatitude, minLongitude, maxLongitude, pca, account, appData);
   };
 
   const searchOtherPoi = (selectedCountries, minLatitude, maxLatitude, minLongitude, maxLongitude) => {
-    console.info('searchOtherPoi');
-    console.info('selectedCountries: ', selectedCountries);
-    console.info('minLatitude: ', minLatitude);
-    console.info('maxLatitude: ', maxLatitude);
-    console.info('minLongitude: ', minLongitude);
-    console.info('maxLongitude: ', maxLongitude);
-
     setShowTcSpinner(true);
-    fetchOtherData(selectedCountries, minLatitude, maxLatitude, minLongitude, maxLongitude);
+    fetchOtherData(selectedCountries, minLatitude, maxLatitude, minLongitude, maxLongitude, pca, account, appData);
   };
 
   return (
     <>
       {showTcSpinner && <TcSpinner/>}
-      <Modal isOpen={isOpen} toggle={toggle} onClosed={saveUserGeoSearchOptions} fullscreen>
+      <Modal isOpen={isOpen} toggle={toggle} fullscreen>
         <ModalHeader toggle={toggle}>Dodawanie POI</ModalHeader>
         <ModalBody>
           <Nav tabs>
@@ -176,11 +166,11 @@ const PoiModal = ({ isOpen, toggle, onRowSelect }) => {
                 <Row fluid noGutters>
                   <Col md="3" xl="2" fluid className={styles.MenuContainer}>
                     <GeoSearch
-                      selectedCountries={[]} 
-                      minLatitude={2} 
-                      maxLatitude={2} 
-                      minLongitude={2} 
-                      maxLongitude={2} 
+                      selectedCountries={otherSelectedCountries} 
+                      minLatitude={otherMinLatitude} 
+                      maxLatitude={otherMaxLatitude} 
+                      minLongitude={otherMinLongitude} 
+                      maxLongitude={otherMaxLongitude} 
                       newDataFlag={newOtherPoiListFlag} 
                       tooManyResultsMsg={otherTooManyResultsMsg}
                       search={searchOtherPoi}

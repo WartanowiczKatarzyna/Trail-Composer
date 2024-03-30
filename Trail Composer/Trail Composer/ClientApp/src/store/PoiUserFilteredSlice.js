@@ -53,7 +53,7 @@ export const createPoiUserFilteredSlice = (set) => ({
       const countryIds = selectedCountries.map((country) => country.id);
       const authHeader = await getAuthHeader(pca, account);
 
-      const connString = 'http://localhost:44491/tc-api/poi/list/filtered';
+      const connString = 'http://localhost:44491/tc-api/poi/list/user/filtered';
       const url = new URL(connString);
       const queryParams1 = { countryIds };
       const queryParams2 = { minLatitude, maxLatitude, minLongitude, maxLongitude };
