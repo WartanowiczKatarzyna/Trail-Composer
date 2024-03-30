@@ -6,8 +6,9 @@ import styles from './GeoSearch.module.css';
 import PropTypes from 'prop-types';
 import { useMsal, useAccount, useIsAuthenticated } from "@azure/msal-react";
 
-const GeoSearch = ({selectedCountries, minLatitude, maxLatitude, 
-  minLongitude, maxLongitude, newDataFlag, search, tooManyResultsMsg}) => {
+const GeoSearch = ({ selectedCountries, minLatitude, maxLatitude,
+  minLongitude, maxLongitude, newDataFlag, search, tooManyResultsMsg }) => {
+  
   const appData = useContext(AppContext);
   const { instance: pca, accounts } = useMsal();
   const account = useAccount(accounts[0] || {});
@@ -15,24 +16,29 @@ const GeoSearch = ({selectedCountries, minLatitude, maxLatitude,
 
   const [formErrors, setFormErrors] = useState({});
   const [submitting, setSubmitting] = useState(false);
-  const [geoSearchChanged, setGeoSearchChanged] = useState(false);
+  const [geoSearchChanged, setGeoSearchChanged] = useState(true);
   const [formErrorMessage, setFormErrorMessage] = useState('');
   const [countriesOptions, setCountriesOptions] = useState([]);
 
   const [selectedCountriesLocal, setSelectedCountriesLocal] = useState([]);
-  const [minLatitudeLocal, setMinLatitudeLocal] = useState(-89);
-  const [maxLatitudeLocal, setMaxLatitudeLocal] = useState(89);
-  const [minLongitudeLocal, setMinLongitudeLocal] = useState(-179);
-  const [maxLongitudeLocal, setMaxLongitudeLocal] = useState(179);
+  const [minLatitudeLocal, setMinLatitudeLocal] = useState(-90);
+  const [maxLatitudeLocal, setMaxLatitudeLocal] = useState(90);
+  const [minLongitudeLocal, setMinLongitudeLocal] = useState(-180);
+  const [maxLongitudeLocal, setMaxLongitudeLocal] = useState(180);
 
   let formData = useRef(new FormData());
 
+  debugger;
+  /** 
+  * change GeoSearch state depending on incoming props 
+  * ex. for storing GeoSearch state outside of GeoSearch so app remembers user setup
+  */
   useEffect(() => {
     const form = document.getElementById("GeoSearch");
     formData.current = new FormData(form);
 
     updateGeoSearchChanged();
-    
+
     setMinLatitudeLocal(minLatitude);
     setMaxLatitudeLocal(maxLatitude);
     setMinLongitudeLocal(minLongitude);
@@ -45,22 +51,30 @@ const GeoSearch = ({selectedCountries, minLatitude, maxLatitude,
     formData.current.set("maxLongitude", maxLongitude);
   }, [selectedCountries, minLatitude, maxLatitude, minLongitude, maxLongitude]);
 
+  /**
+  * checks if search settings change to control clickability of submit button
+  * updateGeoSearchChanged should trigger only after submit button was clicked for
+  * the first time in component lifecycle
+  */
   useEffect(() => {
-    updateGeoSearchChanged();
+    //updateGeoSearchChanged();
   }, [selectedCountriesLocal, minLatitudeLocal, maxLatitudeLocal, minLongitudeLocal, maxLongitudeLocal]);
 
+  /**
+  * checks if new data appeared in parent controler and sets proper state 
+  * to control clickability of submit button and communicate with the user
+  */
   useEffect(() => {
     setSubmitting(false);
-    
-    /* Po przyjściu danych FormErrorMsg i FormError są puste,
-      tooManyResultMsg pełni funkcję informacyjną
-     */
-    if (tooManyResultsMsg.length > 0)
-    {
+    if (tooManyResultsMsg.length > 0) {
       setFormErrorMessage(tooManyResultsMsg);
-    }     
+    }
   }, [newDataFlag]);
-  
+
+  /**
+   * updates available countries list, since there's a chance 
+   * they won't arrive before GeoSearch is in use 
+   */
   useEffect(() => {
     const multiselectOptions = appData ? appData.Countries.map(
       (option) => ({ id: option.id, name: option.countryName })) : [];
@@ -70,7 +84,7 @@ const GeoSearch = ({selectedCountries, minLatitude, maxLatitude,
   const validateInput = (name, value) => {
     const emptyMsg = 'Pole jest wymagane.';
 
-    switch(name) {
+    switch (name) {
       case "countryIds":
         break;
       case "minLatitude":
@@ -86,15 +100,15 @@ const GeoSearch = ({selectedCountries, minLatitude, maxLatitude,
         if (value.trim() === '')
           return emptyMsg;
         if (value < -180 || value > 180) {
-            return 'Wartość długości geograficznej jest nieprawidłowa.';
+          return 'Wartość długości geograficznej jest nieprawidłowa.';
         }
         break;
-        default:
+      default:
     }
 
     return ''; // No errors
   };
-  
+
   const handleInputChange = (e) => {
     const { name, value } = e.target;
 
@@ -114,12 +128,12 @@ const GeoSearch = ({selectedCountries, minLatitude, maxLatitude,
       default:
         break;
     }
-        
-      const errors = validateInput(name, value);
-      formData.current.set(name, value);
-      setFormErrors({ ...formErrors, [name]: errors });
+
+    const errors = validateInput(name, value);
+    formData.current.set(name, value);
+    setFormErrors({ ...formErrors, [name]: errors });
   };
-  
+
   const handleSubmit = async (e) => {
     e.preventDefault();
     const errors = {};
@@ -139,11 +153,10 @@ const GeoSearch = ({selectedCountries, minLatitude, maxLatitude,
 
     setSubmitting(true);
 
-    search(selectedCountriesLocal, minLatitudeLocal, maxLatitudeLocal, minLongitudeLocal, maxLongitudeLocal, 
+    search(selectedCountriesLocal, minLatitudeLocal, maxLatitudeLocal, minLongitudeLocal, maxLongitudeLocal,
       pca, account, appData);
   };
 
-  // Callback when Countries are selected or removed
   const handleCountries = (selectedList) => {
     const name = "countryIds";
     setSelectedCountriesLocal([...selectedList]);
@@ -155,9 +168,13 @@ const GeoSearch = ({selectedCountries, minLatitude, maxLatitude,
     selectedList.forEach((option) => { formData.current.append(name, option.id); });
 
     const errors = validateInput(name, selectedList);
-    setFormErrors({ ...formErrors, [name]: errors });    
+    setFormErrors({ ...formErrors, [name]: errors });
   };
 
+  /**
+   * 
+   * @returns true if props coordinates are within 10m of the local ones
+   */
   const areCoordinatesIdetical = () => (
     Math.abs(minLatitudeLocal - minLatitude) +
     Math.abs(maxLatitudeLocal - maxLatitude) +
@@ -165,42 +182,46 @@ const GeoSearch = ({selectedCountries, minLatitude, maxLatitude,
     Math.abs(minLongitudeLocal - minLongitude) < 0.0001
   );
 
+  /**
+   * 
+   * @returns true if prop countries list contains the same countries as local list
+   */
   const areSelectedCountriesIdentical = () => {
     const arr1 = selectedCountries.map(country => country.id);
     const arr2 = selectedCountriesLocal.map(country => country.id);
-   
+
     if (arr1.length !== arr2.length) {
-        return false; // Arrays are not identical
+      return false; // Arrays are not identical
     }
-   
+
     arr1.sort((a, b) => a - b);
     arr2.sort((a, b) => a - b);
-   
+
     for (let i = 0; i < arr1.length; i++) {
-        // Compare each element
-        if (arr1[i] !== arr2[i]) {
-            return false; // Arrays are not identical
-        }
+      // Compare each element
+      if (arr1[i] !== arr2[i]) {
+        return false; // Arrays are not identical
+      }
     }
 
     // If all elements are the same, arrays are identical
     return true;
   };
 
+  /**
+   * 
+   * @returns true if areCoordinatesIdetical is true and areSelectedCountriesIdentical is true
+   */
   const isGeoSearchIdentical = () => (areCoordinatesIdetical() && areSelectedCountriesIdentical());
 
+  /**
+   * sets GeoSearchChanged state based on the results of isGeoSearchIdentical function
+   */
   const updateGeoSearchChanged = () => {
-    if (isGeoSearchIdentical()){
+    if (isGeoSearchIdentical()) {
       setGeoSearchChanged(false);
     } else {
       setGeoSearchChanged(true);
-    }
-  };
-  
-  const showFormData = (formDataArg, comment) => {
-    console.log(comment);
-    for (const pair of formDataArg.entries()) {
-      console.log(`${pair[0]}, ${pair[1]}`);
     }
   };
 
@@ -237,7 +258,7 @@ const GeoSearch = ({selectedCountries, minLatitude, maxLatitude,
               value={minLatitudeLocal}
               onChange={handleInputChange}
               invalid={!!formErrors.minLatitude}
-              placeholder = "wprowadź liczbę dziesiętną"
+              placeholder="wprowadź liczbę dziesiętną"
               min="-90"
               max="90"
               step="0.000001"
@@ -253,7 +274,7 @@ const GeoSearch = ({selectedCountries, minLatitude, maxLatitude,
               value={maxLatitudeLocal}
               onChange={handleInputChange}
               invalid={!!formErrors.maxLatitude}
-              placeholder = "wprowadź liczbę dziesiętną"
+              placeholder="wprowadź liczbę dziesiętną"
               min="-90"
               max="90"
               step="0.000001"
@@ -269,7 +290,7 @@ const GeoSearch = ({selectedCountries, minLatitude, maxLatitude,
               value={minLongitudeLocal}
               onChange={handleInputChange}
               invalid={!!formErrors.minLongitude}
-              placeholder = "wprowadź liczbę dziesiętną"
+              placeholder="wprowadź liczbę dziesiętną"
               min="-180"
               max="180"
               step="0.000001"
@@ -285,7 +306,7 @@ const GeoSearch = ({selectedCountries, minLatitude, maxLatitude,
               value={maxLongitudeLocal}
               onChange={handleInputChange}
               invalid={!!formErrors.maxLongitude}
-              placeholder = "wprowadź liczbę dziesiętną"
+              placeholder="wprowadź liczbę dziesiętną"
               min="-180"
               max="180"
               step="0.000001"
@@ -294,7 +315,7 @@ const GeoSearch = ({selectedCountries, minLatitude, maxLatitude,
           </FormGroup>
           <div className={styles.Buttons}>
             <Button type="submit" disabled={submitting || !geoSearchChanged}>
-              {submitting ? 'Szukam...' : geoSearchChanged ? 'Szukaj' : 'Zmień dane'} 
+              {submitting ? 'Szukam...' : geoSearchChanged ? 'Szukaj' : 'Zmień dane'}
             </Button>
           </div>
           <p className={styles.FormErrorMessage}>{formErrorMessage}</p>
@@ -321,7 +342,7 @@ GeoSearch.defaultProps = {
   maxLatitude: 90,
   minLongitude: -180,
   maxLongitude: 180,
-  search: () => {},
+  search: () => { },
   newDataFlag: 0,
   tooManyResultsMsg: ''
 };

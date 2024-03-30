@@ -1,5 +1,4 @@
 import React, { useState, useContext, useEffect, useRef } from 'react';
-import { useNavigate } from 'react-router-dom';
 import {
   Col,
   Row,
@@ -18,11 +17,8 @@ import styles from './PoiModal.module.css';
 
 import { AppContext } from '../../App.js';
 
-import { makeData } from '../../components/tables/PoiTable/makeData.ts'; 
 import GeoSearch from '../../components/GeoSearch/GeoSearch.js';
 import { PoiTable } from '../../components/tables/PoiTable/PoiTable.tsx';
-import { flattenData } from '../../components/tables/PoiTable/flattenData.js';
-import { getAuthHeader } from '../../utils/auth/getAuthHeader.js';
 import TcSpinner from '../../components/TCSpinner/TCSpinner.js';
 import { useTcStore } from '../../store/TcStore.js';
 
@@ -31,50 +27,49 @@ const PoiModal = ({ isOpen, toggle, onRowSelect }) => {
   const { instance: pca, accounts } = useMsal();
   const account = useAccount(accounts[0] || {});
 
-  const navigate = useNavigate();
-  const rowNumFaker = useRef(1000);
+  const defaultTooManyMsg = useRef('Nie wszystkie dane zostały wczytane, zalecamy zawężenie zakresu wyszukiwania.');
 
   const [activeTab, setActiveTab] = useState('user');
+  const [showTcSpinner, setShowTcSpinner] = useState(false);  
+  const showColumns = {
+    'id': false
+  };
 
-  const [newUserPoiListFlag, setNewUserPoiListFlag] = useState(false);
-  const [newOtherPoiListFlag, setNewOtherPoiListFlag] = useState(false);
-
-  const defaultTooManyMsg = useRef('Nie wszystkie dane zostały wczytane, zalecamy zawężenie zakresu wyszukiwania.');
-  const [userTooManyResultsMsg, setUserTooManyResultsMsg] = useState('');
-  const [otherTooManyResultsMsg, setOtherTooManyResultsMsg] = useState('');
-
-  const [data, setData] = React.useState(() => flattenData(makeData(rowNumFaker.current), appData));
-  const [showTcSpinner, setShowTcSpinner] = useState(false);
-
+  // needed for 'user' tab: contains list of poi created by the current user
   const userData = useTcStore((state) => state.poiUserFiltered);
   const userSelectedCountries = useTcStore((state) => state.poiUserFilteredSelectedCountries);
   const userMinLatitude = useTcStore((state) => state.poiUserFilteredMinLatitude);
   const userMaxLatitude = useTcStore((state) => state.poiUserFilteredMaxLatitude);
   const userMinLongitude = useTcStore((state) => state.poiUserFilteredMinLongitude);
   const userMaxLongitude = useTcStore((state) => state.poiUserFilteredMaxLongitude);
+  const [newUserPoiListFlag, setNewUserPoiListFlag] = useState(false);
+  const [userTooManyResultsMsg, setUserTooManyResultsMsg] = useState('');
 
+  const fetchUserData = useTcStore((state) => state.fetchPoiUserFiltered);
+
+  // needed for 'other' tab: contains list of poi other than the ones created by the current user
   const otherData = useTcStore((state) => state.poiOtherFiltered);
   const otherSelectedCountries = useTcStore((state) => state.poiOtherFilteredSelectedCountries);
   const otherMinLatitude = useTcStore((state) => state.poiOtherFilteredMinLatitude);
   const otherMaxLatitude = useTcStore((state) => state.poiOtherFilteredMaxLatitude);
   const otherMinLongitude = useTcStore((state) => state.poiOtherFilteredMinLongitude);
   const otherMaxLongitude = useTcStore((state) => state.poiOtherFilteredMaxLongitude);
+  const [newOtherPoiListFlag, setNewOtherPoiListFlag] = useState(false);
+  const [otherTooManyResultsMsg, setOtherTooManyResultsMsg] = useState('');
 
-  const saveUserGeoSearchOptions = useTcStore((state) => state.savePoiUserGeoSearchOptions);
-  const saveOtherGeoSearchOptions = useTcStore((state) => state.savePoiOtherGeoSearchOptions);
-  const fetchUserData = useTcStore((state) => state.fetchPoiUserFiltered);
   const fetchOtherData = useTcStore((state) => state.fetchPoiOtherFiltered);
   
-  const refreshData = () => setData(() => flattenData(makeData(rowNumFaker.current), appData));
-  const rerender = React.useReducer(() => ({}), {})[1];
-  const showColumns = {
-    'id': false
-  };
-  
+  /**
+   * turn of TcSpinner
+   */
   useEffect(() => {
     setShowTcSpinner(false);
   }, [userData, otherData]);
 
+  /**
+   * change flag used to inform geoSearch that there's new userData
+   * and check if they need to be informed about reaching search limit
+   */
   useEffect(() => {
     setNewUserPoiListFlag(() => !newUserPoiListFlag);
     if (userData.length < 1000) {
@@ -84,6 +79,10 @@ const PoiModal = ({ isOpen, toggle, onRowSelect }) => {
     }
   }, [userData]);
 
+  /**
+   * change flag used to inform geoSearch that there's new otherData
+   * and check if they need to be informed about reaching search limit
+   */
   useEffect(() => {
     setNewOtherPoiListFlag(() => !newOtherPoiListFlag);
     if (userData.length < 1000) {
@@ -93,22 +92,35 @@ const PoiModal = ({ isOpen, toggle, onRowSelect }) => {
     }
   }, [otherData]);
 
-  useEffect(() => {
-    console.log(appData);
-    console.log(appData?.POITypes);
-    console.log(appData?.Countries);
-    setData(() => flattenData(makeData(rowNumFaker.current), appData));
-  }, [appData]);
-
+  /**
+   * change active tab between 'Moje' and 'Inne'
+   * @param {*} tab 
+   */
   const toggleTab = tab => {
     if(activeTab !== tab) setActiveTab(tab);
   };
 
+  /**
+   * function passed to GeoSearch used to get the desired pois created by the current user
+   * @param {*} selectedCountries 
+   * @param {*} minLatitude 
+   * @param {*} maxLatitude 
+   * @param {*} minLongitude 
+   * @param {*} maxLongitude 
+   */
   const searchUserPoi = (selectedCountries, minLatitude, maxLatitude, minLongitude, maxLongitude) => {
     setShowTcSpinner(true);
     fetchUserData(selectedCountries, minLatitude, maxLatitude, minLongitude, maxLongitude, pca, account, appData);
   };
 
+  /**
+   * function passed to GeoSearch used to get the desired pois not created by the current user
+   * @param {*} selectedCountries 
+   * @param {*} minLatitude 
+   * @param {*} maxLatitude 
+   * @param {*} minLongitude 
+   * @param {*} maxLongitude 
+   */
   const searchOtherPoi = (selectedCountries, minLatitude, maxLatitude, minLongitude, maxLongitude) => {
     setShowTcSpinner(true);
     fetchOtherData(selectedCountries, minLatitude, maxLatitude, minLongitude, maxLongitude, pca, account, appData);
@@ -134,7 +146,7 @@ const PoiModal = ({ isOpen, toggle, onRowSelect }) => {
                 className={ activeTab === 'other' ? 'active' : ''}
                 onClick={() => toggleTab('other')}
               >
-                Wszystkie
+                Inne
               </NavLink>
             </NavItem>
           </Nav>
