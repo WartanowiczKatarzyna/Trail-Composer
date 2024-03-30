@@ -39,6 +39,10 @@ const PoiModal = ({ isOpen, toggle, onRowSelect }) => {
   const [newUserPoiListFlag, setNewUserPoiListFlag] = useState(false);
   const [newOtherPoiListFlag, setNewOtherPoiListFlag] = useState(false);
 
+  const defaultTooManyMsg = useRef('Nie wszystkie dane zostały wczytane, zalecamy zawężenie zakresu wyszukiwania.');
+  const [userTooManyResultsMsg, setUserTooManyResultsMsg] = useState('');
+  const [otherTooManyResultsMsg, setOtherTooManyResultsMsg] = useState('');
+
   const [data, setData] = React.useState(() => flattenData(makeData(rowNumFaker.current), appData));
   const [showTcSpinner, setShowTcSpinner] = useState(false);
 
@@ -65,6 +69,24 @@ const PoiModal = ({ isOpen, toggle, onRowSelect }) => {
   useEffect(() => {
     setShowTcSpinner(false);
   }, [userData, otherData]);
+
+  useEffect(() => {
+    setNewUserPoiListFlag(() => !newUserPoiListFlag);
+    if (userData.length < 1000) {
+      setUserTooManyResultsMsg('');
+    } else {
+      setUserTooManyResultsMsg(defaultTooManyMsg.current);
+    }
+  }, [userData]);
+
+  useEffect(() => {
+    setNewOtherPoiListFlag(() => !newOtherPoiListFlag);
+    if (userData.length < 1000) {
+      setOtherTooManyResultsMsg('');
+    } else {
+      setOtherTooManyResultsMsg(defaultTooManyMsg.current);
+    }
+  }, [otherData]);
 
   useEffect(() => {
     console.log(appData);
@@ -138,11 +160,13 @@ const PoiModal = ({ isOpen, toggle, onRowSelect }) => {
                       minLongitude={userMinLongitude} 
                       maxLongitude={userMaxLongitude} 
                       newDataFlag={newUserPoiListFlag} 
+                      tooManyResultsMsg={userTooManyResultsMsg}
                       search={searchUserPoi}
                     />
                   </Col>
                   <Col md="9" xl="10" fluid className={styles.ContentContainer}>
                     {userData.length>0 && <PoiTable {...{onRowSelect, showColumns}} data={userData}/>}
+                    {userData.length===0 && <Row fluid noGutters>Brak danych</Row>}
                   </Col>
                 </Row>
               </Container>
@@ -158,11 +182,13 @@ const PoiModal = ({ isOpen, toggle, onRowSelect }) => {
                       minLongitude={2} 
                       maxLongitude={2} 
                       newDataFlag={newOtherPoiListFlag} 
+                      tooManyResultsMsg={otherTooManyResultsMsg}
                       search={searchOtherPoi}
                     />
                   </Col>
                   <Col md="9" xl="10" fluid className={styles.ContentContainer}>
                     {otherData.length>0 && <PoiTable {...{ onRowSelect, showColumns}} data={otherData}/>}
+                    {otherData.length===0 && <Row fluid noGutters>Brak danych</Row>}
                   </Col>
                 </Row>
               </Container>
