@@ -120,7 +120,7 @@ const PoiModal = ({ isOpen, toggle, onRowSelect }) => {
           <Nav tabs>
             <NavItem>
               <NavLink
-                className={ activeTab === 'user' ? 'active' : ''}
+                className={styles.TabNavLink + (activeTab === 'user' ? ' active' : '')}
                 onClick={() => toggleTab('user')}
               >
                 Moje
@@ -128,7 +128,7 @@ const PoiModal = ({ isOpen, toggle, onRowSelect }) => {
             </NavItem>
             <NavItem>
               <NavLink
-                className={ activeTab === 'other' ? 'active' : ''}
+                className={styles.TabNavLink + (activeTab === 'other' ? ' active' : '')}
                 onClick={() => toggleTab('other')}
               >
                 Inne
@@ -136,10 +136,10 @@ const PoiModal = ({ isOpen, toggle, onRowSelect }) => {
             </NavItem>
           </Nav>
           <TabContent activeTab={activeTab} className={styles.TabContent}>
-            <TabPane tabId="user" className="pt-4 pb-5">
-              <Container fluid className="p-0">
+            <TabPane tabId="user" className="pt-4 pb-3">
+              <Container fluid className="pt-0 pb-0 pl-1 pr-1">
                 <Row fluid noGutters>
-                  <Col md="3" xl="2" fluid className={styles.MenuContainer}>
+                  <Col md="3" xl="2" fluid className={styles.SearchContainer}>
                     <GeoSearch 
                       selectedCountries={userSelectedCountries} 
                       minLatitude={userMinLatitude} 
@@ -152,18 +152,20 @@ const PoiModal = ({ isOpen, toggle, onRowSelect }) => {
                     />
                   </Col>
                   <Col md="9" xl="10" fluid>
-                    { userData.length > 0 ?
-                      <PoiTable {...{onRowSelect, showColumns}} data={userData}/> :
-                      <Badge color="warning" className={styles.Badge}>Brak danych</Badge>
-                    }
+                    <div className={styles.TableContainer}>
+                      { userData.length > 0 ?
+                        <PoiTable {...{onRowSelect, showColumns}} data={userData}/> :
+                        <Badge className={styles.Badge}>Brak danych</Badge>
+                      }
+                    </div>
                   </Col>
                 </Row>
               </Container>
             </TabPane>
-            <TabPane tabId="other" className="pt-4 pb-5">
-              <Container fluid className="p-0">
+            <TabPane tabId="other" className="pt-4 pb-3">
+              <Container fluid className="pt-0 pb-0 pl-1 pr-1">
                 <Row fluid noGutters>
-                  <Col md="3" xl="2" fluid className={styles.MenuContainer}>
+                  <Col md="3" xl="2" fluid className={styles.SearchContainer}>
                     <GeoSearch
                       selectedCountries={otherSelectedCountries} 
                       minLatitude={otherMinLatitude} 
@@ -176,10 +178,12 @@ const PoiModal = ({ isOpen, toggle, onRowSelect }) => {
                     />
                   </Col>
                   <Col md="9" xl="10" fluid>
-                    { otherData.length > 0 ?
-                      <PoiTable {...{onRowSelect, showColumns}} data={otherData}/> :
-                      <Badge color="warning" className={styles.Badge}>Brak danych</Badge>
-                    }
+                    <div className={styles.TableContainer}>
+                      {otherData.length > 0 ?
+                        <PoiTable {...{onRowSelect, showColumns}} data={otherData}/> :
+                        <Badge className={styles.Badge}>Brak danych</Badge>
+                      }
+                    </div>
                   </Col>
                 </Row>
               </Container>

@@ -4,6 +4,8 @@
     font-family: var(--font-family);
     font-weight: var(--subsection-header-font-weight);
     font-size: var(--section-header-font-size);
+    height: fit-content;
+    border-radius: 3px;
 }
 
 .SectionTitle {
@@ -26,13 +28,21 @@
     font-size: var(--section-header-font-size);
 
     margin-top: 1rem;
-    min-height: 5rem;
+    min-height: 4rem;
 }
 
-.Buttons{
+.Buttons {
     padding: 15px;
     display: flex;
     justify-content: center;
+}
+
+.Button {
+    min-width: 8rem;
+}
+
+.MultiselectContainer {
+    min-height: 6.6rem;
 }
 
 .Multiselect {

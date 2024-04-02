@@ -1,11 +1,7 @@
-.MenuContainer,
+.SearchContainer,
 .ContentContainer {
     padding-top: 0;
     margin: 0;
-}
-
-.MenuContainer {
-    background-color: var(--neutral-grey);
 }
 
 .ModalBody {
@@ -14,6 +10,19 @@
 
 .ContentContainer, .ModalHeader, .TabContent {
     background-color: var(--background-color);
+}
+
+.TabNavLink {
+    --bs-nav-tabs-link-active-bg: var(--background-color);
+    --bs-nav-link-color: var(--background-color);
+    --bs-nav-tabs-link-active-border-color: var(--background-color);
+    --bs-nav-link-hover-color: var(--background-color);
+}
+
+.TableContainer {
+    @media (min-width: 768px) {
+        padding-left: 11px ;
+    }
 }
 
 .Badge {
@@ -28,7 +37,6 @@
 
 @media (min-width: 768px) {
     .ContentContainer {
-        /*min-height: calc(100vh - var(--footer-height));*/
-        height: fit-content;
+
     }
 }

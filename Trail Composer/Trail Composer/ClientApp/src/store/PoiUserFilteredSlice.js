@@ -46,12 +46,14 @@ const fetchPoiUserFilteredExecute = async (set, selectedCountries, minLatitude, 
   Object.entries(queryParams2).forEach(([key, value]) => url.searchParams.append(key, value));
 
   console.info('url: ', url);
-/*
+
+  /*
   setTimeout(() =>{
-    set({poiUserFiltered: flattenData(makeData(999), appData)});
+    set({poiUserFiltered: flattenData(makeData(1000), appData)});
     console.info('appData in fetchPoiUserFiltered: ', appData);
   }, 1000);
-*/
+  */
+
   fetch(url.toString(),
     {
       method: "GET",

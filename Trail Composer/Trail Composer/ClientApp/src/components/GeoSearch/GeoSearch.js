@@ -232,7 +232,7 @@ const GeoSearch = ({ selectedCountries, minLatitude, maxLatitude,
             <Label for="countryIds" className="text-start">Kraje</Label>
             {
               !!appData &&
-              (<Multiselect
+              (<div className={styles.MultiselectContainer}><Multiselect
                 id="countryIds"
                 options={countriesOptions}
                 selectedValues={selectedCountriesLocal}
@@ -242,7 +242,7 @@ const GeoSearch = ({ selectedCountries, minLatitude, maxLatitude,
                 showCheckbox
                 placeholder="wybierz"
                 className={!!formErrors.countryIds ? styles.MultiselectError : styles.Multiselect}
-              />)
+              /></div>)
             }
             <Input name="countryIds" invalid={!!formErrors.countryIds} className="d-none"></Input>
             <FormFeedback>{formErrors.countryIds}</FormFeedback>
@@ -313,7 +313,7 @@ const GeoSearch = ({ selectedCountries, minLatitude, maxLatitude,
             <FormFeedback>{formErrors.maxLongitude}</FormFeedback>
           </FormGroup>
           <div className={styles.Buttons}>
-            <Button type="submit" disabled={submitting || !geoSearchChanged}>
+            <Button type="submit" disabled={submitting || !geoSearchChanged} className={styles.Button}>
               {submitting ? 'Szukam...' : geoSearchChanged ? 'Szukaj' : 'Zmień dane'} 
             </Button>
           </div>
