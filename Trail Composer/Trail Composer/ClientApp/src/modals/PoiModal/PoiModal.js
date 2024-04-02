@@ -21,8 +21,9 @@ const PoiModal = ({ isOpen, toggle, onRowSelect }) => {
 
   const [activeTab, setActiveTab] = useState('user');
   const [showTcSpinner, setShowTcSpinner] = useState(false);
-const showColumns = {
-    'id': false
+  const showColumns = {
+    'id': false,
+    'actions': false
   };
 
 // needed for 'user' tab: contains list of poi created by the current user
@@ -114,8 +115,8 @@ const showColumns = {
     <>
       {showTcSpinner && <TcSpinner/>}
       <Modal isOpen={isOpen} toggle={toggle} fullscreen fade >
-        <ModalHeader toggle={toggle}>Dodawanie POI</ModalHeader>
-        <ModalBody>
+        <ModalHeader toggle={toggle} className={styles.ModalHeader}>Dodawanie POI</ModalHeader>
+        <ModalBody className={styles.ModalBody}>
           <Nav tabs>
             <NavItem>
               <NavLink
@@ -134,7 +135,7 @@ const showColumns = {
               </NavLink>
             </NavItem>
           </Nav>
-          <TabContent activeTab={activeTab}>
+          <TabContent activeTab={activeTab} className={styles.TabContent}>
             <TabPane tabId="user" className="pt-4 pb-5">
               <Container fluid className="p-0">
                 <Row fluid noGutters>
@@ -150,7 +151,7 @@ const showColumns = {
                       search={searchUserPoi}
                     />
                   </Col>
-                  <Col md="9" xl="10" fluid className={styles.ContentContainer}>
+                  <Col md="9" xl="10" fluid>
                     { userData.length > 0 ?
                       <PoiTable {...{onRowSelect, showColumns}} data={userData}/> :
                       <Badge color="warning" className={styles.Badge}>Brak danych</Badge>
@@ -174,7 +175,7 @@ const showColumns = {
                       search={searchOtherPoi}
                     />
                   </Col>
-                  <Col md="9" xl="10" fluid className={styles.ContentContainer}>
+                  <Col md="9" xl="10" fluid>
                     { otherData.length > 0 ?
                       <PoiTable {...{onRowSelect, showColumns}} data={otherData}/> :
                       <Badge color="warning" className={styles.Badge}>Brak danych</Badge>
