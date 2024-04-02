@@ -26,7 +26,7 @@
     font-size: var(--section-header-font-size);
 
     margin-top: 1rem;
-    min-height: 1.5rem;
+    min-height: 5rem;
 }
 
 .Buttons{
@@ -37,6 +37,7 @@
 
 .Multiselect {
     background-color: white;
+    min-height: 105px;
 }
 
 .MultiselectError {

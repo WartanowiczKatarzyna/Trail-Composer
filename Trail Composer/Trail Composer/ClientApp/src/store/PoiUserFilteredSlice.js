@@ -1,32 +1,8 @@
 import { getAuthHeader } from "../utils/auth/getAuthHeader";
 import { flattenData } from "../components/tables/PoiTable/flattenData";
+import {makeData} from "../components/tables/PoiTable/makeData";
 
-const initialData =
-{
-  Countries: [
-    { id: 29, countryName: "Polska" },
-    { id: 30, countryName: "Niemcy" },
-    { id: 28, countryName: "Wiekla Brytania" },
-  ],
-  POITypes: [
-    { id: 1, name: "apteka" },
-    { id: 2, name: "restauracja" },
-    { id: 3, name: "schronisko" }
-  ],
-  CountryNamesMap: new Map(),
-  PoiTypesMap: new Map()
-};
-
-// mapowanie zamockowanych wartości
-initialData.CountryNamesMap = new Map();
-initialData.Countries.forEach(country => {
-  initialData.CountryNamesMap.set(country.id, country.countryName);
-});
-initialData.POITypes.forEach(poi => {
-  initialData.PoiTypesMap.set(poi.id, poi.name);
-})
-
-export const createPoiUserFilteredSlice = (set) => ({
+export const createPoiUserFilteredSlice = (set, get) => ({
   poiUserFiltered: [],
   poiUserFilteredSelectedCountries: [],
   poiUserFilteredMinLatitude: -90, 
@@ -34,54 +10,65 @@ export const createPoiUserFilteredSlice = (set) => ({
   poiUserFilteredMinLongitude: -180, 
   poiUserFilteredMaxLongitude: 180,
 
-  savePoiUserGeoSearchOptions: (selectedCountries, minLatitude, maxLatitude, minLongitude, maxLongitude) => {
-    set({ poiUserFilteredSelectedCountries: [...selectedCountries] });
-    set({ poiUserFilteredMinLatitude: minLatitude });
-    set({ poiUserFilteredMaxLatitude: maxLatitude });
-    set({ poiUserFilteredMinLongitude: minLongitude });
-    set({ poiUserFilteredMaxLongitude: maxLongitude });
-  },
-  
-  fetchPoiUserFiltered: async (selectedCountries, minLatitude, maxLatitude, minLongitude, maxLongitude, 
-    pca, account, appData) => {
+  fetchPoiUserFiltered: async (selectedCountries, minLatitude, maxLatitude, minLongitude, maxLongitude,
+                               pca, account, appData) => {
       set({ poiUserFilteredSelectedCountries: [...selectedCountries] });
       set({ poiUserFilteredMinLatitude: minLatitude });
       set({ poiUserFilteredMaxLatitude: maxLatitude });
       set({ poiUserFilteredMinLongitude: minLongitude });
       set({ poiUserFilteredMaxLongitude: maxLongitude });
+      await fetchPoiUserFilteredExecute(set, selectedCountries, minLatitude, maxLatitude, minLongitude, maxLongitude,
+        pca, account, appData);
+  },
 
-      const countryIds = selectedCountries.map((country) => country.id);
-      const authHeader = await getAuthHeader(pca, account);
-
-      const connString = 'http://localhost:44491/tc-api/poi/list/user/filtered';
-      const url = new URL(connString);
-      const queryParams1 = { countryIds };
-      const queryParams2 = { minLatitude, maxLatitude, minLongitude, maxLongitude };
-      queryParams1.countryIds.forEach(id => url.searchParams.append('countryIds', id));
-      Object.entries(queryParams2).forEach(([key, value]) => url.searchParams.append(key, value));
-      
-      console.info('url: ', url);
-      
-      fetch(url.toString(),
-      {
-        method: "GET",
-        headers: {
-          Authorization: authHeader
-        }
-      })
-      .then(response => {
-        if (response.status)
-          return response.json()
-        else
-          console.log(response.status);
-      })
-      .then(data => {
-        console.info('incoming data: ', data);
-        set({poiUserFiltered: flattenData(data, appData)});
-      })
-      .catch(error => {
-        console.log(error);
-      });
+  refreshPoiUserFiltered: async (pca, account, appData) => {
+    if(get.poiUserFiltered.length > 0) {
+      await fetchPoiUserFilteredExecute(set, get.poiUserFilteredSelectedCountries, get.poiUserFilteredMinLatitude,
+        get.poiUserFilteredMaxLatitude, get.poiUserFilteredMinLongitude, get.poiUserFilteredMaxLongitude,
+        pca, account, appData);
+    }
   },
 
 })
+
+const fetchPoiUserFilteredExecute = async (set, selectedCountries, minLatitude, maxLatitude, minLongitude, maxLongitude,
+                                           pca, account, appData) => {
+
+  const countryIds = selectedCountries.map((country) => country.id);
+  const authHeader = await getAuthHeader(pca, account);
+
+  const connString = 'http://localhost:44491/tc-api/poi/list/filtered';
+  const url = new URL(connString);
+  const queryParams1 = { countryIds };
+  const queryParams2 = { minLatitude, maxLatitude, minLongitude, maxLongitude };
+  queryParams1.countryIds.forEach(id => url.searchParams.append('countryIds', id));
+  Object.entries(queryParams2).forEach(([key, value]) => url.searchParams.append(key, value));
+
+  console.info('url: ', url);
+/*
+  setTimeout(() =>{
+    set({poiUserFiltered: flattenData(makeData(999), appData)});
+    console.info('appData in fetchPoiUserFiltered: ', appData);
+  }, 1000);
+*/
+  fetch(url.toString(),
+    {
+      method: "GET",
+      headers: {
+        Authorization: authHeader
+      }
+    })
+    .then(response => {
+      if (response.status)
+        return response.json()
+      else
+        console.log(response.status);
+    })
+    .then(data => {
+      console.info('incoming data: ', data);
+      set({poiUserFiltered: flattenData(data, appData)});
+    })
+    .catch(error => {
+      console.log(error);
+    });
+}

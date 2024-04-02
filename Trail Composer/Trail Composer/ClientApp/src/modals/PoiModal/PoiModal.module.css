@@ -1,8 +1,3 @@
-.PageLayout {
-    background-color: black;
-    width: 100%;
-}
-
 .MenuContainer,
 .ContentContainer {
     padding-top: 0;
@@ -14,7 +9,13 @@
 }
 
 .ContentContainer {
-    background-color: var(--background-color);
+    /*background-color: var(--background-color);*/
+    background-color: #FFF;
+}
+
+.Badge {
+    margin-left: 3rem;
+
 }
 
 @media (max-width: 767px) {
@@ -25,6 +26,7 @@
 
 @media (min-width: 768px) {
     .ContentContainer {
-        min-height: calc(100vh - var(--footer-height));
+        /*min-height: calc(100vh - var(--footer-height));*/
+        height: fit-content;
     }
 }

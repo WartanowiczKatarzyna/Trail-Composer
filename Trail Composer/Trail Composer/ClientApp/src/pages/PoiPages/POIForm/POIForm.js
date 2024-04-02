@@ -8,6 +8,7 @@ import { InteractionType } from '@azure/msal-browser';
 import styles from './POIForm.module.css';
 import { getAuthHeader } from '../../../utils/auth/getAuthHeader.js';
 import BackArrow from '../../../components/BackArrow/BackArrow.js';
+import {useTcStore} from "../../../store/TcStore";
 
 const PoiForm = () => {
   const appData = useContext(AppContext);
@@ -34,6 +35,8 @@ const PoiForm = () => {
 
   let formData = useRef(new FormData());
   let photoId = useRef(0);
+
+  const refreshPoiUserFiltered = useTcStore((state) => state.refreshPoiUserFiltered);
 
   useEffect(() => {
     setLocalPoiId(poiId);
@@ -210,6 +213,7 @@ const PoiForm = () => {
           if (editMode)
             console.log("edit POI")
           setFormErrorMessage('');
+          refreshPoiUserFiltered(pca, account, appData);
         }          
         else {
           setFormErrorMessage('Nie udało się zapisać POI.');

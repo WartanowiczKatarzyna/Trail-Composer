@@ -10,3 +10,4 @@ export const useTcStore = create((...a) => ({
   ...createSegmentSlice(...a),
   ...createTrailSlice(...a),
 }))
+window.store = useTcStore; // !!! only for debugging, remove before going to prod mode, to get state in devtools console use: window.store.getState()
