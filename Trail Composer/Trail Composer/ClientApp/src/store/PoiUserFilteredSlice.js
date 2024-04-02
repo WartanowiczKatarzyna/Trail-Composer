@@ -22,9 +22,10 @@ export const createPoiUserFilteredSlice = (set, get) => ({
   },
 
   refreshPoiUserFiltered: async (pca, account, appData) => {
-    if(get.poiUserFiltered.length > 0) {
-      await fetchPoiUserFilteredExecute(set, get.poiUserFilteredSelectedCountries, get.poiUserFilteredMinLatitude,
-        get.poiUserFilteredMaxLatitude, get.poiUserFilteredMinLongitude, get.poiUserFilteredMaxLongitude,
+    console.info('get.poiUserFiltered: ', get().poiUserFiltered);
+    if(get().poiUserFiltered.length > 0) {
+      await fetchPoiUserFilteredExecute(set, get().poiUserFilteredSelectedCountries, get().poiUserFilteredMinLatitude,
+        get().poiUserFilteredMaxLatitude, get().poiUserFilteredMinLongitude, get().poiUserFilteredMaxLongitude,
         pca, account, appData);
     }
   },
@@ -37,7 +38,7 @@ const fetchPoiUserFilteredExecute = async (set, selectedCountries, minLatitude, 
   const countryIds = selectedCountries.map((country) => country.id);
   const authHeader = await getAuthHeader(pca, account);
 
-  const connString = 'http://localhost:44491/tc-api/poi/list/filtered';
+  const connString = 'http://localhost:44491/tc-api/poi/list/user/filtered';
   const url = new URL(connString);
   const queryParams1 = { countryIds };
   const queryParams2 = { minLatitude, maxLatitude, minLongitude, maxLongitude };
