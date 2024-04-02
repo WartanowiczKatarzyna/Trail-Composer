@@ -17,36 +17,41 @@ const PoiModal = ({ isOpen, toggle, onRowSelect }) => {
   const { instance: pca, accounts } = useMsal();
   const account = useAccount(accounts[0] || {});
 
-  const navigate = useNavigate();
-  const rowNumFaker = useRef(1000);
+  const defaultTooManyMsg = useRef('Nie wszystkie dane zostały wczytane, zalecamy zawężenie zakresu wyszukiwania.');
 
   const [activeTab, setActiveTab] = useState('user');
-
-  const [newUserPoiListFlag, setNewUserPoiListFlag] = useState(false);
-  const [newOtherPoiListFlag, setNewOtherPoiListFlag] = useState(false);
-
-  const defaultTooManyMsg = useRef('Nie wszystkie dane zostały wczytane, zalecamy zawężenie zakresu wyszukiwania.');
-  const [userTooManyResultsMsg, setUserTooManyResultsMsg] = useState('');
-  const [otherTooManyResultsMsg, setOtherTooManyResultsMsg] = useState('');
-
   const [showTcSpinner, setShowTcSpinner] = useState(false);
+const showColumns = {
+    'id': false
+  };
 
+// needed for 'user' tab: contains list of poi created by the current user
   const userData = useTcStore((state) => state.poiUserFiltered);
   const userSelectedCountries = useTcStore((state) => state.poiUserFilteredSelectedCountries);
   const userMinLatitude = useTcStore((state) => state.poiUserFilteredMinLatitude);
   const userMaxLatitude = useTcStore((state) => state.poiUserFilteredMaxLatitude);
   const userMinLongitude = useTcStore((state) => state.poiUserFilteredMinLongitude);
   const userMaxLongitude = useTcStore((state) => state.poiUserFilteredMaxLongitude);
-
-  const otherData = useTcStore((state) => state.poiOtherFiltered);
+  const [newUserPoiListFlag, setNewUserPoiListFlag] = useState(false);
+  const [userTooManyResultsMsg, setUserTooManyResultsMsg] = useState('');
 
   const fetchUserData = useTcStore((state) => state.fetchPoiUserFiltered);
-  const fetchOtherData = useTcStore((state) => state.fetchPoiOtherFiltered);
-  
-  const showColumns = {
-    'id': false
-  };
 
+  // needed for 'other' tab: contains list of poi other than the ones created by the current user
+  const otherData = useTcStore((state) => state.poiOtherFiltered);
+  const otherSelectedCountries = useTcStore((state) => state.poiOtherFilteredSelectedCountries);
+  const otherMinLatitude = useTcStore((state) => state.poiOtherFilteredMinLatitude);
+  const otherMaxLatitude = useTcStore((state) => state.poiOtherFilteredMaxLatitude);
+  const otherMinLongitude = useTcStore((state) => state.poiOtherFilteredMinLongitude);
+  const otherMaxLongitude = useTcStore((state) => state.poiOtherFilteredMaxLongitude);
+  const [newOtherPoiListFlag, setNewOtherPoiListFlag] = useState(false);
+  const [otherTooManyResultsMsg, setOtherTooManyResultsMsg] = useState('');
+
+  const fetchOtherData = useTcStore((state) => state.fetchPoiOtherFiltered);
+  /**
+   * change flag used to inform geoSearch that there's new userData
+   * and check if they need to be informed about reaching search limit
+   */
   useEffect(() => {
     setNewUserPoiListFlag((s) => !s);
     if (userData.length < 1000) {
@@ -57,6 +62,10 @@ const PoiModal = ({ isOpen, toggle, onRowSelect }) => {
     setShowTcSpinner(false);
   }, [userData]);
 
+  /**
+   * change flag used to inform geoSearch that there's new otherData
+   * and check if they need to be informed about reaching search limit
+   */
   useEffect(() => {
     setNewOtherPoiListFlag((s) => !s);
     if (userData.length < 1000) {
@@ -67,33 +76,38 @@ const PoiModal = ({ isOpen, toggle, onRowSelect }) => {
     setShowTcSpinner(false);
   }, [otherData]);
 
+  /**
+   * change active tab between 'Moje' and 'Inne'
+   * @param {*} tab 
+   */
   const toggleTab = tab => {
     if(activeTab !== tab) setActiveTab(tab);
   };
 
+  /**
+   * function passed to GeoSearch used to get the desired pois created by the current user
+   * @param {*} selectedCountries 
+   * @param {*} minLatitude 
+   * @param {*} maxLatitude 
+   * @param {*} minLongitude 
+   * @param {*} maxLongitude 
+   */
   const searchUserPoi = (selectedCountries, minLatitude, maxLatitude, minLongitude, maxLongitude) => {
-    console.info('searchUserPoi');
-    console.info('selectedCountries: ', selectedCountries);
-    console.info('minLatitude: ', minLatitude);
-    console.info('maxLatitude: ', maxLatitude);
-    console.info('minLongitude: ', minLongitude);
-    console.info('maxLongitude: ', maxLongitude);
-    console.info('userData: ', userData);
-
     setShowTcSpinner(true);
     fetchUserData(selectedCountries, minLatitude, maxLatitude, minLongitude, maxLongitude, pca, account, appData);
   };
 
+  /**
+   * function passed to GeoSearch used to get the desired pois not created by the current user
+   * @param {*} selectedCountries 
+   * @param {*} minLatitude 
+   * @param {*} maxLatitude 
+   * @param {*} minLongitude 
+   * @param {*} maxLongitude 
+   */
   const searchOtherPoi = (selectedCountries, minLatitude, maxLatitude, minLongitude, maxLongitude) => {
-    console.info('searchOtherPoi');
-    console.info('selectedCountries: ', selectedCountries);
-    console.info('minLatitude: ', minLatitude);
-    console.info('maxLatitude: ', maxLatitude);
-    console.info('minLongitude: ', minLongitude);
-    console.info('maxLongitude: ', maxLongitude);
-
     setShowTcSpinner(true);
-    fetchOtherData(selectedCountries, minLatitude, maxLatitude, minLongitude, maxLongitude);
+    fetchOtherData(selectedCountries, minLatitude, maxLatitude, minLongitude, maxLongitude, pca, account, appData);
   };
 
   return (
@@ -116,7 +130,7 @@ const PoiModal = ({ isOpen, toggle, onRowSelect }) => {
                 className={ activeTab === 'other' ? 'active' : ''}
                 onClick={() => toggleTab('other')}
               >
-                Wszystkie
+                Inne
               </NavLink>
             </NavItem>
           </Nav>
@@ -150,11 +164,11 @@ const PoiModal = ({ isOpen, toggle, onRowSelect }) => {
                 <Row fluid noGutters>
                   <Col md="3" xl="2" fluid className={styles.MenuContainer}>
                     <GeoSearch
-                      selectedCountries={[]} 
-                      minLatitude={2} 
-                      maxLatitude={2} 
-                      minLongitude={2} 
-                      maxLongitude={2} 
+                      selectedCountries={otherSelectedCountries} 
+                      minLatitude={otherMinLatitude} 
+                      maxLatitude={otherMaxLatitude} 
+                      minLongitude={otherMinLongitude} 
+                      maxLongitude={otherMaxLongitude} 
                       newDataFlag={newOtherPoiListFlag} 
                       tooManyResultsMsg={otherTooManyResultsMsg}
                       search={searchOtherPoi}
@@ -162,7 +176,7 @@ const PoiModal = ({ isOpen, toggle, onRowSelect }) => {
                   </Col>
                   <Col md="9" xl="10" fluid className={styles.ContentContainer}>
                     { otherData.length > 0 ?
-                      <PoiTable {...{onRowSelect, showColumns}} data={userData}/> :
+                      <PoiTable {...{onRowSelect, showColumns}} data={otherData}/> :
                       <Badge color="warning" className={styles.Badge}>Brak danych</Badge>
                     }
                   </Col>

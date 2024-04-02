@@ -11,6 +11,7 @@ import TcSpinner from '../../../components/TCSpinner/TCSpinner.js';
 
 import { AppContext } from '../../../App.js';
 import { getAuthHeader } from '../../../utils/auth/getAuthHeader.js';
+import {useTcStore} from "../../../store/TcStore";
 
 const UserPoiListPage = () => {
   const appData = useContext(AppContext);
@@ -20,6 +21,7 @@ const UserPoiListPage = () => {
   const navigate = useNavigate();
 
   const [data, setData] = useState(null);
+  const refreshPoiUserFiltered = useTcStore((state) => state.refreshPoiUserFiltered);
 
   const fetchData = async () => {
     const authorizationHeader = await getAuthHeader(pca, account);
@@ -67,6 +69,7 @@ const UserPoiListPage = () => {
       .then(response => {
         console.log(response.status);
         fetchData();
+        refreshPoiUserFiltered(pca, account, appData);
       })
       .catch(error => {
         console.error('Error deleting POI:', error);

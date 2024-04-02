@@ -8,6 +8,7 @@ import styles from './POIDetails.module.css';
 import App, { AppContext } from '../../../App.js';
 import { getAuthHeader } from '../../../utils/auth/getAuthHeader.js';
 import BackArrow from '../../../components/BackArrow/BackArrow.js';
+import {useTcStore} from "../../../store/TcStore";
 
 const PoiDetails = () => {
   const appData = useContext(AppContext);
@@ -21,6 +22,8 @@ const PoiDetails = () => {
   const [poiCountryName, setPoiCountryName] = useState('');
   const [imagePreview, setImagePreview] = useState(null);
   const [poiOwner, setPoiOwner] = useState('');
+
+  const refreshPoiUserFiltered = useTcStore((state) => state.refreshPoiUserFiltered);
 
   const navigate = useNavigate();
   const isOwner = useIsAuthenticated(poiOwner);
@@ -69,6 +72,7 @@ const PoiDetails = () => {
       }})
       .then(response => {
         console.log(response.status);
+        refreshPoiUserFiltered(pca, account, appData);
         navigate(-1);
       })
       .catch(error => {
