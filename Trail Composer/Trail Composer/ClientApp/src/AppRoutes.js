@@ -2,9 +2,10 @@ import HomePage from "./pages/HomePage/HomePage"
 import NotFoundPage from "./pages/errorPages/NotFoundPage/NotFoundPage";
 import POIForm from "./pages/PoiPages/POIForm/POIForm"
 import PoiDetails from "./pages/PoiPages/POIDetails/POIDetails";
-import PoiListPage from "./pages/PoiPages/PoiListPage/PoiListPage";
 import UserPoiListPage from "./pages/PoiPages/UserPoiListPage/UserPoiListPage";
 import SegmentForm from "./pages/SegmentPages/SegmentForm/SegmentForm";
+import SegmentPoiListPage from "./pages/PoiPages/SegmentPoiListPage/SegmentPoiListPage";
+import TrailPoiListPage from "./pages/PoiPages/TrailPoiListPage/TrailPoiListPage";
 
 const AppRoutes = [
   {
@@ -30,6 +31,14 @@ const AppRoutes = [
   {
     path: '/list-poi/user',
     element: <UserPoiListPage />
+  },
+  {
+    path: '/list-poi/segment/:segmentId',
+    element: <SegmentPoiListPage />
+  },
+  {
+    path: '/list-poi/trail/:trailId',
+    element: <TrailPoiListPage />
   },
   {
     path: '/error/page-not-found',
