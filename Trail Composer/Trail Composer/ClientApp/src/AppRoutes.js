@@ -1,5 +1,3 @@
-import { FetchPOI } from "./components/FetchPOI";
-
 import HomePage from "./pages/HomePage/HomePage"
 import NotFoundPage from "./pages/errorPages/NotFoundPage/NotFoundPage";
 import POIForm from "./pages/PoiPages/POIForm/POIForm"
@@ -16,10 +14,6 @@ const AppRoutes = [
   {
     path: '/add-segment',
     element: <SegmentForm />
-  },
-  {
-    path: '/fetch-POI',
-    element: <FetchPOI />
   },
   {
     path: '/add-POI',
