@@ -2,7 +2,6 @@ import React, { useContext, useEffect, useState } from 'react';
 import PropTypes from 'prop-types';
 import styles from './PoiListPageComponent.module.css';
 import { PoiTable } from '../tables/PoiTable/PoiTable';
-import { useNavigate } from 'react-router-dom';
 import { Badge } from 'reactstrap';
 import { flattenData } from '../tables/PoiTable/flattenData';
 import { AppContext } from '../../App';
@@ -14,9 +13,7 @@ import { AppContext } from '../../App';
  * (or any other endpoint that doesn't require authorization)
  */
 const PoiListPageComponent = ({url}) => {
-  //debugger;
   const appData = useContext(AppContext);
-  const navigate = useNavigate();
 
   const [data, setData] = useState([]);
   const showColumns = {

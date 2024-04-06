@@ -1,5 +1,6 @@
 ﻿@import 'bootstrap/dist/css/bootstrap.min.css';
 @import 'bootstrap-icons/font/bootstrap-icons.min.css';
+@import 'leaflet/dist/leaflet.css';
 @import './styles/colors.css';
 @import './styles/fonts.css';
 @import './styles/global.css';

@@ -5,11 +5,16 @@ import App, { AppContext } from '../../../App.js';
 import Multiselect from 'multiselect-react-dropdown';
 import { useMsal, useAccount, useMsalAuthentication, AuthenticatedTemplate } from "@azure/msal-react";
 import { InteractionType } from '@azure/msal-browser';
-import styles from './POIForm.module.css';
+import styles from './SegmentForm.module.css';
 import PoiModal from '../../../modals/PoiModal/PoiModal'
 import { Modal, ModalHeader, ModalBody, ModalFooter } from 'reactstrap';
-import {PoiTable} from "../../../components/tables/PoiTable/PoiTable";
+import {SegmentTable} from "../../../components/tables/SegmentTable/SegmentTable";
 import { getAuthHeader } from '../../../utils/auth/getAuthHeader.js';
+import TCMap from "../../../components/TCMap/TCMap";
+import Teste from '../../../assets/gpx/teste.gpx';
+import Demo from '../../../assets/gpx/demo.gpx';
+
+const gpxUrls = [Teste, Demo];
 
 const SegmentForm = () => {
   const appData = useContext(AppContext);
@@ -18,23 +23,23 @@ const SegmentForm = () => {
   const account = useAccount(accounts[0] || {});
   const navigate = useNavigate();
 
-  const { poiId } = useParams();
-  const [localPoiId, setLocalPoiId] = useState(poiId);
+  const { segmentId } = useParams();
+  const [localSegmentId, setLocalSegmentId] = useState(segmentId);
   const [editMode, setEditMode] = useState(false); 
+  const [modal, setModal] = useState(false);
 
   const [formErrors, setFormErrors] = useState({});
   const [submitting, setSubmitting] = useState(false);
   const [formErrorMessage, setFormErrorMessage] = useState('');
-  const [selectedPOITypes, setSelectedPOITypes] = useState([]);
-  const [selectedPOICountry, setSelectedPOICountry] = useState(29);
-  const [poiName, setPoiName] = useState('');
-  const [poiDescription, setPoiDescription] = useState('');
-  const [poiLatitude, setPoiLatitude] = useState();
-  const [poiLongitude, setPoiLongitude] = useState();
+
+  const [selectedTypes, setSelectedTypes] = useState([]);
+  const [selectedCountry, setSelectedCountry] = useState(29);
+  const [segmentLevel, setSegmentLevel] = useState(1);
+  const [segmentName, setSegmentName] = useState('');
+  const [segmentDescription, setSegmentDescription] = useState('');
+  
   const [imagePreview, setImagePreview] = useState(null);
   const [photoValue, setPhotoValue] = useState(null);
-  
-  const [modal, setModal] = useState(false);
 
   let formData = useRef(new FormData());
   let photoId = useRef(0);
@@ -42,21 +47,22 @@ const SegmentForm = () => {
   const toggleModal = () => setModal(!modal);
 
   useEffect(() => {
-    setLocalPoiId(poiId);
+    setLocalSegmentId(segmentId);
 
-    if (!isNaN(Number.parseInt(localPoiId)))
+    if (!isNaN(Number.parseInt(localSegmentId)))
       setEditMode(true);
     else
       setEditMode(false);
 
-    const form = document.getElementById("POIForm");
+    const form = document.getElementById("SegmentForm");
     formData.current = new FormData(form);
-    formData.current.set("CountryId", selectedPOICountry);
+    formData.current.set("CountryId", selectedCountry);
       
-    if (editMode && localPoiId && appData){
+    if (editMode && localSegmentId && appData){
       const fetchData = async () => {
         try {
-          const fetchedPoi = await fetch(`tc-api/poi/${localPoiId}`).then(response => response.json());
+          /*
+          const fetchedPoi = await fetch(`tc-api/poi/${localSegmentId}`).then(response => response.json());
 
           setSelectedPOICountry(fetchedPoi.countryId);
           setPoiName(fetchedPoi.name);
@@ -80,15 +86,15 @@ const SegmentForm = () => {
           handlePoiTypes(fetchedPoiTypes);
           photoId.current=fetchedPoi.photoId;
 
-          showFormData(formData.current, "starting editMode");
+          showFormData(formData.current, "starting editMode"); */
         } catch (error) {
           console.error('Error fetching poi:', error);
-        }
+        }       
       };
       
       fetchData();
     }
-  }, [editMode, localPoiId, appData, poiId]);
+  }, [editMode, localSegmentId, appData, segmentId]);
 
   const validateInput = (name, value) => {
     const emptyMsg = 'Pole jest wymagane.';
@@ -98,32 +104,9 @@ const SegmentForm = () => {
         if (value.trim() === '')
           return emptyMsg;
         break;
-      case "PoiTypes":
-        if (value.length < 1)
-          return 'Wybierz co najmniej jedną opcję.';
-        break;
       case "Description": 
         // description is optional
-        break;
-      case "Latitude":
-        if (value.trim() === '')
-          return emptyMsg;
-        if (value < -90 || value > 90) {
-            return 'Wartość szerokości geograficznej jest nieprawidłowa.';
-        }
-        break;
-      case "Longitude":
-        if (value.trim() === '')
-          return emptyMsg;
-        if (value < -180 || value > 180) {
-            return 'Wartość długości geograficznej jest nieprawidłowa.';
-        }
-        break;
-      case "Photo":
-        // photo is optional
-        if (value.size > 1024*1024*10)
-          return 'Rozmiar zdjęcia przekracza 10 MB.';
-        break;    
+        break; 
         default:
     }
 
@@ -151,19 +134,13 @@ const SegmentForm = () => {
     } else {
       switch (name) {
         case "CountryId":
-          setSelectedPOICountry(value);
+          setSelectedCountry(value);
           break;
         case "Name":
-          setPoiName(value);
+          setSegmentName(value);
           break;
         case "Description":
-          setPoiDescription(value);
-          break;
-        case "Latitude":
-          setPoiLatitude(value);
-          break;
-        case "Longitude":
-          setPoiLongitude(value);
+          setSegmentDescription(value);
           break;
       }
         
@@ -197,10 +174,10 @@ const SegmentForm = () => {
     const authorizationHeader = getAuthHeader(pca, account);
 
     // TO-DO: after sending go back to prev page 
-    let connString = 'tc-api/poi';
+    let connString = 'tc-api/segment';
     let connMethod = 'POST'
     if (editMode) {
-      connString = `tc-api/poi/${localPoiId}`;
+      connString = `tc-api/segment/${localSegmentId}`;
       connMethod = 'PUT';
     }
     fetch(connString, {
@@ -213,32 +190,32 @@ const SegmentForm = () => {
       .then(response => response.json())
       .then(data => {
         if (data > -1){
-          console.log('AddPOI Form uploaded successfully:', data);
+          console.log('AddSegment Form uploaded successfully:', data);
           if (editMode)
-            console.log("edit POI")
+            console.log("edit Segment")
           setFormErrorMessage('');
         }          
         else {
-          setFormErrorMessage('Nie udało się zapisać POI.');
+          setFormErrorMessage('Nie udało się zapisać odcinka.');
         }
         setSubmitting(false);
         if(editMode)
-          navigate(`/details-poi/${localPoiId}`);  
+          navigate(`/details-segment/${localSegmentId}`);  
         else
-          navigate(`/details-poi/${data}`);
+          navigate(`/details-segment/${data}`);
       })
       .catch(error => {
-        console.error('Error uploading AddPOI form:', error);
-        setFormErrorMessage('Nie udało się zapisać POI.');
+        console.error('Error uploading AddSegment form:', error);
+        setFormErrorMessage('Nie udało się zapisać odcinka.');
         setSubmitting(false);
       });
     
   };
 
-  // Callback when POITypes are selected or removed
+  // Callback when SegmentTypes are selected or removed
   const handlePoiTypes = (selectedList) => {
-    const name = "PoiTypes";
-    setSelectedPOITypes(selectedList);
+    const name = "SegmentTypes";
+    setSelectedTypes(selectedList);
 
     formData.current.delete(name);
     if (selectedList.length === 0) {
@@ -272,22 +249,22 @@ const SegmentForm = () => {
   }
 
   return (
-    <div className={styles.PoiForm}>
+    <div className={styles.SegmentForm}>
       <PoiModal isOpen={modal} toggle={toggleModal} onRowSelect={onRowSelect}/>
-      <Form id="POIForm" onSubmit={handleSubmit} encType="multipart/form-data">
+      <Form id="SegmentForm" onSubmit={handleSubmit} encType="multipart/form-data">
         <Container>
-          <Row className={styles.SectionTitle}>{editMode ? 'Edytowanie POI' : 'Tworzenie Odcinka'}</Row>
+          <Row className={styles.SectionTitle}>{editMode ? 'Edytowanie Odcinka' : 'Tworzenie Odcinka'}</Row>
 
           <Row>
             <Col sm={6}>
 
               <FormGroup row>
-                <Label for="POIname" sm={4} lg={3}  className="text-end">Nazwa</Label>
+                <Label for="SegmentName" sm={4} lg={3}  className="text-end">Nazwa</Label>
                 <Col sm={8} lg={9} >
                   <Input
                     name="Name"
-                    id="POIname"
-                    value={poiName}
+                    id="SegmentName"
+                    value={segmentName}
                     onChange={handleInputChange}
                     invalid={!!formErrors.Name}
                     placeholder="wprowadź maksymalnie 50 liter"
@@ -298,15 +275,15 @@ const SegmentForm = () => {
               </FormGroup>
 
               <FormGroup row>
-                <Label for="POIcountry" sm={4} lg={3}  className="text-end">Kraj</Label>
+                <Label for="SegmentCountry" sm={4} lg={3}  className="text-end">Kraj</Label>
                 <Col sm={8} lg={9} >
                   <Input
                     name="CountryId"
-                    id="POIcountry"
+                    id="SegmentCountry"
                     type="select"
                     onChange={handleInputChange}
                     invalid={!!formErrors.CountryId}
-                    value={selectedPOICountry}
+                    value={selectedCountry}
                   >
                     {
                       appData ?
@@ -322,35 +299,35 @@ const SegmentForm = () => {
               </FormGroup> 
               
               <FormGroup row>
-                <Label for="PoiTypes" sm={4} lg={3}  className="text-end">Typ</Label>
+                <Label for="PathTypes" sm={4} lg={3}  className="text-end">Typ</Label>
                 <Col sm={8} lg={9} >
                   {
                     !!appData &&
                       (<Multiselect
-                        id="PoiTypes"
+                        id="PathTypes"
                         options={appData.POITypes}
-                        selectedValues={selectedPOITypes} 
+                        selectedValues={selectedTypes} 
                         onSelect={handlePoiTypes} 
                         onRemove={handlePoiTypes} 
                         displayValue="name" 
                         showCheckbox
                         placeholder="wybierz"
-                        className={!!formErrors.PoiTypes ? styles.MultiselectError : styles.Multiselect}
+                        className={!!formErrors.PathTypes ? styles.MultiselectError : styles.Multiselect}
                       />)
                   }
-                  <Input name="PoiTypes" invalid={!!formErrors.PoiTypes} className="d-none"></Input>
-                  <FormFeedback>{formErrors.PoiTypes}</FormFeedback>
+                  <Input name="PathTypes" invalid={!!formErrors.PathTypes} className="d-none"></Input>
+                  <FormFeedback>{formErrors.PathTypes}</FormFeedback>
                 </Col>                
               </FormGroup>
 
               <FormGroup row>
-                <Label for="POIDescription" sm={4} lg={3} className="text-end">Opis</Label>
+                <Label for="SegmentDescription" sm={4} lg={3} className="text-end">Opis</Label>
                 <Col sm={8} lg={9} >
                   <Input
                     type="textarea"
                     name="Description"
-                    id="POIDescription"
-                    value={poiDescription}
+                    id="SegmentDescription"
+                    value={segmentDescription}
                     onChange={handleInputChange}
                     invalid={!!formErrors.Description}
                     placeholder="wprowadź maksymalnie 2048 znaki"
@@ -360,51 +337,8 @@ const SegmentForm = () => {
                   <FormFeedback>{formErrors.Description}</FormFeedback>
                 </Col>                
               </FormGroup>
-
-              <Row className={styles.SectionTitle}>Współrzędne geograficzne - GPS</Row>
-
-              <FormGroup row>
-                <Label for="POILatitude" sm={4} lg={3}  className="text-end">Szerokość</Label>
-                <Col sm={8} lg={9} >
-                  <Input
-                    name="Latitude"
-                    type="number"
-                    id="POILatitude"
-                    value={poiLatitude}
-                    onChange={handleInputChange}
-                    invalid={!!formErrors.Latitude}
-                    placeholder = "wprowadź liczbę dziesiętną"
-                    min="-90"
-                    max="90"
-                    step="0.000001"
-                  />
-                  <FormFeedback>{formErrors.Latitude}</FormFeedback>
-                </Col>                
-              </FormGroup>
-
-              <FormGroup row>
-                <Label for="POILongitude" sm={4} lg={3}  className="text-end">Długość</Label>
-                <Col sm={8} lg={9} >
-                  <Input
-                    name="Longitude"
-                    type="number"
-                    id="POILongitude"
-                    value={poiLongitude}
-                    onChange={handleInputChange}
-                    invalid={!!formErrors.Longitude}
-                    placeholder = "wprowadź liczbę dziesiętną"
-                    min="-180"
-                    max="180"
-                    step="0.000001"
-                  />
-                  <FormFeedback>{formErrors.Longitude}</FormFeedback>
-                </Col>                
-              </FormGroup>
               
               <div className={styles.Buttons + ' d-none d-sm-block'}>
-                <Button onClick={toggleModal}>
-                  Dodaj POI
-                </Button>
                 <Button>
                   Wyczyść
                 </Button>
@@ -416,6 +350,12 @@ const SegmentForm = () => {
 
             <Col sm={6} className='d-flex flex-column align-items-sm-center'>
 
+              <div className={styles.Buttons + ' d-none d-sm-block'}>
+                <Button onClick={toggleModal}>
+                  Dodaj POI
+                </Button>
+              </div>
+              
               <FormGroup row>
                 <Label for="POIPhoto" sm={4} lg={3}  className="text-end">Zdjęcie</Label>
                 <Col sm={8} lg={9} >
@@ -440,7 +380,8 @@ const SegmentForm = () => {
               </FormGroup>
 
               {
-                !!imagePreview && ( <img src={imagePreview} alt="Preview" className={styles.Photo} /> )
+                //!!imagePreview && ( <img src={imagePreview} alt="Preview" className={styles.Photo} /> )
+                <TCMap {...{ gpxUrls }} />
               }
 
             </Col>
@@ -449,9 +390,6 @@ const SegmentForm = () => {
           <p className={styles.FormErrorMessage}>{formErrorMessage}</p>
 
           <div className={styles.Buttons + ' d-sm-none'}>
-            <Button onClick={toggleModal}>
-              Dodaj POI
-            </Button>
             <Button>
               Anuluj
             </Button>
