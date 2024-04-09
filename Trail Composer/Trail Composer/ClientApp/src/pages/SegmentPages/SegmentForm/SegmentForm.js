@@ -256,10 +256,8 @@ const SegmentForm = () => {
 
   // functions for PoiModal
   const onRowSelect = (row) => {
-    console.info("click onRowSelect", row.original);
-    const newData = [{...row.original}];
-    console.info("newData: ", newData);
-    setData(newData);
+    setData(data =>[...data, row.original]);
+    setModal(false);
   }
 
   useEffect(()=>{console.info("data",data)},[data]);
