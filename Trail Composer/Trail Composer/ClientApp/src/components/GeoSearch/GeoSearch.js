@@ -7,12 +7,11 @@ import PropTypes from 'prop-types';
 import { useMsal, useAccount, useIsAuthenticated } from "@azure/msal-react";
 
 const GeoSearch = ({ selectedCountries, minLatitude, maxLatitude, 
-  minLongitude, maxLongitude, newDataFlag, search, tooManyResultsMsg }) => {
+  minLongitude, maxLongitude, newDataFlag, search, tooManyResultsMsg, afterSearch }) => {
 
   const appData = useContext(AppContext);
   const { instance: pca, accounts } = useMsal();
   const account = useAccount(accounts[0] || {});
-
 
   const [formErrors, setFormErrors] = useState({});
   const [submitting, setSubmitting] = useState(false);
@@ -223,6 +222,10 @@ const GeoSearch = ({ selectedCountries, minLatitude, maxLatitude,
       setGeoSearchChanged(true);
     }
   };
+
+  const disableButton = () => {
+    return (submitting || !geoSearchChanged) && (submitting || afterSearch);
+  }
   
   return (
     <div className={styles.GeoSearch}>
@@ -313,8 +316,8 @@ const GeoSearch = ({ selectedCountries, minLatitude, maxLatitude,
             <FormFeedback>{formErrors.maxLongitude}</FormFeedback>
           </FormGroup>
           <div className={styles.Buttons}>
-            <Button type="submit" disabled={submitting || !geoSearchChanged} className={styles.Button}>
-              {submitting ? 'Szukam...' : geoSearchChanged ? 'Szukaj' : 'Zmień dane'} 
+            <Button type="submit" disabled={disableButton()} className={styles.Button}>
+              {submitting ? 'Szukam...' : geoSearchChanged || !afterSearch ? 'Szukaj' : 'Zmień dane'} 
             </Button>
           </div>
           <p className={styles.FormErrorMessage}>{formErrorMessage}</p>
@@ -332,7 +335,8 @@ GeoSearch.propTypes = {
   maxLongitude: PropTypes.number,
   search: PropTypes.func,
   newDataFlag: PropTypes.number,
-  tooManyResultsMsg: PropTypes.string
+  tooManyResultsMsg: PropTypes.string,
+  afterSearch: PropTypes.bool
 };
 
 GeoSearch.defaultProps = {
@@ -343,7 +347,8 @@ GeoSearch.defaultProps = {
   maxLongitude: 180,
   search: () => {},
   newDataFlag: 0,
-  tooManyResultsMsg: ''
+  tooManyResultsMsg: '',
+  afterSearch: true
 };
 
 export default GeoSearch;

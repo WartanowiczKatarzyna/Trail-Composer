@@ -33,6 +33,7 @@ const PoiModal = ({ isOpen, toggle, onRowSelect }) => {
   const userMaxLatitude = useTcStore((state) => state.poiUserFilteredMaxLatitude);
   const userMinLongitude = useTcStore((state) => state.poiUserFilteredMinLongitude);
   const userMaxLongitude = useTcStore((state) => state.poiUserFilteredMaxLongitude);
+  const afterUserSearch = useTcStore((state) => state.poiUserAfterSearch);
   const [newUserPoiListFlag, setNewUserPoiListFlag] = useState(false);
   const [userTooManyResultsMsg, setUserTooManyResultsMsg] = useState('');
 
@@ -45,6 +46,7 @@ const PoiModal = ({ isOpen, toggle, onRowSelect }) => {
   const otherMaxLatitude = useTcStore((state) => state.poiOtherFilteredMaxLatitude);
   const otherMinLongitude = useTcStore((state) => state.poiOtherFilteredMinLongitude);
   const otherMaxLongitude = useTcStore((state) => state.poiOtherFilteredMaxLongitude);
+  const afterOtherSearch = useTcStore((state) => state.poiOtherAfterSearch);
   const [newOtherPoiListFlag, setNewOtherPoiListFlag] = useState(false);
   const [otherTooManyResultsMsg, setOtherTooManyResultsMsg] = useState('');
 
@@ -149,6 +151,7 @@ const PoiModal = ({ isOpen, toggle, onRowSelect }) => {
                       newDataFlag={newUserPoiListFlag} 
                       tooManyResultsMsg={userTooManyResultsMsg}
                       search={searchUserPoi}
+                      afterSearch={afterUserSearch}
                     />
                   </Col>
                   <Col md="9" xl="10" fluid>
@@ -175,6 +178,7 @@ const PoiModal = ({ isOpen, toggle, onRowSelect }) => {
                       newDataFlag={newOtherPoiListFlag} 
                       tooManyResultsMsg={otherTooManyResultsMsg}
                       search={searchOtherPoi}
+                      afterSearch={afterOtherSearch}
                     />
                   </Col>
                   <Col md="9" xl="10" fluid>

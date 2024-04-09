@@ -8,6 +8,7 @@ export const createPoiOtherFilteredSlice = (set) => ({
   poiOtherFilteredMaxLatitude: 90, 
   poiOtherFilteredMinLongitude: -180, 
   poiOtherFilteredMaxLongitude: 180,
+  poiOtherAfterSearch: false,
   
   savePoiOtherGeoSearchOptions: (selectedCountries, minLatitude, maxLatitude, minLongitude, maxLongitude) => {
     set({ poiOtherFilteredSelectedCountries: [...selectedCountries] });
@@ -45,8 +46,10 @@ export const createPoiOtherFilteredSlice = (set) => ({
         }
       })
       .then(response => {
-        if (response.status)
-          return response.json()
+        if (response.status){
+          set({poiOtherAfterSearch: true});
+          return response.json();
+        }
         else
           console.log(response.status);
       })

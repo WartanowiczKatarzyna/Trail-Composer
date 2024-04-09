@@ -7,12 +7,12 @@ import { useMsal, useAccount, useMsalAuthentication, AuthenticatedTemplate } fro
 import { InteractionType } from '@azure/msal-browser';
 import styles from './SegmentForm.module.css';
 import PoiModal from '../../../modals/PoiModal/PoiModal'
-import { Modal, ModalHeader, ModalBody, ModalFooter } from 'reactstrap';
-import {SegmentTable} from "../../../components/tables/SegmentTable/SegmentTable";
 import { getAuthHeader } from '../../../utils/auth/getAuthHeader.js';
 import TCMap from "../../../components/TCMap/TCMap";
 import Teste from '../../../assets/gpx/teste.gpx';
 import Demo from '../../../assets/gpx/demo.gpx';
+import { PoiTable } from '../../../components/tables/PoiTable/PoiTable.tsx';
+import { flattenData } from '../../../components/tables/PoiTable/flattenData.js';
 
 const gpxUrls = [Teste, Demo];
 
@@ -45,6 +45,16 @@ const SegmentForm = () => {
   let photoId = useRef(0);
 
   const toggleModal = () => setModal(!modal);
+  
+  // states needed for PoiTable
+  const [data, setData] = useState([]);
+  const showColumns = {
+    'id': false,
+    'username': false,
+    'latitude': false,
+    'longitude': false,
+    'country': false
+  }
 
   useEffect(() => {
     setLocalSegmentId(segmentId);
@@ -188,9 +198,9 @@ const SegmentForm = () => {
       }
     })
       .then(response => response.json())
-      .then(data => {
-        if (data > -1){
-          console.log('AddSegment Form uploaded successfully:', data);
+      .then(responseData => {
+        if (responseData > -1){
+          console.log('AddSegment Form uploaded successfully:', responseData);
           if (editMode)
             console.log("edit Segment")
           setFormErrorMessage('');
@@ -202,7 +212,7 @@ const SegmentForm = () => {
         if(editMode)
           navigate(`/details-segment/${localSegmentId}`);  
         else
-          navigate(`/details-segment/${data}`);
+          navigate(`/details-segment/${responseData}`);
       })
       .catch(error => {
         console.error('Error uploading AddSegment form:', error);
@@ -244,9 +254,15 @@ const SegmentForm = () => {
     }
   };
 
+  // functions for PoiModal
   const onRowSelect = (row) => {
-    console.info("click onRowSelect", row);
+    console.info("click onRowSelect", row.original);
+    const newData = [{...row.original}];
+    console.info("newData: ", newData);
+    setData(newData);
   }
+
+  useEffect(()=>{console.info("data",data)},[data]);
 
   return (
     <div className={styles.SegmentForm}>
@@ -356,28 +372,9 @@ const SegmentForm = () => {
                 </Button>
               </div>
               
-              <FormGroup row>
-                <Label for="POIPhoto" sm={4} lg={3}  className="text-end">Zdjęcie</Label>
-                <Col sm={8} lg={9} >
-                  <Row>
-                    <Col sm={11}>
-                      <Input
-                      type="file"
-                      name="Photo"
-                      id="POIPhoto"
-                      value={photoValue}
-                      onChange={handleInputChange}
-                      invalid={!!formErrors.Photo}
-                      accept=".jpg, .jpeg"
-                      />
-                    </Col>
-                    <Col sm={1}>
-                      {imagePreview && (<div class="mt-2 mt-lg-0"><i role="button" onClick={deletePhoto} class="bi bi-trash fs-4"></i></div>)}
-                    </Col>
-                  </Row>                
-                  <FormFeedback>{formErrors.Photo}</FormFeedback>
-                </Col>                
-              </FormGroup>
+              <Row>
+                <PoiTable {...{data, showColumns}} />
+              </Row>
 
               {
                 //!!imagePreview && ( <img src={imagePreview} alt="Preview" className={styles.Photo} /> )

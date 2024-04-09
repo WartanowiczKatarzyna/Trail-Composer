@@ -9,6 +9,7 @@ export const createPoiUserFilteredSlice = (set, get) => ({
   poiUserFilteredMaxLatitude: 90, 
   poiUserFilteredMinLongitude: -180, 
   poiUserFilteredMaxLongitude: 180,
+  poiUserAfterSearch: false,
 
   fetchPoiUserFiltered: async (selectedCountries, minLatitude, maxLatitude, minLongitude, maxLongitude,
                                pca, account, appData) => {
@@ -62,8 +63,10 @@ const fetchPoiUserFilteredExecute = async (set, selectedCountries, minLatitude, 
       }
     })
     .then(response => {
-      if (response.status)
-        return response.json()
+      if (response.status){
+        set({poiUserAfterSearch: true});
+        return response.json();
+      }
       else
         console.log(response.status);
     })

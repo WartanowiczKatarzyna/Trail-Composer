@@ -15,10 +15,7 @@ const TCMap = ( { gpxUrls }) => {
       "http://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png"
     ).addTo(map);
 
-    const latitudeMinList = [];
-    const latitudeMaxList = [];
-    const longitudeMinList = [];
-    const longitudeMaxList = [];
+    const allBounds = [];
 
     const IterateUrls = async (index) => {
       if( gpxUrls.length === 0 || index >= gpxUrls.length) return;
@@ -37,19 +34,9 @@ const TCMap = ( { gpxUrls }) => {
       })
         .on("loaded", (e) => {
           const gpx = e.target;
-          const bounds = gpx.getBounds();
-          const SouthWes = bounds.getSouthWest();
-          const NorthEast = bounds.getNorthEast();
-          latitudeMinList.push(SouthWes.lat);
-          latitudeMaxList.push(NorthEast.lat);
-          longitudeMinList.push(SouthWes.lng);
-          longitudeMaxList.push(NorthEast.lng);
+          allBounds.push(gpx.getBounds());
           if(index === gpxUrls.length - 1) {
-            const boundsRectangle = [
-              [Math.min(...latitudeMinList), Math.min(...longitudeMinList)],
-              [Math.max(...latitudeMaxList), Math.max(...longitudeMaxList)]
-            ];
-            map.fitBounds(boundsRectangle);
+            map.fitBounds(L.latLngBounds().extend(allBounds).pad(0.1));
           }
           IterateUrls(index + 1);
         })
