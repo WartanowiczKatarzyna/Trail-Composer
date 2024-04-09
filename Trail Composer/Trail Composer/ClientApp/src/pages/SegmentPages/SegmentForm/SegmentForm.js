@@ -12,7 +12,7 @@ import TCMap from "../../../components/TCMap/TCMap";
 import Teste from '../../../assets/gpx/teste.gpx';
 import Demo from '../../../assets/gpx/demo.gpx';
 import { PoiTable } from '../../../components/tables/PoiTable/PoiTable.tsx';
-import { flattenData } from '../../../components/tables/PoiTable/flattenData.js';
+import { moveUp, moveDown } from '../../../components/tables/moveRow.js';
 
 const gpxUrls = [Teste, Demo];
 
@@ -256,8 +256,23 @@ const SegmentForm = () => {
 
   // functions for PoiModal
   const onRowSelect = (row) => {
-    setData(data =>[...data, row.original]);
+    setData(d => [...d, row.original]);
     setModal(false);
+  }
+
+  // functions for PoiTable
+  const onMoveUp = (row) => {
+    //debugger;
+    console.info("before moveUp", data);
+    moveUp(data, row);
+    setData((d) => [...d]);
+  }
+
+  const onMoveDown = (row) => {
+    //debugger;
+    console.info("before moveDown", data);
+    moveDown(data, row);
+    setData((d) => [...d]);
   }
 
   useEffect(()=>{console.info("data",data)},[data]);
@@ -371,7 +386,7 @@ const SegmentForm = () => {
               </div>
               
               <Row>
-                <PoiTable {...{data, showColumns}} />
+                <PoiTable {...{data, showColumns, onMoveDown, onMoveUp}} />
               </Row>
 
               {
