@@ -23,6 +23,8 @@ export function moveUp(dataTab, row) {
 
   const  newIndex =  index - 1 ;
   move(dataTab, index, newIndex);
+
+  return dataTab;
 }
 
 export function moveDown(dataTab,row) {
@@ -35,4 +37,6 @@ export function moveDown(dataTab,row) {
 
   const  newIndex =  index + 1 ;
   move(dataTab, index, newIndex);
+
+  return dataTab;
 }

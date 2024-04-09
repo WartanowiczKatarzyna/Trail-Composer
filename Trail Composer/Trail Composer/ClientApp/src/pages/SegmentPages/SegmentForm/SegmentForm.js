@@ -13,6 +13,8 @@ import Teste from '../../../assets/gpx/teste.gpx';
 import Demo from '../../../assets/gpx/demo.gpx';
 import { PoiTable } from '../../../components/tables/PoiTable/PoiTable.tsx';
 import { moveUp, moveDown } from '../../../components/tables/moveRow.js';
+import { makeData } from '../../../components/tables/PoiTable/makeData.ts';
+import { flattenData } from '../../../components/tables/PoiTable/flattenData.js';
 
 const gpxUrls = [Teste, Demo];
 
@@ -263,16 +265,16 @@ const SegmentForm = () => {
   // functions for PoiTable
   const onMoveUp = (row) => {
     //debugger;
-    console.info("before moveUp", data);
-    moveUp(data, row);
-    setData((d) => [...d]);
+    console.info("before moveUp", JSON.stringify(data));
+    //moveUp(data, row);
+    setData((d) => [...moveUp(d, row)]);
   }
 
   const onMoveDown = (row) => {
     //debugger;
-    console.info("before moveDown", data);
-    moveDown(data, row);
-    setData((d) => [...d]);
+    console.info("before moveDown", JSON.stringify(data));
+    //moveDown(data, row);
+    setData((d) => [...moveDown(d, row)]);
   }
 
   useEffect(()=>{console.info("data",data)},[data]);
