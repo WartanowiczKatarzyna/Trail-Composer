@@ -12,7 +12,7 @@ import TCMap from "../../../components/TCMap/TCMap";
 import Teste from '../../../assets/gpx/teste.gpx';
 import Demo from '../../../assets/gpx/demo.gpx';
 import { PoiTable } from '../../../components/tables/PoiTable/PoiTable.tsx';
-import { moveUp, moveDown } from '../../../components/tables/moveRow.js';
+import {moveUp, moveDown, addRow, deleteRow} from '../../../components/tables/rowActions.js';
 import { makeData } from '../../../components/tables/PoiTable/makeData.ts';
 import { flattenData } from '../../../components/tables/PoiTable/flattenData.js';
 
