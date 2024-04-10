@@ -3,10 +3,14 @@ import { createPoiUserFilteredSlice } from './PoiUserFilteredSlice'
 import { createPoiOtherFilteredSlice } from './PoiOtherFilteredSlice'
 import { createSegmentSlice } from './SegmentSlice'
 import { createTrailSlice } from './TrailSlice'
+import { createPathLevelSlice } from './PathLevelSlice'
+import { createPathTypeSlice } from './PathTypeSlice'
 
 export const useTcStore = create((...a) => ({
   ...createPoiUserFilteredSlice(...a),
   ...createPoiOtherFilteredSlice(...a),
+  ...createPathLevelSlice(...a),
+  ...createPathTypeSlice(...a),
   ...createSegmentSlice(...a),
   ...createTrailSlice(...a),
 }))

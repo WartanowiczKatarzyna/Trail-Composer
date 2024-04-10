@@ -8,15 +8,11 @@ import { InteractionType } from '@azure/msal-browser';
 import styles from './SegmentForm.module.css';
 import PoiModal from '../../../modals/PoiModal/PoiModal'
 import { getAuthHeader } from '../../../utils/auth/getAuthHeader.js';
-import TCMap from "../../../components/TCMap/TCMap";
-import Teste from '../../../assets/gpx/teste.gpx';
-import Demo from '../../../assets/gpx/demo.gpx';
 import { PoiTable } from '../../../components/tables/PoiTable/PoiTable.tsx';
 import {moveUp, moveDown, addRow, deleteRow} from '../../../components/tables/rowActions.js';
 import { makeData } from '../../../components/tables/PoiTable/makeData.ts';
 import { flattenData } from '../../../components/tables/PoiTable/flattenData.js';
-
-const gpxUrls = [Teste, Demo];
+import { useTcStore } from '../../../store/TcStore.js';
 
 const SegmentForm = () => {
   const appData = useContext(AppContext);
@@ -36,15 +32,14 @@ const SegmentForm = () => {
 
   const [selectedTypes, setSelectedTypes] = useState([]);
   const [selectedCountry, setSelectedCountry] = useState(29);
-  const [segmentLevel, setSegmentLevel] = useState(1);
+  const [selectedSegmentLevel, setSelectedSegmentLevel] = useState(1);
   const [segmentName, setSegmentName] = useState('');
   const [segmentDescription, setSegmentDescription] = useState('');
-  
-  const [imagePreview, setImagePreview] = useState(null);
-  const [photoValue, setPhotoValue] = useState(null);
+
+  const pathLevels = useTcStore((state) => state.pathLevels);
+  const pathTypes = useTcStore((state) => state.pathTypes);
 
   let formData = useRef(new FormData());
-  let photoId = useRef(0);
 
   const toggleModal = () => setModal(!modal);
   
@@ -116,6 +111,10 @@ const SegmentForm = () => {
         if (value.trim() === '')
           return emptyMsg;
         break;
+      case "PathTypes":
+        if (value.length < 1)
+          return 'Wybierz co najmniej jedną opcję.';
+        break;
       case "Description": 
         // description is optional
         break; 
@@ -132,7 +131,7 @@ const SegmentForm = () => {
       const reader = new FileReader();
 
       reader.onloadend = () => {
-        setImagePreview(reader.result);
+        
       }
 
       // handling empty files
@@ -141,7 +140,7 @@ const SegmentForm = () => {
         const errors = validateInput(name, files[0]);
         formData.current.set(name, files[0]);
         setFormErrors({ ...formErrors, [name]: errors });
-        setPhotoValue(null);
+        
       }      
     } else {
       switch (name) {
@@ -150,6 +149,9 @@ const SegmentForm = () => {
           break;
         case "Name":
           setSegmentName(value);
+          break;
+        case "Level":
+          setSelectedSegmentLevel(value);
           break;
         case "Description":
           setSegmentDescription(value);
@@ -225,7 +227,7 @@ const SegmentForm = () => {
   };
 
   // Callback when SegmentTypes are selected or removed
-  const handlePoiTypes = (selectedList) => {
+  const handlePathTypes = (selectedList) => {
     const name = "SegmentTypes";
     setSelectedTypes(selectedList);
 
@@ -239,16 +241,6 @@ const SegmentForm = () => {
     setFormErrors({ ...formErrors, [name]: errors });    
   };
 
-  const deletePhoto = () => {
-    console.log("delete");
-    setImagePreview(null);
-    setPhotoValue('');
-    formData.current.set("Photo", null);
-    formData.current.set("deletePhoto", photoId.current);
-
-    showFormData(formData.current, "after deletePhoto");
-  }
-
   const showFormData = (formDataArg, comment) => {
     console.log(comment);
     for (const pair of formDataArg.entries()) {
@@ -258,7 +250,7 @@ const SegmentForm = () => {
 
   // functions for PoiModal
   const onRowSelect = (row) => {
-    setData(d => [...d, row.original]);
+    setData((d) => [...addRow(d, row)]);
     setModal(false);
   }
 
@@ -275,6 +267,10 @@ const SegmentForm = () => {
     console.info("before moveDown", JSON.stringify(data));
     //moveDown(data, row);
     setData((d) => [...moveDown(d, row)]);
+  }
+
+  const onDelete = (row) => {
+    setData((d) => [...deleteRow(d, row)]);
   }
 
   useEffect(()=>{console.info("data",data)},[data]);
@@ -336,10 +332,10 @@ const SegmentForm = () => {
                     !!appData &&
                       (<Multiselect
                         id="PathTypes"
-                        options={appData.POITypes}
+                        options={pathTypes}
                         selectedValues={selectedTypes} 
-                        onSelect={handlePoiTypes} 
-                        onRemove={handlePoiTypes} 
+                        onSelect={handlePathTypes} 
+                        onRemove={handlePathTypes} 
                         displayValue="name" 
                         showCheckbox
                         placeholder="wybierz"
@@ -350,6 +346,30 @@ const SegmentForm = () => {
                   <FormFeedback>{formErrors.PathTypes}</FormFeedback>
                 </Col>                
               </FormGroup>
+
+              <FormGroup row>
+                <Label for="PathLevel" sm={4} lg={3}  className="text-end">Poziom trudności</Label>
+                <Col sm={8} lg={9} >
+                  <Input
+                    name="Level"
+                    id="PathLevel"
+                    type="select"
+                    onChange={handleInputChange}
+                    invalid={!!formErrors.Level}
+                    value={selectedSegmentLevel}
+                  >
+                    {
+                      pathLevels ?
+                      pathLevels.map((option) => (
+                          <option key={option.id} value={option.id}>
+                            {option.level}
+                          </option>
+                        )) : null
+                    }
+                  </Input>
+                  <FormFeedback>{formErrors.Level}</FormFeedback>
+                </Col>
+              </FormGroup> 
 
               <FormGroup row>
                 <Label for="SegmentDescription" sm={4} lg={3} className="text-end">Opis</Label>
@@ -388,13 +408,8 @@ const SegmentForm = () => {
               </div>
               
               <Row>
-                <PoiTable {...{data, showColumns, onMoveDown, onMoveUp}} />
+                <PoiTable {...{data, showColumns, onMoveDown, onMoveUp, onDelete}} />
               </Row>
-
-              {
-                //!!imagePreview && ( <img src={imagePreview} alt="Preview" className={styles.Photo} /> )
-                <TCMap {...{ gpxUrls }} />
-              }
 
             </Col>
           </Row>

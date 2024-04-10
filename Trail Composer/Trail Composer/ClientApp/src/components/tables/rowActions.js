@@ -19,12 +19,12 @@ export function moveUp(dataTab, row) {
 
   const index = colIdMap(dataTab).get(row.id);
   if(typeof index === 'undefined' || index <= 0) 
-    return;
+    return dataTab;
 
   const  newIndex =  index - 1 ;
   move(dataTab, index, newIndex);
 
-  return dataTab;
+  return [...dataTab];
 }
 
 export function moveDown(dataTab,row) {
@@ -33,10 +33,26 @@ export function moveDown(dataTab,row) {
 
   const index = colIdMap(dataTab).get(row.id);
   if(typeof index === 'undefined' || index >= dataTab.length - 1) 
-    return;
+    return dataTab;
 
   const  newIndex =  index + 1 ;
   move(dataTab, index, newIndex);
 
-  return dataTab;
+  return [...dataTab];
+}
+
+export function addRow(dataTab, row) {
+  const index = colIdMap(dataTab).get(row.id);
+  if(typeof index === 'undefined')
+    return [...dataTab, row.original];
+  else
+    return dataTab;
+}
+
+export function deleteRow(dataTab, row) {
+  const index = colIdMap(dataTab).get(row.id);
+  if(typeof index === 'undefined')
+    return dataTab;
+  else
+  return [...dataTab.slice(0, index), ...dataTab.slice(index + 1)];
 }

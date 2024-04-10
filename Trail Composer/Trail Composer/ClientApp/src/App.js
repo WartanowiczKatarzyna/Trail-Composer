@@ -2,12 +2,15 @@ import { createContext, useState, useEffect } from 'react';
 import { Route, Routes } from 'react-router-dom';
 import AppRoutes from './AppRoutes';
 import PageLayout from './structure/PageLayout/PageLayout';
+import { useTcStore } from './store/TcStore';
 import './App.css';
 
 export const AppContext = createContext(null);
 
 const App = () => {
   const [appData, setAppData] = useState(null);
+  const fetchPathLevels = useTcStore((state) => state.fetchPathLevels);
+  const fetchPathTypes = useTcStore((state) => state.fetchPathTypes);
 
   useEffect(() => {
     // Fetch or set initial data when the component mounts
@@ -38,6 +41,8 @@ const App = () => {
 
     setAppData(initialData);*/
 
+    fetchPathLevels();
+    fetchPathTypes();
     // Function to fetch data from tc-api/country
     const fetchCountries = () => fetch("tc-api/country").then(response => response.json());
 
