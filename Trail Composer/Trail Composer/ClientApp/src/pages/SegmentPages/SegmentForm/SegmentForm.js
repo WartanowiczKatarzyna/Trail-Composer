@@ -105,6 +105,18 @@ const SegmentForm = () => {
     }
   }, [editMode, localSegmentId, appData, segmentId]);
 
+  /**
+   * used to update formData after each change in PoiTable
+   */
+  useEffect(() => {
+    const name = "PoiIds";
+    formData.current.delete(name);
+    data.forEach((row) => { formData.current.append(name, row.id); });
+
+    const errors = validateInput(name, data);
+    setFormErrors({ ...formErrors, [name]: errors });
+  }, [data]);
+
   const validateInput = (name, value) => {
     const emptyMsg = 'Pole jest wymagane.';
 
@@ -122,9 +134,13 @@ const SegmentForm = () => {
       case "Level":
         break;
       case "Gpx":
+        if (value === null || value.size < 1)
+          return emptyMsg;
         break;
       case "Description":
         // description is optional
+        break;
+      case "PoiIds":
         break;
       default:
     }
@@ -144,7 +160,7 @@ const SegmentForm = () => {
         const errors = validateInput(name, files[0]);
         formData.current.set(name, files[0]);
         setFormErrors({ ...formErrors, [name]: errors });
-      }     
+      }
     } else {
       switch (name) {
         case "CountryId":
@@ -229,7 +245,7 @@ const SegmentForm = () => {
 
   };
 
-  // Callback when SegmentTypes are selected or removed
+  // Callback when PathTypes are selected or removed
   const handlePathTypes = (selectedList) => {
     const name = "PathTypes";
     setSelectedTypes(selectedList);
@@ -244,6 +260,20 @@ const SegmentForm = () => {
     setFormErrors({ ...formErrors, [name]: errors });
   };
 
+  const deleteGpx = () => {
+    console.log("deleteGpx");
+    const name = "Gpx";
+    const value = null;
+
+    setGpxFile(value);
+
+    const errors = validateInput(name, value);
+    formData.current.set(name, value);
+    setFormErrors({ ...formErrors, [name]: errors });
+  };
+
+  useEffect(()=> {console.info("gpx file", gpxFile)}, [gpxFile]);
+
   const showFormData = (formDataArg, comment) => {
     console.log(comment);
     for (const pair of formDataArg.entries()) {
@@ -255,7 +285,7 @@ const SegmentForm = () => {
   const onRowSelect = (row) => {
     setData((d) => [...addRow(d, row)]);
     setModal(false);
-  }
+  };
 
   // functions for PoiTable
   const onMoveUp = (row) => {
@@ -263,20 +293,18 @@ const SegmentForm = () => {
     console.info("before moveUp", JSON.stringify(data));
     //moveUp(data, row);
     setData((d) => [...moveUp(d, row)]);
-  }
+  };
 
   const onMoveDown = (row) => {
     //debugger;
     console.info("before moveDown", JSON.stringify(data));
     //moveDown(data, row);
     setData((d) => [...moveDown(d, row)]);
-  }
+  };
 
   const onDelete = (row) => {
     setData((d) => [...deleteRow(d, row)]);
-  }
-
-  useEffect(() => { console.info("data", data) }, [data]);
+  };
 
   return (
     <div className={styles.SegmentForm}>
@@ -377,15 +405,20 @@ const SegmentForm = () => {
               <FormGroup row>
                 <Label for="GpxFile" sm={4} lg={3} className="text-end">Plik gpx</Label>
                 <Col sm={8} lg={9} >
-                  <Input
-                    type="file"
-                    name="Gpx"
-                    id="GpxFile"
-                    value={gpxFile}
-                    onChange={handleInputChange}
-                    invalid={!!formErrors.Gpx}
-                    accept=".gpx"
-                  />
+                  <Col sm={10}>
+                    <Input
+                      type="file"
+                      name="Gpx"
+                      id="GpxFile"
+                      value={gpxFile}
+                      onChange={handleInputChange}
+                      invalid={!!formErrors.Gpx}
+                      accept=".gpx"
+                    />
+                  </Col>
+                  <Col sm={2}>
+                    {(<div class="mt-2 mt-lg-0"><i role="button" onClick={deleteGpx} className="bi bi-trash fs-4"></i></div>)}
+                  </Col>
                   <FormFeedback>{formErrors.Gpx}</FormFeedback>
                 </Col>
               </FormGroup>
