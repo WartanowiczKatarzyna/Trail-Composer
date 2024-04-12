@@ -60,10 +60,10 @@ export function LocalTable<T extends WithId>({
     const { pageSize, pageIndex } = table.getState().pagination;
   
     return (
-      <div>
+      <div style={{width: '100%'}}>
         <Box sx={{ width: '100%' }}>
           <TableContainer component={Paper}>
-            <Table sx={{ minWidth: 650 }} aria-label="simple table">
+            <Table sx={{ minWidth: 300 }} aria-label="simple table">
               <TableHead>
                 {table.getHeaderGroups().map(headerGroup => (
                   <TableRow key={headerGroup.id}>

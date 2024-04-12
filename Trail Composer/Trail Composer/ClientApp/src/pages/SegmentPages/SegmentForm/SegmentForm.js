@@ -9,21 +9,21 @@ import styles from './SegmentForm.module.css';
 import PoiModal from '../../../modals/PoiModal/PoiModal'
 import { getAuthHeader } from '../../../utils/auth/getAuthHeader.js';
 import { PoiTable } from '../../../components/tables/PoiTable/PoiTable.tsx';
-import {moveUp, moveDown, addRow, deleteRow} from '../../../components/tables/rowActions.js';
+import { moveUp, moveDown, addRow, deleteRow } from '../../../components/tables/rowActions.js';
 import { makeData } from '../../../components/tables/PoiTable/makeData.ts';
 import { flattenData } from '../../../components/tables/PoiTable/flattenData.js';
 import { useTcStore } from '../../../store/TcStore.js';
 
 const SegmentForm = () => {
   const appData = useContext(AppContext);
-  const { result, error } = useMsalAuthentication(InteractionType.Redirect, {scopes:['openid', 'offline_access']});
+  const { result, error } = useMsalAuthentication(InteractionType.Redirect, { scopes: ['openid', 'offline_access'] });
   const { instance: pca, accounts } = useMsal();
   const account = useAccount(accounts[0] || {});
   const navigate = useNavigate();
 
   const { segmentId } = useParams();
   const [localSegmentId, setLocalSegmentId] = useState(segmentId);
-  const [editMode, setEditMode] = useState(false); 
+  const [editMode, setEditMode] = useState(false);
   const [modal, setModal] = useState(false);
 
   const [formErrors, setFormErrors] = useState({});
@@ -35,6 +35,7 @@ const SegmentForm = () => {
   const [selectedSegmentLevel, setSelectedSegmentLevel] = useState(1);
   const [segmentName, setSegmentName] = useState('');
   const [segmentDescription, setSegmentDescription] = useState('');
+  const [gpxFile, setGpxFile] = useState(null);
 
   const pathLevels = useTcStore((state) => state.pathLevels);
   const pathTypes = useTcStore((state) => state.pathTypes);
@@ -42,7 +43,7 @@ const SegmentForm = () => {
   let formData = useRef(new FormData());
 
   const toggleModal = () => setModal(!modal);
-  
+
   // states needed for PoiTable
   const [data, setData] = useState([]);
   const showColumns = {
@@ -50,7 +51,8 @@ const SegmentForm = () => {
     'username': false,
     'latitude': false,
     'longitude': false,
-    'country': false
+    'country': false,
+    'poiTypes': false
   }
 
   useEffect(() => {
@@ -64,8 +66,8 @@ const SegmentForm = () => {
     const form = document.getElementById("SegmentForm");
     formData.current = new FormData(form);
     formData.current.set("CountryId", selectedCountry);
-      
-    if (editMode && localSegmentId && appData){
+
+    if (editMode && localSegmentId && appData) {
       const fetchData = async () => {
         try {
           /*
@@ -96,9 +98,9 @@ const SegmentForm = () => {
           showFormData(formData.current, "starting editMode"); */
         } catch (error) {
           console.error('Error fetching poi:', error);
-        }       
+        }
       };
-      
+
       fetchData();
     }
   }, [editMode, localSegmentId, appData, segmentId]);
@@ -106,33 +108,35 @@ const SegmentForm = () => {
   const validateInput = (name, value) => {
     const emptyMsg = 'Pole jest wymagane.';
 
-    switch(name) {
+    switch (name) {
       case "Name":
         if (value.trim() === '')
           return emptyMsg;
+        break;
+      case "CountryId":
         break;
       case "PathTypes":
         if (value.length < 1)
           return 'Wybierz co najmniej jedną opcję.';
         break;
-      case "Description": 
+      case "Level":
+        break;
+      case "Gpx":
+        break;
+      case "Description":
         // description is optional
-        break; 
-        default:
+        break;
+      default:
     }
 
     return ''; // No errors
   };
-  
+
   const handleInputChange = (e) => {
     const { name, value, files } = e.target;
 
     if (files) {
       const reader = new FileReader();
-
-      reader.onloadend = () => {
-        
-      }
 
       // handling empty files
       if (files.length > 0) {
@@ -140,8 +144,7 @@ const SegmentForm = () => {
         const errors = validateInput(name, files[0]);
         formData.current.set(name, files[0]);
         setFormErrors({ ...formErrors, [name]: errors });
-        
-      }      
+      }     
     } else {
       switch (name) {
         case "CountryId":
@@ -157,11 +160,11 @@ const SegmentForm = () => {
           setSegmentDescription(value);
           break;
       }
-        
+
       const errors = validateInput(name, value);
       formData.current.set(name, value);
       setFormErrors({ ...formErrors, [name]: errors });
-    }    
+    }
   };
 
   const handleSubmit = async (e) => {
@@ -203,18 +206,18 @@ const SegmentForm = () => {
     })
       .then(response => response.json())
       .then(responseData => {
-        if (responseData > -1){
+        if (responseData > -1) {
           console.log('AddSegment Form uploaded successfully:', responseData);
           if (editMode)
             console.log("edit Segment")
           setFormErrorMessage('');
-        }          
+        }
         else {
           setFormErrorMessage('Nie udało się zapisać odcinka.');
         }
         setSubmitting(false);
-        if(editMode)
-          navigate(`/details-segment/${localSegmentId}`);  
+        if (editMode)
+          navigate(`/details-segment/${localSegmentId}`);
         else
           navigate(`/details-segment/${responseData}`);
       })
@@ -223,12 +226,12 @@ const SegmentForm = () => {
         setFormErrorMessage('Nie udało się zapisać odcinka.');
         setSubmitting(false);
       });
-    
+
   };
 
   // Callback when SegmentTypes are selected or removed
   const handlePathTypes = (selectedList) => {
-    const name = "SegmentTypes";
+    const name = "PathTypes";
     setSelectedTypes(selectedList);
 
     formData.current.delete(name);
@@ -238,7 +241,7 @@ const SegmentForm = () => {
     selectedList.forEach((option) => { formData.current.append(name, option.id); });
 
     const errors = validateInput(name, selectedList);
-    setFormErrors({ ...formErrors, [name]: errors });    
+    setFormErrors({ ...formErrors, [name]: errors });
   };
 
   const showFormData = (formDataArg, comment) => {
@@ -273,20 +276,20 @@ const SegmentForm = () => {
     setData((d) => [...deleteRow(d, row)]);
   }
 
-  useEffect(()=>{console.info("data",data)},[data]);
+  useEffect(() => { console.info("data", data) }, [data]);
 
   return (
     <div className={styles.SegmentForm}>
-      <PoiModal isOpen={modal} toggle={toggleModal} onRowSelect={onRowSelect}/>
+      <PoiModal isOpen={modal} toggle={toggleModal} onRowSelect={onRowSelect} />
       <Form id="SegmentForm" onSubmit={handleSubmit} encType="multipart/form-data">
         <Container>
           <Row className={styles.SectionTitle}>{editMode ? 'Edytowanie Odcinka' : 'Tworzenie Odcinka'}</Row>
 
           <Row>
-            <Col sm={6}>
+            <Col sm={12} xxl={6}>
 
               <FormGroup row>
-                <Label for="SegmentName" sm={4} lg={3}  className="text-end">Nazwa</Label>
+                <Label for="SegmentName" sm={4} lg={3} className="text-end">Nazwa</Label>
                 <Col sm={8} lg={9} >
                   <Input
                     name="Name"
@@ -298,11 +301,11 @@ const SegmentForm = () => {
                     maxLength="50"
                   />
                   <FormFeedback>{formErrors.Name}</FormFeedback>
-                </Col>            
+                </Col>
               </FormGroup>
 
               <FormGroup row>
-                <Label for="SegmentCountry" sm={4} lg={3}  className="text-end">Kraj</Label>
+                <Label for="SegmentCountry" sm={4} lg={3} className="text-end">Kraj</Label>
                 <Col sm={8} lg={9} >
                   <Input
                     name="CountryId"
@@ -314,7 +317,7 @@ const SegmentForm = () => {
                   >
                     {
                       appData ?
-                      appData.Countries.map((option) => (
+                        appData.Countries.map((option) => (
                           <option key={option.id} value={option.id}>
                             {option.countryName}
                           </option>
@@ -323,32 +326,32 @@ const SegmentForm = () => {
                   </Input>
                   <FormFeedback>{formErrors.CountryId}</FormFeedback>
                 </Col>
-              </FormGroup> 
-              
-              <FormGroup row>
-                <Label for="PathTypes" sm={4} lg={3}  className="text-end">Typ</Label>
-                <Col sm={8} lg={9} >
-                  {
-                    !!appData &&
-                      (<Multiselect
-                        id="PathTypes"
-                        options={pathTypes}
-                        selectedValues={selectedTypes} 
-                        onSelect={handlePathTypes} 
-                        onRemove={handlePathTypes} 
-                        displayValue="name" 
-                        showCheckbox
-                        placeholder="wybierz"
-                        className={!!formErrors.PathTypes ? styles.MultiselectError : styles.Multiselect}
-                      />)
-                  }
-                  <Input name="PathTypes" invalid={!!formErrors.PathTypes} className="d-none"></Input>
-                  <FormFeedback>{formErrors.PathTypes}</FormFeedback>
-                </Col>                
               </FormGroup>
 
               <FormGroup row>
-                <Label for="PathLevel" sm={4} lg={3}  className="text-end">Poziom trudności</Label>
+                <Label for="PathTypes" sm={4} lg={3} className="text-end">Typ ścieżki</Label>
+                <Col sm={8} lg={9} >
+                  {
+                    !!appData &&
+                    (<Multiselect
+                      id="PathTypes"
+                      options={pathTypes}
+                      selectedValues={selectedTypes}
+                      onSelect={handlePathTypes}
+                      onRemove={handlePathTypes}
+                      displayValue="name"
+                      showCheckbox
+                      placeholder="wybierz"
+                      className={!!formErrors.PathTypes ? styles.MultiselectError : styles.Multiselect}
+                    />)
+                  }
+                  <Input name="PathTypes" invalid={!!formErrors.PathTypes} className="d-none"></Input>
+                  <FormFeedback>{formErrors.PathTypes}</FormFeedback>
+                </Col>
+              </FormGroup>
+
+              <FormGroup row>
+                <Label for="PathLevel" sm={4} lg={3} className="text-end">Poziom trudności</Label>
                 <Col sm={8} lg={9} >
                   <Input
                     name="Level"
@@ -360,7 +363,7 @@ const SegmentForm = () => {
                   >
                     {
                       pathLevels ?
-                      pathLevels.map((option) => (
+                        pathLevels.map((option) => (
                           <option key={option.id} value={option.id}>
                             {option.level}
                           </option>
@@ -369,7 +372,23 @@ const SegmentForm = () => {
                   </Input>
                   <FormFeedback>{formErrors.Level}</FormFeedback>
                 </Col>
-              </FormGroup> 
+              </FormGroup>
+
+              <FormGroup row>
+                <Label for="GpxFile" sm={4} lg={3} className="text-end">Plik gpx</Label>
+                <Col sm={8} lg={9} >
+                  <Input
+                    type="file"
+                    name="Gpx"
+                    id="GpxFile"
+                    value={gpxFile}
+                    onChange={handleInputChange}
+                    invalid={!!formErrors.Gpx}
+                    accept=".gpx"
+                  />
+                  <FormFeedback>{formErrors.Gpx}</FormFeedback>
+                </Col>
+              </FormGroup>
 
               <FormGroup row>
                 <Label for="SegmentDescription" sm={4} lg={3} className="text-end">Opis</Label>
@@ -386,10 +405,10 @@ const SegmentForm = () => {
                     className={styles.Description}
                   />
                   <FormFeedback>{formErrors.Description}</FormFeedback>
-                </Col>                
+                </Col>
               </FormGroup>
-              
-              <div className={styles.Buttons + ' d-none d-sm-block'}>
+
+              <div className={styles.Buttons + ' d-none d-xxl-block'}>
                 <Button>
                   Wyczyść
                 </Button>
@@ -399,24 +418,19 @@ const SegmentForm = () => {
               </div>
             </Col>
 
-            <Col sm={6} className='d-flex flex-column align-items-sm-center'>
-
-              <div className={styles.Buttons + ' d-none d-sm-block'}>
-                <Button onClick={toggleModal}>
+            <Col sm={12} xxl={6} className='d-flex flex-column align-items-sm-start'>
+              <div>
+                <Button onClick={toggleModal} className={styles.ModalButton}>
                   Dodaj POI
                 </Button>
               </div>
-              
-              <Row>
-                <PoiTable {...{data, showColumns, onMoveDown, onMoveUp, onDelete}} />
-              </Row>
-
+              <PoiTable {...{ data, showColumns, onMoveDown, onMoveUp, onDelete }} />
             </Col>
           </Row>
 
           <p className={styles.FormErrorMessage}>{formErrorMessage}</p>
 
-          <div className={styles.Buttons + ' d-sm-none'}>
+          <div className={styles.Buttons + ' d-xxl-none'}>
             <Button>
               Anuluj
             </Button>

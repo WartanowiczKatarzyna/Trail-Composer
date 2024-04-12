@@ -42,6 +42,11 @@ textarea.Description:not(abc) {
     padding: 15px;
 }
 
+.ModalButton:not(abc):not(bcd){
+    margin-left: 0;
+    margin-bottom: 1rem;
+}
+
 .Multiselect {
     background-color: white;
 }
