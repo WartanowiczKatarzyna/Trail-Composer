@@ -4,6 +4,9 @@ import styles from './TCMap.module.css';
 import * as L from 'leaflet-gpx';
 import PinIconStart from '../../assets/icons/pin-icon-start.png';
 import PinIconEnd from '../../assets/icons/pin-icon-end.png';
+import PinIconWpt from '../../assets/icons/pin-icon-wpt.png';
+import PinShadow from '../../assets/icons/pin-shadow.png';
+
 
 const TCMap = ( { gpxUrls }) => {
   const mapRef = useRef(null);
@@ -29,7 +32,10 @@ const TCMap = ( { gpxUrls }) => {
         marker_options: {
           startIconUrl: PinIconStart,
           endIconUrl: PinIconEnd,
-          shadowUrl: null
+          wptIconUrls: {
+            '': PinIconWpt,
+          },
+          shadowUrl: PinShadow
         }
       })
         .on("loaded", (e) => {

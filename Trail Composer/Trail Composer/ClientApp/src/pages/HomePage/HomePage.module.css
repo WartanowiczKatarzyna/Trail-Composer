@@ -1,0 +1,41 @@
+.container {
+  height: 100%;
+  width: 100%;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  flex-direction: column;
+}
+
+.carousel {
+  width: 700px;
+  max-width: 100%;
+  height: auto;
+  transition: ;
+}
+
+.carouselTitle {
+  @media (max-width: 980px) {
+    text-align: center;
+  }
+}
+
+.showMapButton {
+  margin-top: 1rem;
+  margin-bottom: 0.5rem;
+}
+
+.showMapButton Button {
+  width: 8rem;
+}
+
+.noButton {
+  height: 2rem;
+}
+
+.TCmap {
+  width: 700px;
+  aspect-ratio: 700 / 500;
+  max-width: 100%;
+}
+

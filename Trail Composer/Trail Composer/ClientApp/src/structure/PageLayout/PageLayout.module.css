@@ -18,8 +18,23 @@
 }
 
 @media (max-width: 767px) {
+    .ContentSpacer {
+        padding-top: calc(var(--header-height) + 1rem);
+    }
     .ContentContainer {
         padding-top: 0;
+        /* min-height: calc(100vh - var(--footer-height) - var(--header-height) + 2rem); */
+    }
+
+    .ContentContainerUnauthorized {
+        min-height: calc(100vh - var(--footer-height) - var(--header-height) + 2rem);
+    }
+}
+
+@media (min-width: 581px) and (max-width: 767px) {
+    .ContentContainerUnauthorized {
+        padding-top: 0;
+        min-height: calc(100vh - var(--footer-height) - var(--header-height) + 4rem);
     }
 }
 

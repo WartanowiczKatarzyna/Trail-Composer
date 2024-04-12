@@ -21,7 +21,10 @@ const PageLayout = ({ children }) => (
           <Col md="9" xl="10" fluid className={styles.ContentContainer}> {children} </Col>
         </AuthenticatedTemplate>
         <UnauthenticatedTemplate>
-        <Col md="12" xl="12" fluid className={styles.ContentContainer}> {children} </Col>
+        <Col md="12" xl="12" fluid className={styles.ContentContainer + ' ' + styles.ContentContainerUnauthorized}>
+          <div className={styles.ContentSpacer}></div>
+          {children}
+        </Col>
         </UnauthenticatedTemplate>
       </Row>
     </Container>
