@@ -8,18 +8,18 @@ import { InteractionType } from '@azure/msal-browser';
 import styles from './POIForm.module.css';
 import { getAuthHeader } from '../../../utils/auth/getAuthHeader.js';
 import BackArrow from '../../../components/BackArrow/BackArrow.js';
-import {useTcStore} from "../../../store/TcStore";
+import { useTcStore } from "../../../store/TcStore";
 
 const PoiForm = () => {
   const appData = useContext(AppContext);
-  const { result, error } = useMsalAuthentication(InteractionType.Redirect, {scopes:['openid', 'offline_access']});
+  const { result, error } = useMsalAuthentication(InteractionType.Redirect, { scopes: ['openid', 'offline_access'] });
   const { instance: pca, accounts } = useMsal();
   const account = useAccount(accounts[0] || {});
   const navigate = useNavigate();
 
   const { poiId } = useParams();
   const [localPoiId, setLocalPoiId] = useState(poiId);
-  const [editMode, setEditMode] = useState(false); 
+  const [editMode, setEditMode] = useState(false);
 
   const [formErrors, setFormErrors] = useState({});
   const [submitting, setSubmitting] = useState(false);
@@ -49,8 +49,8 @@ const PoiForm = () => {
     const form = document.getElementById("POIForm");
     formData.current = new FormData(form);
     formData.current.set("CountryId", selectedPOICountry);
-      
-    if (editMode && localPoiId && appData){
+
+    if (editMode && localPoiId && appData) {
       const fetchData = async () => {
         try {
           const fetchedPoi = await fetch(`tc-api/poi/${localPoiId}`).then(response => response.json());
@@ -60,7 +60,7 @@ const PoiForm = () => {
           setPoiDescription(fetchedPoi.description);
           setPoiLatitude(fetchedPoi.latitude);
           setPoiLongitude(fetchedPoi.longitude);
-          
+
           setImagePreview(fetchedPoi.photoId ? `tc-api/poi-photo/${fetchedPoi.photoId}` : null);
 
           let fetchedPoiTypes = appData.POITypes.filter(type => {
@@ -75,14 +75,14 @@ const PoiForm = () => {
           formData.current.set('Latitude', fetchedPoi.latitude);
           formData.current.set('Description', fetchedPoi.description);
           handlePoiTypes(fetchedPoiTypes);
-          photoId.current=fetchedPoi.photoId;
+          photoId.current = fetchedPoi.photoId;
 
           showFormData(formData.current, "starting editMode");
         } catch (error) {
           console.error('Error fetching poi:', error);
         }
       };
-      
+
       fetchData();
     }
   }, [appData, editMode, localPoiId, poiId]);
@@ -90,7 +90,7 @@ const PoiForm = () => {
   const validateInput = (name, value) => {
     const emptyMsg = 'Pole jest wymagane.';
 
-    switch(name) {
+    switch (name) {
       case "Name":
         if (value.trim() === '')
           return emptyMsg;
@@ -99,34 +99,34 @@ const PoiForm = () => {
         if (value.length < 1)
           return 'Wybierz co najmniej jedną opcję.';
         break;
-      case "Description": 
+      case "Description":
         // description is optional
         break;
       case "Latitude":
         if (value.trim() === '')
           return emptyMsg;
         if (value < -90 || value > 90) {
-            return 'Wartość szerokości geograficznej jest nieprawidłowa.';
+          return 'Wartość szerokości geograficznej jest nieprawidłowa.';
         }
         break;
       case "Longitude":
         if (value.trim() === '')
           return emptyMsg;
         if (value < -180 || value > 180) {
-            return 'Wartość długości geograficznej jest nieprawidłowa.';
+          return 'Wartość długości geograficznej jest nieprawidłowa.';
         }
         break;
       case "Photo":
         // photo is optional
-        if (value.size > 1024*1024*10)
+        if (!!value && value.size > 1024 * 1024 * 10)
           return 'Rozmiar zdjęcia przekracza 10 MB.';
-        break;    
-        default:
+        break;
+      default:
     }
 
     return ''; // No errors
   };
-  
+
   const handleInputChange = (e) => {
     const { name, value, files } = e.target;
 
@@ -144,7 +144,7 @@ const PoiForm = () => {
         formData.current.set(name, files[0]);
         setFormErrors({ ...formErrors, [name]: errors });
         setPhotoValue(null);
-      }      
+      }
     } else {
       switch (name) {
         case "CountryId":
@@ -163,11 +163,11 @@ const PoiForm = () => {
           setPoiLongitude(value);
           break;
       }
-        
+
       const errors = validateInput(name, value);
       formData.current.set(name, value);
       setFormErrors({ ...formErrors, [name]: errors });
-    }    
+    }
   };
 
   const handleSubmit = async (e) => {
@@ -192,7 +192,7 @@ const PoiForm = () => {
     showFormData(formData.current, "przed fetch");
 
     const authorizationHeader = await getAuthHeader(pca, account);
- 
+
     let connString = 'tc-api/poi';
     let connMethod = 'POST'
     if (editMode) {
@@ -208,20 +208,20 @@ const PoiForm = () => {
     })
       .then(response => response.json())
       .then(data => {
-        if (data > -1){
+        if (data > -1) {
           console.log('AddPOI Form uploaded successfully:', data);
           if (editMode)
             console.log("edit POI")
           setFormErrorMessage('');
           refreshPoiUserFiltered(pca, account, appData);
-        }          
+        }
         else {
           setFormErrorMessage('Nie udało się zapisać POI.');
         }
         setSubmitting(false);
-        if(editMode)
+        if (editMode)
           //navigate(`/details-poi/${localPoiId}`); 
-          navigate(-1); 
+          navigate(-1);
         else
           navigate(`/details-poi/${data}`);
       })
@@ -230,7 +230,7 @@ const PoiForm = () => {
         setFormErrorMessage('Nie udało się zapisać POI.');
         setSubmitting(false);
       });
-    
+
   };
 
   const handleCancel = () => {
@@ -249,7 +249,7 @@ const PoiForm = () => {
     selectedList.forEach((option) => { formData.current.append(name, option.id); });
 
     const errors = validateInput(name, selectedList);
-    setFormErrors({ ...formErrors, [name]: errors });    
+    setFormErrors({ ...formErrors, [name]: errors });
   };
 
   const deletePhoto = () => {
@@ -258,6 +258,9 @@ const PoiForm = () => {
     setPhotoValue('');
     formData.current.set("Photo", null);
     formData.current.set("deletePhoto", photoId.current);
+
+    const errors = validateInput("Photo", '');
+    setFormErrors({ ...formErrors, ["Photo"]: errors });
 
     showFormData(formData.current, "after deletePhoto");
   };
@@ -282,7 +285,7 @@ const PoiForm = () => {
               <BackArrow />
             </Col>
             <Col>
-            {editMode ? 'Edytowanie POI' : 'Tworzenie POI'}
+              {editMode ? 'Edytowanie POI' : 'Tworzenie POI'}
             </Col>
           </Row>
 
@@ -290,7 +293,7 @@ const PoiForm = () => {
             <Col sm={6}>
 
               <FormGroup row>
-                <Label for="POIname" sm={4} lg={3}  className="text-end">Nazwa</Label>
+                <Label for="POIname" sm={4} lg={3} className="text-end">Nazwa</Label>
                 <Col sm={8} lg={9} >
                   <Input
                     name="Name"
@@ -302,11 +305,11 @@ const PoiForm = () => {
                     maxLength="50"
                   />
                   <FormFeedback>{formErrors.Name}</FormFeedback>
-                </Col>            
+                </Col>
               </FormGroup>
 
               <FormGroup row>
-                <Label for="POIcountry" sm={4} lg={3}  className="text-end">Kraj</Label>
+                <Label for="POIcountry" sm={4} lg={3} className="text-end">Kraj</Label>
                 <Col sm={8} lg={9} >
                   <Input
                     name="CountryId"
@@ -318,7 +321,7 @@ const PoiForm = () => {
                   >
                     {
                       appData ?
-                      appData.Countries.map((option) => (
+                        appData.Countries.map((option) => (
                           <option key={option.id} value={option.id}>
                             {option.countryName}
                           </option>
@@ -327,28 +330,28 @@ const PoiForm = () => {
                   </Input>
                   <FormFeedback>{formErrors.CountryId}</FormFeedback>
                 </Col>
-              </FormGroup> 
-              
+              </FormGroup>
+
               <FormGroup row>
-                <Label for="PoiTypes" sm={4} lg={3}  className="text-end">Typ</Label>
+                <Label for="PoiTypes" sm={4} lg={3} className="text-end">Typ</Label>
                 <Col sm={8} lg={9} >
                   {
                     !!appData &&
-                      (<Multiselect
-                        id="PoiTypes"
-                        options={appData.POITypes}
-                        selectedValues={selectedPOITypes} 
-                        onSelect={handlePoiTypes} 
-                        onRemove={handlePoiTypes} 
-                        displayValue="name" 
-                        showCheckbox
-                        placeholder="wybierz"
-                        className={!!formErrors.PoiTypes ? styles.MultiselectError : styles.Multiselect}
-                      />)
+                    (<Multiselect
+                      id="PoiTypes"
+                      options={appData.POITypes}
+                      selectedValues={selectedPOITypes}
+                      onSelect={handlePoiTypes}
+                      onRemove={handlePoiTypes}
+                      displayValue="name"
+                      showCheckbox
+                      placeholder="wybierz"
+                      className={!!formErrors.PoiTypes ? styles.MultiselectError : styles.Multiselect}
+                    />)
                   }
                   <Input name="PoiTypes" invalid={!!formErrors.PoiTypes} className="d-none"></Input>
                   <FormFeedback>{formErrors.PoiTypes}</FormFeedback>
-                </Col>                
+                </Col>
               </FormGroup>
 
               <FormGroup row>
@@ -366,13 +369,13 @@ const PoiForm = () => {
                     className={styles.Description}
                   />
                   <FormFeedback>{formErrors.Description}</FormFeedback>
-                </Col>                
+                </Col>
               </FormGroup>
 
               <Row className={styles.SectionTitle}>Współrzędne geograficzne - GPS</Row>
 
               <FormGroup row>
-                <Label for="POILatitude" sm={4} lg={3}  className="text-end">Szerokość</Label>
+                <Label for="POILatitude" sm={4} lg={3} className="text-end">Szerokość</Label>
                 <Col sm={8} lg={9} >
                   <Input
                     name="Latitude"
@@ -381,17 +384,17 @@ const PoiForm = () => {
                     value={poiLatitude}
                     onChange={handleInputChange}
                     invalid={!!formErrors.Latitude}
-                    placeholder = "wprowadź liczbę dziesiętną"
+                    placeholder="wprowadź liczbę dziesiętną"
                     min="-90"
                     max="90"
                     step="0.000001"
                   />
                   <FormFeedback>{formErrors.Latitude}</FormFeedback>
-                </Col>                
+                </Col>
               </FormGroup>
 
               <FormGroup row>
-                <Label for="POILongitude" sm={4} lg={3}  className="text-end">Długość</Label>
+                <Label for="POILongitude" sm={4} lg={3} className="text-end">Długość</Label>
                 <Col sm={8} lg={9} >
                   <Input
                     name="Longitude"
@@ -400,15 +403,15 @@ const PoiForm = () => {
                     value={poiLongitude}
                     onChange={handleInputChange}
                     invalid={!!formErrors.Longitude}
-                    placeholder = "wprowadź liczbę dziesiętną"
+                    placeholder="wprowadź liczbę dziesiętną"
                     min="-180"
                     max="180"
                     step="0.000001"
                   />
                   <FormFeedback>{formErrors.Longitude}</FormFeedback>
-                </Col>                
+                </Col>
               </FormGroup>
-              
+
               <div className={styles.Buttons + ' d-none d-sm-block'}>
                 <Button onClick={handleCancel}>
                   Anuluj
@@ -422,30 +425,30 @@ const PoiForm = () => {
             <Col sm={6} className='d-flex flex-column align-items-sm-center'>
 
               <FormGroup row>
-                <Label for="POIPhoto" sm={4} lg={3}  className="text-end">Zdjęcie</Label>
+                <Label for="POIPhoto" sm={4} lg={3} className="text-end">Zdjęcie</Label>
                 <Col sm={8} lg={9} >
                   <Row>
                     <Col sm={11}>
                       <Input
-                      type="file"
-                      name="Photo"
-                      id="POIPhoto"
-                      value={photoValue}
-                      onChange={handleInputChange}
-                      invalid={!!formErrors.Photo}
-                      accept=".jpg, .jpeg"
+                        type="file"
+                        name="Photo"
+                        id="POIPhoto"
+                        value={photoValue}
+                        onChange={handleInputChange}
+                        invalid={!!formErrors.Photo}
+                        accept=".jpg, .jpeg"
                       />
+                      <FormFeedback>{formErrors.Photo}</FormFeedback>
                     </Col>
                     <Col sm={1}>
-                      {imagePreview && (<div class="mt-2 mt-lg-0"><i role="button" onClick={deletePhoto} class="bi bi-trash fs-4"></i></div>)}
+                      {imagePreview && (<div className="mt-2 mt-lg-0"><i role="button" onClick={deletePhoto} className="bi bi-trash fs-4"></i></div>)}
                     </Col>
-                  </Row>                
-                  <FormFeedback>{formErrors.Photo}</FormFeedback>
-                </Col>                
+                  </Row>
+                </Col>
               </FormGroup>
 
               {
-                !!imagePreview && ( <img src={imagePreview} alt="Preview" className={styles.Photo} /> )
+                !!imagePreview && (<img src={imagePreview} alt="Preview" className={styles.Photo} />)
               }
 
             </Col>

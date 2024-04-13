@@ -13,6 +13,7 @@ import { moveUp, moveDown, addRow, deleteRow } from '../../../components/tables/
 import { makeData } from '../../../components/tables/PoiTable/makeData.ts';
 import { flattenData } from '../../../components/tables/PoiTable/flattenData.js';
 import { useTcStore } from '../../../store/TcStore.js';
+import BackArrow from '../../../components/BackArrow/BackArrow.js';
 
 const SegmentForm = () => {
   const appData = useContext(AppContext);
@@ -105,17 +106,8 @@ const SegmentForm = () => {
     }
   }, [editMode, localSegmentId, appData, segmentId]);
 
-  /**
-   * used to update formData after each change in PoiTable
-   */
-  useEffect(() => {
-    const name = "PoiIds";
-    formData.current.delete(name);
-    data.forEach((row) => { formData.current.append(name, row.id); });
-
-    const errors = validateInput(name, data);
-    setFormErrors({ ...formErrors, [name]: errors });
-  }, [data]);
+  useEffect(() => { console.info("gpx file", gpxFile) }, [gpxFile]);
+  useEffect(() => { console.info("formErrors", formErrors) }, [formErrors]);
 
   const validateInput = (name, value) => {
     const emptyMsg = 'Pole jest wymagane.';
@@ -134,7 +126,7 @@ const SegmentForm = () => {
       case "Level":
         break;
       case "Gpx":
-        if (value === null || value.size < 1)
+        if (!value || value.size < 1)
           return emptyMsg;
         break;
       case "Description":
@@ -154,11 +146,11 @@ const SegmentForm = () => {
     if (files) {
       const reader = new FileReader();
 
-      // handling empty files
       if (files.length > 0) {
         reader.readAsDataURL(files[0]);
         const errors = validateInput(name, files[0]);
         formData.current.set(name, files[0]);
+        setGpxFile(value);
         setFormErrors({ ...formErrors, [name]: errors });
       }
     } else {
@@ -185,6 +177,11 @@ const SegmentForm = () => {
 
   const handleSubmit = async (e) => {
     e.preventDefault();
+
+    const poiIdsName = "PoiIds";
+    formData.current.delete(poiIdsName);
+    data.forEach((row) => { formData.current.append(poiIdsName, row.id); });
+
     const errors = {};
     formData.current.forEach((value, key) => {
       const fieldErrors = validateInput(key, value);
@@ -263,7 +260,7 @@ const SegmentForm = () => {
   const deleteGpx = () => {
     console.log("deleteGpx");
     const name = "Gpx";
-    const value = null;
+    const value = '';
 
     setGpxFile(value);
 
@@ -271,8 +268,6 @@ const SegmentForm = () => {
     formData.current.set(name, value);
     setFormErrors({ ...formErrors, [name]: errors });
   };
-
-  useEffect(()=> {console.info("gpx file", gpxFile)}, [gpxFile]);
 
   const showFormData = (formDataArg, comment) => {
     console.log(comment);
@@ -311,7 +306,14 @@ const SegmentForm = () => {
       <PoiModal isOpen={modal} toggle={toggleModal} onRowSelect={onRowSelect} />
       <Form id="SegmentForm" onSubmit={handleSubmit} encType="multipart/form-data">
         <Container>
-          <Row className={styles.SectionTitle}>{editMode ? 'Edytowanie Odcinka' : 'Tworzenie Odcinka'}</Row>
+          <Row className={styles.SectionTitle}>
+            <Col sm={1} className="d-flex justify-content-start" >
+              <BackArrow />
+            </Col>
+            <Col>
+              {editMode ? 'Edytowanie odcinka' : 'Tworzenie odcinka'}
+            </Col>
+          </Row>
 
           <Row>
             <Col sm={12} xxl={6}>
@@ -405,21 +407,23 @@ const SegmentForm = () => {
               <FormGroup row>
                 <Label for="GpxFile" sm={4} lg={3} className="text-end">Plik gpx</Label>
                 <Col sm={8} lg={9} >
-                  <Col sm={10}>
-                    <Input
-                      type="file"
-                      name="Gpx"
-                      id="GpxFile"
-                      value={gpxFile}
-                      onChange={handleInputChange}
-                      invalid={!!formErrors.Gpx}
-                      accept=".gpx"
-                    />
-                  </Col>
-                  <Col sm={2}>
-                    {(<div class="mt-2 mt-lg-0"><i role="button" onClick={deleteGpx} className="bi bi-trash fs-4"></i></div>)}
-                  </Col>
-                  <FormFeedback>{formErrors.Gpx}</FormFeedback>
+                  <Row>
+                    <Col sm={10}>
+                      <Input
+                        type="file"
+                        name="Gpx"
+                        id="GpxFile"
+                        value={gpxFile}
+                        onChange={handleInputChange}
+                        invalid={!!formErrors.Gpx}
+                        accept=".gpx"
+                      />
+                      <FormFeedback>{formErrors.Gpx}</FormFeedback>
+                    </Col>
+                    <Col sm={2}>
+                      {(<div class="mt-2 mt-lg-0"><i role="button" onClick={deleteGpx} className="bi bi-trash fs-4"></i></div>)}
+                    </Col>
+                  </Row>
                 </Col>
               </FormGroup>
 
