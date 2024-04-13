@@ -99,7 +99,7 @@ namespace Trail_Composer.Controllers
         [Consumes("multipart/form-data")]
         [RequestSizeLimit(10485760)] // Limiting to 10 MB (in bytes)
         // Also responsible for handling photos related to the poi
-        public async Task<ActionResult> DeletePOI([FromForm]PoiFromAPI poi, int poiId)
+        public async Task<ActionResult> EditPOI([FromForm]PoiFromAPI poi, int poiId)
         {
             var userId = TCUserDTO.GetUserIdFromContext(this.HttpContext);
             //var userId = "703645aa-f169-4aa8-9fc9-e3dbb01960d9";
