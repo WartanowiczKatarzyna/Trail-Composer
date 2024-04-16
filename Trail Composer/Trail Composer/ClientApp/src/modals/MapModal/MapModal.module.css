@@ -1,0 +1,9 @@
+.ModalHeader {
+    background-color: var(--background-color);
+}
+
+.ModalBody {
+    background-color: var(--neutral-grey);
+}
+
+

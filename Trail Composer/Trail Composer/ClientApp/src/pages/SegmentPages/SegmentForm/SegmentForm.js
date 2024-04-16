@@ -14,6 +14,7 @@ import { makeData } from '../../../components/tables/PoiTable/makeData.ts';
 import { flattenData } from '../../../components/tables/PoiTable/flattenData.js';
 import { useTcStore } from '../../../store/TcStore.js';
 import BackArrow from '../../../components/BackArrow/BackArrow.js';
+import MapModal from "../../../modals/MapModal/MapModal";
 
 const SegmentForm = () => {
   const appData = useContext(AppContext);
@@ -25,7 +26,8 @@ const SegmentForm = () => {
   const { segmentId } = useParams();
   const [localSegmentId, setLocalSegmentId] = useState(segmentId);
   const [editMode, setEditMode] = useState(false);
-  const [modal, setModal] = useState(false);
+  const [poiModal, setPoiModal] = useState(false);
+  const [mapModal, setMapModal] = useState(false);
 
   const [formErrors, setFormErrors] = useState({});
   const [submitting, setSubmitting] = useState(false);
@@ -37,13 +39,17 @@ const SegmentForm = () => {
   const [segmentName, setSegmentName] = useState('');
   const [segmentDescription, setSegmentDescription] = useState('');
   const [gpxFile, setGpxFile] = useState(null);
+  const [gpxPreview, setGpxPreview] = useState(null);
 
   const pathLevels = useTcStore((state) => state.pathLevels);
   const pathTypes = useTcStore((state) => state.pathTypes);
+  const toggleSpinner = useTcStore((state) => state.toggleSpinner);
 
   let formData = useRef(new FormData());
+  const gpxValidationNegative = useRef(false);
 
-  const toggleModal = () => setModal(!modal);
+  const togglePoiModal = () => setPoiModal(!poiModal);
+  const toggleMapModal = () => setMapModal(!mapModal);
 
   // states needed for PoiTable
   const [data, setData] = useState([]);
@@ -126,8 +132,19 @@ const SegmentForm = () => {
       case "Level":
         break;
       case "Gpx":
-        if (!value || value.size < 1)
-          return emptyMsg;
+        console.info("File[0]", value);
+        if( gpxValidationNegative.current )
+          return 'Niepoprawny plik gpx.'
+        else if(!value)
+          return emptyMsg; // gpx file is required optional
+        else if (value.size > 1024 * 1024 * 10)
+          return 'Rozmiar pliku gpx przekracza 10 MB.';
+        else if(value.size < 1)
+          return 'Rozmiar pliku gpx 0 bytes.';
+        else if(value.type !== 'application/gpx+xml')
+          return 'Plik nie jest plikiem gpx';
+        else
+          return ''; // other cases are accepted
         break;
       case "Description":
         // description is optional
@@ -146,12 +163,21 @@ const SegmentForm = () => {
     if (files) {
       const reader = new FileReader();
 
+      reader.onloadend = () => {
+        setGpxPreview(() => {
+          toggleMapModal();
+          return [reader.result];
+        });
+      }
+
       if (files.length > 0) {
-        reader.readAsDataURL(files[0]);
+        gpxValidationNegative.current = false;
+        toggleSpinner();
+        reader.readAsText(files[0]);
         const errors = validateInput(name, files[0]);
         formData.current.set(name, files[0]);
         setGpxFile(value);
-        setFormErrors({ ...formErrors, [name]: errors });
+        setFormErrors(formErrors => ({ ...formErrors, [name]: errors }));
       }
     } else {
       switch (name) {
@@ -171,13 +197,14 @@ const SegmentForm = () => {
 
       const errors = validateInput(name, value);
       formData.current.set(name, value);
-      setFormErrors({ ...formErrors, [name]: errors });
+      setFormErrors(formErrors => ({ ...formErrors, [name]: errors }));
     }
   };
 
   const handleSubmit = async (e) => {
     e.preventDefault();
 
+    toggleSpinner();
     const poiIdsName = "PoiIds";
     formData.current.delete(poiIdsName);
     data.forEach((row) => { formData.current.append(poiIdsName, row.id); });
@@ -229,12 +256,14 @@ const SegmentForm = () => {
           setFormErrorMessage('Nie udało się zapisać odcinka.');
         }
         setSubmitting(false);
+        toggleSpinner();
         if (editMode)
           navigate(`/details-segment/${localSegmentId}`);
         else
           navigate(`/details-segment/${responseData}`);
       })
       .catch(error => {
+        toggleSpinner();
         console.error('Error uploading AddSegment form:', error);
         setFormErrorMessage('Nie udało się zapisać odcinka.');
         setSubmitting(false);
@@ -254,7 +283,7 @@ const SegmentForm = () => {
     selectedList.forEach((option) => { formData.current.append(name, option.id); });
 
     const errors = validateInput(name, selectedList);
-    setFormErrors({ ...formErrors, [name]: errors });
+    setFormErrors(formErrors => ({ ...formErrors, [name]: errors }));
   };
 
   const deleteGpx = () => {
@@ -263,11 +292,18 @@ const SegmentForm = () => {
     const value = '';
 
     setGpxFile(value);
+    setGpxPreview(null);
 
+    gpxValidationNegative.current = false;
     const errors = validateInput(name, value);
     formData.current.set(name, value);
-    setFormErrors({ ...formErrors, [name]: errors });
+    setFormErrors(formErrors => ({ ...formErrors, [name]: errors }));
   };
+
+  const showGpx = () => {
+    toggleSpinner();
+    toggleMapModal();
+  }
 
   const showFormData = (formDataArg, comment) => {
     console.log(comment);
@@ -279,7 +315,7 @@ const SegmentForm = () => {
   // functions for PoiModal
   const onRowSelect = (row) => {
     setData((d) => [...addRow(d, row)]);
-    setModal(false);
+    setPoiModal(false);
   };
 
   // functions for PoiTable
@@ -301,9 +337,28 @@ const SegmentForm = () => {
     setData((d) => [...deleteRow(d, row)]);
   };
 
+  const gpxNotValidated = () => {
+    gpxValidationNegative.current = true;
+    const name = "Gpx";
+    const value = {};
+    const errors = validateInput(name, value);
+    formData.current.set(name, value);
+    setFormErrors(formErrors => ({ ...formErrors, [name]: errors }));
+    toggleSpinner();
+    setGpxPreview(null);
+    toggleMapModal();
+  };
+
+  const gpxValidated = (boudingBox, distance) => {
+    toggleSpinner();
+    console.info('boudingBox: ', boudingBox);
+    console.info("distance:", distance);
+  };
+
   return (
     <div className={styles.SegmentForm}>
-      <PoiModal isOpen={modal} toggle={toggleModal} onRowSelect={onRowSelect} />
+      <PoiModal isOpen={poiModal} toggle={togglePoiModal} onRowSelect={onRowSelect} />
+      <MapModal isOpen={mapModal} toggle={toggleMapModal} gpxArr={gpxPreview} type="gpx" {...{ gpxNotValidated, gpxValidated }}/>
       <Form id="SegmentForm" onSubmit={handleSubmit} encType="multipart/form-data">
         <Container>
           <Row className={styles.SectionTitle}>
@@ -421,7 +476,10 @@ const SegmentForm = () => {
                       <FormFeedback>{formErrors.Gpx}</FormFeedback>
                     </Col>
                     <Col sm={2}>
-                      {(<div class="mt-2 mt-lg-0"><i role="button" onClick={deleteGpx} className="bi bi-trash fs-4"></i></div>)}
+                        <div class="mt-2 mt-lg-0">
+                          { gpxFile    && (<i role="button" onClick={deleteGpx} className="bi bi-trash fs-4"></i>)}
+                          { gpxPreview && (<i role="button" onClick={showGpx} className="bi bi-binoculars fs-4 ms-2"></i>)}
+                        </div>
                     </Col>
                   </Row>
                 </Col>
@@ -457,7 +515,7 @@ const SegmentForm = () => {
 
             <Col sm={12} xxl={6} className='d-flex flex-column align-items-sm-start'>
               <div>
-                <Button onClick={toggleModal} className={styles.ModalButton}>
+                <Button onClick={togglePoiModal} className={styles.PoiModalButton}>
                   Dodaj POI
                 </Button>
               </div>

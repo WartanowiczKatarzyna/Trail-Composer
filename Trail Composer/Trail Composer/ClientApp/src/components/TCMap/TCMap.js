@@ -8,7 +8,7 @@ import PinIconWpt from '../../assets/icons/pin-icon-wpt.png';
 import PinShadow from '../../assets/icons/pin-shadow.png';
 
 
-const TCMap = ( { gpxUrls }) => {
+const TCMap = ( { gpxArr, type, gpxNotValidated, gpxValidated }) => {
   const mapRef = useRef(null);
 
   async function renderMap() {
@@ -19,14 +19,23 @@ const TCMap = ( { gpxUrls }) => {
     ).addTo(map);
 
     const allBounds = [];
+    let distance = 0;
 
     const IterateUrls = async (index) => {
-      if( gpxUrls.length === 0 || index >= gpxUrls.length) return;
+      if( gpxArr.length === 0 || index >= gpxArr.length) return;
 
-      let gpxString = await fetch(gpxUrls[index]).then((res) =>
-        res.text()
-      );
-
+      let gpxString = '';
+      if( type && type === 'url') {
+        gpxString = await fetch(gpxArr[index]).then((res) =>
+          res.text()
+        );
+      } else {
+        gpxString = gpxArr[index];
+      }
+      let timeoutHandler = 0;
+      if(gpxNotValidated) {
+        timeoutHandler = setTimeout(gpxNotValidated, 10000);
+      }
       new L.GPX(gpxString, {
         async: true,
         marker_options: {
@@ -39,10 +48,18 @@ const TCMap = ( { gpxUrls }) => {
         }
       })
         .on("loaded", (e) => {
+          if(gpxNotValidated && timeoutHandler) {
+            clearTimeout(timeoutHandler);
+          }
           const gpx = e.target;
+          distance += gpx.get_distance();
           allBounds.push(gpx.getBounds());
-          if(index === gpxUrls.length - 1) {
-            map.fitBounds(L.latLngBounds().extend(allBounds).pad(0.1));
+          if(index === gpxArr.length - 1) {
+            const boundingBox = L.latLngBounds().extend(allBounds);
+            map.fitBounds(boundingBox.pad(0.1));
+            if(gpxValidated) {
+              gpxValidated(boundingBox, distance);
+            }
           }
           IterateUrls(index + 1);
         })
@@ -55,21 +72,25 @@ const TCMap = ( { gpxUrls }) => {
 
   useEffect(() => {
     renderMap().catch(console.error);
-  }, []);
+  }, [gpxArr, type]);
 
   return (
     <>
-      { !!gpxUrls && gpxUrls.length > 0 && (<div ref={mapRef} className={styles.TcMap} />)}
+      { !!gpxArr && gpxArr.length > 0 && (<div ref={mapRef} className={styles.TcMap} />)}
     </>
   );
 }
 
 TCMap.propTypes = {
-  gpxUrls: PropTypes.arrayOf(PropTypes.string).isRequired,
+  gpxArr: PropTypes.arrayOf(PropTypes.string),
+  type: PropTypes.string,
+  gpxNotValidated: PropTypes.func,
+  gpxValidated: PropTypes.func,
 };
 
 TCMap.defaultProps = {
-  gpxUrls: [],
+  gpxArr: [],
+  type: 'url',
 };
 
 export default TCMap;

@@ -96,7 +96,7 @@ const HomePage = () => {
       <div className={styles.carousel}>
         <p className={styles.carouselTitle}>Zobacz polecane trasy</p>
         { gpxUrls && gpxUrls.length > 0 ?
-          (<div className={styles.TCmap}><TCMap {...{gpxUrls}} /></div>) :
+          (<div className={styles.TCmap}><TCMap gpxArr = {gpxUrls} /></div>) :
           (<Carousel
             activeIndex={activeIndex}
             next={next}

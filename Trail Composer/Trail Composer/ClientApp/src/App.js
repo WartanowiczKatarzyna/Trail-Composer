@@ -1,9 +1,10 @@
-import { createContext, useState, useEffect } from 'react';
+import React, { createContext, useState, useEffect } from 'react';
 import { Route, Routes } from 'react-router-dom';
 import AppRoutes from './AppRoutes';
 import PageLayout from './structure/PageLayout/PageLayout';
 import { useTcStore } from './store/TcStore';
 import './App.css';
+import TcSpinner from "./components/TCSpinner/TCSpinner";
 
 export const AppContext = createContext(null);
 
@@ -11,6 +12,7 @@ const App = () => {
   const [appData, setAppData] = useState(null);
   const fetchPathLevels = useTcStore((state) => state.fetchPathLevels);
   const fetchPathTypes = useTcStore((state) => state.fetchPathTypes);
+  const spinner = useTcStore((state) => state.spinner);
 
   useEffect(() => {
     // Fetch or set initial data when the component mounts
@@ -76,6 +78,7 @@ const App = () => {
 
   return (
     <AppContext.Provider value={appData}>
+      { spinner && <TcSpinner /> }
       <PageLayout>
         <Routes>
           {AppRoutes.map((route, index) => {

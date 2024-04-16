@@ -117,9 +117,16 @@ const PoiForm = () => {
         }
         break;
       case "Photo":
-        // photo is optional
-        if (!!value && value.size > 1024 * 1024 * 10)
+        if(!value)
+          return ''; // photo is optional
+        else if (value.size > 1024 * 1024 * 10)
           return 'Rozmiar zdjęcia przekracza 10 MB.';
+        else if(value.size < 1)
+          return 'Rozmiar zdjęcia 0 bytes.';
+        else if(value.type !== 'image/jpeg')
+          return 'Plik nie jest plikiem jpg';
+        else
+          return ''; // other cases are accepted
         break;
       default:
     }
