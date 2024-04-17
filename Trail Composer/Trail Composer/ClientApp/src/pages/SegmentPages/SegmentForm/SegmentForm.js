@@ -47,9 +47,10 @@ const SegmentForm = () => {
 
   let formData = useRef(new FormData());
   const gpxValidationNegative = useRef(false);
+  const TCfileReader = useRef(null);
 
-  const togglePoiModal = () => setPoiModal(!poiModal);
-  const toggleMapModal = () => setMapModal(!mapModal);
+  const togglePoiModal = () => setPoiModal(p => (!p));
+  const toggleMapModal = () => setMapModal(m => (!m));
 
   // states needed for PoiTable
   const [data, setData] = useState([]);
@@ -61,6 +62,17 @@ const SegmentForm = () => {
     'country': false,
     'poiTypes': false
   }
+
+  useEffect(() => {
+    TCfileReader.current = new FileReader();
+
+    TCfileReader.current.onloadend = () => {
+      setGpxPreview(() => {
+        toggleMapModal();
+        return [TCfileReader.current.result];
+      });
+    }
+  }, []);
 
   useEffect(() => {
     setLocalSegmentId(segmentId);
@@ -133,16 +145,18 @@ const SegmentForm = () => {
         break;
       case "Gpx":
         console.info("File[0]", value);
-        if( gpxValidationNegative.current )
-          return 'Niepoprawny plik gpx.'
-        else if(!value)
-          return emptyMsg; // gpx file is required optional
-        else if (value.size > 1024 * 1024 * 10)
-          return 'Rozmiar pliku gpx przekracza 10 MB.';
-        else if(value.size < 1)
-          return 'Rozmiar pliku gpx 0 bytes.';
-        else if(value.type !== 'application/gpx+xml')
-          return 'Plik nie jest plikiem gpx';
+        console.info("File[0] value type", value.type);
+        const fileValue = value;
+        if( !fileValue || !fileValue.name)
+          return  emptyMsg  // Gpx file is required
+        else if( !fileValue.name.match(/.*\.gpx/) )
+          return 'Plik ma rozszerzenie inne niż gpx.';
+        else if ( fileValue.size > 1024 * 1024 * 10 )
+          return 'Rozmiar pliku zbyt duży. Rozmiar gpx przekracza 10 MB.';
+        else if(fileValue.size < 1)
+          return 'Rozmiar pliku zbyt mały. Rozmiar gpx 0 bytes.';
+        else if( gpxValidationNegative.current )
+          return 'Nie powidło się parsowanie pliku gpx.';
         else
           return ''; // other cases are accepted
         break;
@@ -160,51 +174,44 @@ const SegmentForm = () => {
   const handleInputChange = (e) => {
     const { name, value, files } = e.target;
 
-    if (files) {
-      const reader = new FileReader();
-
-      reader.onloadend = () => {
-        setGpxPreview(() => {
-          toggleMapModal();
-          return [reader.result];
-        });
-      }
-
-      if (files.length > 0) {
+    switch (name) {
+      case "Gpx":
         gpxValidationNegative.current = false;
-        toggleSpinner();
-        reader.readAsText(files[0]);
         const errors = validateInput(name, files[0]);
+        if ( files.length > 0 ) {
+          if( !errors ) {
+            toggleSpinner();
+            TCfileReader.current.readAsText(files[0]);
+          }
+        } else {
+          setGpxPreview(null);
+        }
         formData.current.set(name, files[0]);
+        setFormErrors(formErrors => ({...formErrors, [name]: errors}));
         setGpxFile(value);
-        setFormErrors(formErrors => ({ ...formErrors, [name]: errors }));
-      }
-    } else {
-      switch (name) {
-        case "CountryId":
-          setSelectedCountry(value);
-          break;
-        case "Name":
-          setSegmentName(value);
-          break;
-        case "Level":
-          setSelectedSegmentLevel(value);
-          break;
-        case "Description":
-          setSegmentDescription(value);
-          break;
-      }
+        return;
+      case "CountryId":
+        setSelectedCountry(value);
+        break;
+      case "Name":
+        setSegmentName(value);
+        break;
+      case "Level":
+        setSelectedSegmentLevel(value);
+        break;
+      case "Description":
+        setSegmentDescription(value);
+        break;
+    }
 
       const errors = validateInput(name, value);
       formData.current.set(name, value);
       setFormErrors(formErrors => ({ ...formErrors, [name]: errors }));
-    }
   };
 
   const handleSubmit = async (e) => {
     e.preventDefault();
 
-    toggleSpinner();
     const poiIdsName = "PoiIds";
     formData.current.delete(poiIdsName);
     data.forEach((row) => { formData.current.append(poiIdsName, row.id); });
@@ -237,6 +244,7 @@ const SegmentForm = () => {
       connString = `tc-api/segment/${localSegmentId}`;
       connMethod = 'PUT';
     }
+    toggleSpinner();
     fetch(connString, {
       method: connMethod,
       body: formData.current,
@@ -263,13 +271,17 @@ const SegmentForm = () => {
           navigate(`/details-segment/${responseData}`);
       })
       .catch(error => {
-        toggleSpinner();
         console.error('Error uploading AddSegment form:', error);
         setFormErrorMessage('Nie udało się zapisać odcinka.');
         setSubmitting(false);
+        toggleSpinner();
       });
 
   };
+
+  const handleCancel = () => {
+    navigate(-1);
+  }
 
   // Callback when PathTypes are selected or removed
   const handlePathTypes = (selectedList) => {
@@ -320,16 +332,12 @@ const SegmentForm = () => {
 
   // functions for PoiTable
   const onMoveUp = (row) => {
-    //debugger;
     console.info("before moveUp", JSON.stringify(data));
-    //moveUp(data, row);
     setData((d) => [...moveUp(d, row)]);
   };
 
   const onMoveDown = (row) => {
-    //debugger;
     console.info("before moveDown", JSON.stringify(data));
-    //moveDown(data, row);
     setData((d) => [...moveDown(d, row)]);
   };
 
@@ -526,7 +534,7 @@ const SegmentForm = () => {
           <p className={styles.FormErrorMessage}>{formErrorMessage}</p>
 
           <div className={styles.Buttons + ' d-xxl-none'}>
-            <Button>
+            <Button onClick={handleCancel}>
               Anuluj
             </Button>
             <Button type="submit" disabled={submitting}>

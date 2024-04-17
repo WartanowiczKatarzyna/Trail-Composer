@@ -35,8 +35,18 @@ const PoiForm = () => {
 
   let formData = useRef(new FormData());
   let photoId = useRef(0);
+  const TCfileReader = useRef(null);
 
   const refreshPoiUserFiltered = useTcStore((state) => state.refreshPoiUserFiltered);
+  const toggleSpinner = useTcStore((state) => state.toggleSpinner);
+
+  useEffect(() => {
+    TCfileReader.current = new FileReader();
+
+    TCfileReader.current.onloadend = () => {
+      setImagePreview(TCfileReader.current.result);
+    }
+  },[]);
 
   useEffect(() => {
     setLocalPoiId(poiId);
@@ -53,7 +63,9 @@ const PoiForm = () => {
     if (editMode && localPoiId && appData) {
       const fetchData = async () => {
         try {
+          toggleSpinner();
           const fetchedPoi = await fetch(`tc-api/poi/${localPoiId}`).then(response => response.json());
+          toggleSpinner();
 
           setSelectedPOICountry(fetchedPoi.countryId);
           setPoiName(fetchedPoi.name);
@@ -117,14 +129,15 @@ const PoiForm = () => {
         }
         break;
       case "Photo":
-        if(!value)
+        const fileValue = value;
+        if(!fileValue || !fileValue.name)
           return ''; // photo is optional
-        else if (value.size > 1024 * 1024 * 10)
-          return 'Rozmiar zdjęcia przekracza 10 MB.';
-        else if(value.size < 1)
-          return 'Rozmiar zdjęcia 0 bytes.';
-        else if(value.type !== 'image/jpeg')
-          return 'Plik nie jest plikiem jpg';
+        else if ( fileValue.type !== 'image/jpeg' )
+          return 'Plik nie jest plikiem jpg typu image/jpeg.';
+        else if( fileValue.size < 1 )
+          return 'Plik jest zbyt mały. Rozmiar zdjęcia 0 bytes.';
+        else if( fileValue.size > 1024 * 1024 * 10 )
+          return 'Plik jest zbyt duży. Rozmiar zdjęcia przekracza 10 MB.';
         else
           return ''; // other cases are accepted
         break;
@@ -137,44 +150,40 @@ const PoiForm = () => {
   const handleInputChange = (e) => {
     const { name, value, files } = e.target;
 
-    if (files) {
-      const reader = new FileReader();
-
-      reader.onloadend = () => {
-        setImagePreview(reader.result);
-      }
-
-      // handling empty files
-      if (files.length > 0) {
-        reader.readAsDataURL(files[0]);
+    switch (name) {
+      case "Photo":
         const errors = validateInput(name, files[0]);
-        formData.current.set(name, files[0]);
-        setFormErrors({ ...formErrors, [name]: errors });
-        setPhotoValue(null);
-      }
-    } else {
-      switch (name) {
-        case "CountryId":
-          setSelectedPOICountry(value);
-          break;
-        case "Name":
-          setPoiName(value);
-          break;
-        case "Description":
-          setPoiDescription(value);
-          break;
-        case "Latitude":
-          setPoiLatitude(value);
-          break;
-        case "Longitude":
-          setPoiLongitude(value);
-          break;
-      }
-
-      const errors = validateInput(name, value);
-      formData.current.set(name, value);
-      setFormErrors({ ...formErrors, [name]: errors });
+        if (files.length > 0 && !errors) {
+          TCfileReader.current.readAsDataURL(files[0]);
+        }
+        if(value) {
+          formData.current.set(name, files[0]);
+          setFormErrors(formErrors=> ({ ...formErrors, [name]: errors }));
+          setPhotoValue(value);
+        } else {
+          deletePhoto();
+        }
+        return;
+      case "CountryId":
+        setSelectedPOICountry(value);
+        break;
+      case "Name":
+        setPoiName(value);
+        break;
+      case "Description":
+        setPoiDescription(value);
+        break;
+      case "Latitude":
+        setPoiLatitude(value);
+        break;
+      case "Longitude":
+        setPoiLongitude(value);
+        break;
     }
+
+    const errors = validateInput(name, value);
+    formData.current.set(name, value);
+    setFormErrors(formErrors => ({ ...formErrors, [name]: errors }));
   };
 
   const handleSubmit = async (e) => {
@@ -206,6 +215,7 @@ const PoiForm = () => {
       connString = `tc-api/poi/${localPoiId}`;
       connMethod = 'PUT';
     }
+    toggleSpinner();
     fetch(connString, {
       method: connMethod,
       body: formData.current,
@@ -226,6 +236,7 @@ const PoiForm = () => {
           setFormErrorMessage('Nie udało się zapisać POI.');
         }
         setSubmitting(false);
+        toggleSpinner();
         if (editMode)
           //navigate(`/details-poi/${localPoiId}`); 
           navigate(-1);
@@ -236,6 +247,7 @@ const PoiForm = () => {
         console.error('Error uploading AddPOI form:', error);
         setFormErrorMessage('Nie udało się zapisać POI.');
         setSubmitting(false);
+        toggleSpinner();
       });
 
   };
@@ -256,7 +268,7 @@ const PoiForm = () => {
     selectedList.forEach((option) => { formData.current.append(name, option.id); });
 
     const errors = validateInput(name, selectedList);
-    setFormErrors({ ...formErrors, [name]: errors });
+    setFormErrors(formErrors=> ({ ...formErrors, [name]: errors }));
   };
 
   const deletePhoto = () => {
@@ -267,13 +279,9 @@ const PoiForm = () => {
     formData.current.set("deletePhoto", photoId.current);
 
     const errors = validateInput("Photo", '');
-    setFormErrors({ ...formErrors, ["Photo"]: errors });
+    setFormErrors(formErrors => ({ ...formErrors, ["Photo"]: errors }));
 
     showFormData(formData.current, "after deletePhoto");
-  };
-
-  const toPrevPage = () => {
-    navigate(-1);
   };
 
   const showFormData = (formDataArg, comment) => {

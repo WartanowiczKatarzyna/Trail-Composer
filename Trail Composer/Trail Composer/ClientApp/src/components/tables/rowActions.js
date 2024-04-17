@@ -14,7 +14,6 @@ function move(dataTab, index, newIndex) {
 }
 
 export function moveUp(dataTab, row) {
-  //debugger;
   console.info(`click onMoveUp`, row);
 
   const index = colIdMap(dataTab).get(row.id);
@@ -28,7 +27,6 @@ export function moveUp(dataTab, row) {
 }
 
 export function moveDown(dataTab,row) {
-  //debugger;
   console.info(`click onMoveDown`, row);
 
   const index = colIdMap(dataTab).get(row.id);
