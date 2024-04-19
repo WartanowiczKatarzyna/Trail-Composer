@@ -69,7 +69,6 @@ const PoiForm = () => {
 
           setSelectedPOICountry(fetchedPoi.countryId);
           setPoiName(fetchedPoi.name);
-          setPoiDescription(fetchedPoi.description);
           setPoiLatitude(fetchedPoi.latitude);
           setPoiLongitude(fetchedPoi.longitude);
 
@@ -80,12 +79,19 @@ const PoiForm = () => {
             return foundType;
           });
           setSelectedPOITypes(fetchedPoiTypes);
+          
+          if (fetchedPoi.description === null || fetchedPoi.description === "null"){
+            setPoiDescription('');
+            formData.current.set('Description', '');
+          } else {
+            setPoiDescription(fetchedPoi.description);
+            formData.current.set('Description', fetchedPoi.description);
+          }
 
           formData.current.set('Name', fetchedPoi.name);
           formData.current.set('CountryId', fetchedPoi.countryId);
           formData.current.set('Longitude', fetchedPoi.longitude);
           formData.current.set('Latitude', fetchedPoi.latitude);
-          formData.current.set('Description', fetchedPoi.description);
           handlePoiTypes(fetchedPoiTypes);
           photoId.current = fetchedPoi.photoId;
 
@@ -171,6 +177,7 @@ const PoiForm = () => {
         setPoiName(value);
         break;
       case "Description":
+        console.info("description value", value);
         setPoiDescription(value);
         break;
       case "Latitude":

@@ -22,7 +22,7 @@ namespace Trail_Composer.Controllers
         }
 
         [HttpGet("{poiId:int}")]
-        public async Task<ActionResult<PoiFromAPI>> GetPOI(int poiId)
+        public async Task<ActionResult<PoiToApiDetails>> GetPOI(int poiId)
         {
             var poi = await _poiService.GetPoiByIdAsync(poiId);
             
@@ -34,7 +34,7 @@ namespace Trail_Composer.Controllers
 
         [Authorize]
         [HttpGet("list/user")]
-        public async Task<ActionResult> GetPOIListByUser()
+        public async Task<IActionResult> GetPOIListByUser()
         {
             var userId = TCUserDTO.GetUserIdFromContext(this.HttpContext);
             var result = await _poiService.GetUserPoiListAsync(userId);
@@ -43,7 +43,7 @@ namespace Trail_Composer.Controllers
 
         [Authorize]
         [HttpGet("list/filtered")]
-        public async Task<ActionResult> GetFilteredPOIList([FromQuery] int[] countryIds, [FromQuery] decimal minLatitude, [FromQuery] decimal maxLatitude,
+        public async Task<IActionResult> GetFilteredPOIList([FromQuery] int[] countryIds, [FromQuery] decimal minLatitude, [FromQuery] decimal maxLatitude,
             [FromQuery] decimal minLongitude, [FromQuery] decimal maxLongitude)
         {
             var userId = TCUserDTO.GetUserIdFromContext(this.HttpContext);
@@ -53,7 +53,7 @@ namespace Trail_Composer.Controllers
 
         [Authorize]
         [HttpGet("list/user/filtered")]
-        public async Task<ActionResult> GetFilteredUserPOIList([FromQuery]int[] countryIds, [FromQuery] decimal minLatitude, [FromQuery] decimal maxLatitude,
+        public async Task<IActionResult> GetFilteredUserPOIList([FromQuery]int[] countryIds, [FromQuery] decimal minLatitude, [FromQuery] decimal maxLatitude,
             [FromQuery] decimal minLongitude, [FromQuery] decimal maxLongitude)
         {
             var userId = TCUserDTO.GetUserIdFromContext(this.HttpContext);
@@ -62,14 +62,14 @@ namespace Trail_Composer.Controllers
         }
 
         [HttpGet("list/segment/{segmentId:int}")]
-        public async Task<ActionResult> GetPOIListBySegment(int segmentId)
+        public async Task<IActionResult> GetPOIListBySegment(int segmentId)
         {
             var result = await _poiService.GetPoiListBySegmentAsync(segmentId);
             return Ok(result);
         }
 
         [HttpGet("list/trail/{trailId:int}")]
-        public async Task<ActionResult> GetPOIListByTrail(int trailId)
+        public async Task<IActionResult> GetPOIListByTrail(int trailId)
         {
             var result = await _poiService.GetPoiListByTrailAsync(trailId);
             return Ok(result);
@@ -80,7 +80,7 @@ namespace Trail_Composer.Controllers
         [Consumes("multipart/form-data")]
         [RequestSizeLimit(10485760)] // Limiting to 10 MB (in bytes)
         // Also adds photos to database
-        public async Task<ActionResult> CreatePOI([FromForm]PoiFromAPI poi)
+        public async Task<IActionResult> CreatePOI([FromForm]PoiFromAPI poi)
         {
             var user = TCUserDTO.GetUserFromContext(this.HttpContext);
             if (user == null)
@@ -99,7 +99,7 @@ namespace Trail_Composer.Controllers
         [Consumes("multipart/form-data")]
         [RequestSizeLimit(10485760)] // Limiting to 10 MB (in bytes)
         // Also responsible for handling photos related to the poi
-        public async Task<ActionResult> EditPOI([FromForm]PoiFromAPI poi, int poiId)
+        public async Task<IActionResult> EditPOI([FromForm]PoiFromAPI poi, int poiId)
         {
             var userId = TCUserDTO.GetUserIdFromContext(this.HttpContext);
             //var userId = "703645aa-f169-4aa8-9fc9-e3dbb01960d9";

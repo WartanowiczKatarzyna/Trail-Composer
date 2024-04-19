@@ -191,12 +191,10 @@ public partial class TrailComposerDbContext : DbContext
 
             entity.Property(e => e.Id).HasColumnName("id");
             entity.Property(e => e.CountryId).HasColumnName("Country_id");
-            entity.Property(e => e.Desciption)
+            entity.Property(e => e.Description)
                 .HasColumnType("text")
-                .HasColumnName("desciption");
-            entity.Property(e => e.GpxFile)
-                .HasColumnType("xml")
-                .HasColumnName("gpx_file");
+                .HasColumnName("description");
+            entity.Property(e => e.GpxFile).HasColumnName("gpx_file");
             entity.Property(e => e.Length).HasColumnName("length");
             entity.Property(e => e.LevelId).HasColumnName("Level_id");
             entity.Property(e => e.Name)

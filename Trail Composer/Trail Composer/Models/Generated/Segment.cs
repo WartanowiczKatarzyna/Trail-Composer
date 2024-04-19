@@ -17,9 +17,9 @@ public partial class Segment
 
     public int Length { get; set; }
 
-    public string? Desciption { get; set; }
+    public string? Description { get; set; }
 
-    public string GpxFile { get; set; } = null!;
+    public byte[]? GpxFile { get; set; }
 
     public virtual Country Country { get; set; } = null!;
 

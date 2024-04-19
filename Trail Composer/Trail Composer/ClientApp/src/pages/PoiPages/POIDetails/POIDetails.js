@@ -24,13 +24,16 @@ const PoiDetails = () => {
   const [poiOwner, setPoiOwner] = useState('');
 
   const refreshPoiUserFiltered = useTcStore((state) => state.refreshPoiUserFiltered);
+  const toggleSpinner = useTcStore((state) => state.toggleSpinner);
 
   const navigate = useNavigate();
   const isOwner = useIsAuthenticated(poiOwner);
 
   const fetchData = () => {
+    toggleSpinner();
     fetch(`tc-api/poi/${localPoiId}`)
       .then(response => {
+        toggleSpinner();
         if (response.status === 200)
           return response.json()
         else
@@ -39,6 +42,7 @@ const PoiDetails = () => {
       .then(data => {setPoi(data)})
       .catch(error => {
         console.log(error);
+        toggleSpinner();
         navigate(-1);
       });
   }

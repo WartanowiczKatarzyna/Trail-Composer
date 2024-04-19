@@ -41,6 +41,7 @@ builder.Services
     });
 
 builder.Services.AddScoped<PoiService>();
+builder.Services.AddScoped<SegmentService>();
 
 var app = builder.Build();
 

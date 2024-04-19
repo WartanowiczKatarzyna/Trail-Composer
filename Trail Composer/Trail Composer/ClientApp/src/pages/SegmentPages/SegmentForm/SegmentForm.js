@@ -147,15 +147,15 @@ const SegmentForm = () => {
         console.info("File[0]", value);
         console.info("File[0] value type", value.type);
         const fileValue = value;
-        if( !fileValue || !fileValue.name)
-          return  emptyMsg  // Gpx file is required
-        else if( !fileValue.name.match(/.*\.gpx/) )
+        if (!fileValue || !fileValue.name)
+          return emptyMsg  // Gpx file is required
+        else if (!fileValue.name.match(/.*\.gpx/))
           return 'Plik ma rozszerzenie inne niż gpx.';
-        else if ( fileValue.size > 1024 * 1024 * 10 )
+        else if (fileValue.size > 1024 * 1024 * 10)
           return 'Rozmiar pliku zbyt duży. Rozmiar gpx przekracza 10 MB.';
-        else if(fileValue.size < 1)
+        else if (fileValue.size < 1)
           return 'Rozmiar pliku zbyt mały. Rozmiar gpx 0 bytes.';
-        else if( gpxValidationNegative.current )
+        else if (gpxValidationNegative.current)
           return 'Nie powidło się parsowanie pliku gpx.';
         else
           return ''; // other cases are accepted
@@ -178,8 +178,8 @@ const SegmentForm = () => {
       case "Gpx":
         gpxValidationNegative.current = false;
         const errors = validateInput(name, files[0]);
-        if ( files.length > 0 ) {
-          if( !errors ) {
+        if (files.length > 0) {
+          if (!errors) {
             toggleSpinner();
             TCfileReader.current.readAsText(files[0]);
           }
@@ -187,7 +187,7 @@ const SegmentForm = () => {
           setGpxPreview(null);
         }
         formData.current.set(name, files[0]);
-        setFormErrors(formErrors => ({...formErrors, [name]: errors}));
+        setFormErrors(formErrors => ({ ...formErrors, [name]: errors }));
         setGpxFile(value);
         return;
       case "CountryId":
@@ -204,9 +204,9 @@ const SegmentForm = () => {
         break;
     }
 
-      const errors = validateInput(name, value);
-      formData.current.set(name, value);
-      setFormErrors(formErrors => ({ ...formErrors, [name]: errors }));
+    const errors = validateInput(name, value);
+    formData.current.set(name, value);
+    setFormErrors(formErrors => ({ ...formErrors, [name]: errors }));
   };
 
   const handleSubmit = async (e) => {
@@ -235,11 +235,10 @@ const SegmentForm = () => {
 
     showFormData(formData.current, "przed fetch");
 
-    const authorizationHeader = getAuthHeader(pca, account);
+    const authorizationHeader = await getAuthHeader(pca, account);
 
-    // TO-DO: after sending go back to prev page 
     let connString = 'tc-api/segment';
-    let connMethod = 'POST'
+    let connMethod = 'POST';
     if (editMode) {
       connString = `tc-api/segment/${localSegmentId}`;
       connMethod = 'PUT';
@@ -252,23 +251,37 @@ const SegmentForm = () => {
         Authorization: authorizationHeader
       }
     })
-      .then(response => response.json())
+      .then(response => {
+        if (response.ok) {
+          if (response.status === 201) { // Created
+            console.log('Segment created successfully');
+            return response.json();
+          } else {
+            console.error('Unexpected response status:', response.status);
+            setFormErrorMessage('Nie udało się zapisać odcinka.');
+          }
+        } else {
+          console.error('Error uploading AddSegment form:', response.status);
+          setFormErrorMessage('Nie udało się zapisać odcinka.');
+        }
+      })
       .then(responseData => {
         if (responseData > -1) {
           console.log('AddSegment Form uploaded successfully:', responseData);
           if (editMode)
             console.log("edit Segment")
           setFormErrorMessage('');
+          if (editMode)
+            navigate(`/details-segment/${localSegmentId}`);
+          else
+            navigate(`/details-segment/${responseData}`);
         }
         else {
           setFormErrorMessage('Nie udało się zapisać odcinka.');
+          console.error("bla bla", responseData);
         }
         setSubmitting(false);
         toggleSpinner();
-        if (editMode)
-          navigate(`/details-segment/${localSegmentId}`);
-        else
-          navigate(`/details-segment/${responseData}`);
       })
       .catch(error => {
         console.error('Error uploading AddSegment form:', error);
@@ -366,7 +379,7 @@ const SegmentForm = () => {
   return (
     <div className={styles.SegmentForm}>
       <PoiModal isOpen={poiModal} toggle={togglePoiModal} onRowSelect={onRowSelect} />
-      <MapModal isOpen={mapModal} toggle={toggleMapModal} gpxArr={gpxPreview} type="gpx" {...{ gpxNotValidated, gpxValidated }}/>
+      <MapModal isOpen={mapModal} toggle={toggleMapModal} gpxArr={gpxPreview} type="gpx" {...{ gpxNotValidated, gpxValidated }} />
       <Form id="SegmentForm" onSubmit={handleSubmit} encType="multipart/form-data">
         <Container>
           <Row className={styles.SectionTitle}>
@@ -484,10 +497,10 @@ const SegmentForm = () => {
                       <FormFeedback>{formErrors.Gpx}</FormFeedback>
                     </Col>
                     <Col sm={2}>
-                        <div class="mt-2 mt-lg-0">
-                          { gpxFile    && (<i role="button" onClick={deleteGpx} className="bi bi-trash fs-4"></i>)}
-                          { gpxPreview && (<i role="button" onClick={showGpx} className="bi bi-binoculars fs-4 ms-2"></i>)}
-                        </div>
+                      <div class="mt-2 mt-lg-0">
+                        {gpxFile && (<i role="button" onClick={deleteGpx} className="bi bi-trash fs-4"></i>)}
+                        {gpxPreview && (<i role="button" onClick={showGpx} className="bi bi-binoculars fs-4 ms-2"></i>)}
+                      </div>
                     </Col>
                   </Row>
                 </Col>
