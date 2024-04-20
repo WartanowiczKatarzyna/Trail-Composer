@@ -29,16 +29,15 @@ export const createPoiOtherFilteredSlice = (set) => ({
       const countryIds = selectedCountries.map((country) => country.id);
       const authHeader = await getAuthHeader(pca, account);
 
-      const connString = 'http://localhost:44491/tc-api/poi/list/filtered';
-      const url = new URL(connString);
+      const url = new URL('http://localhost');
       const queryParams1 = { countryIds };
       const queryParams2 = { minLatitude, maxLatitude, minLongitude, maxLongitude };
       queryParams1.countryIds.forEach(id => url.searchParams.append('countryIds', id));
       Object.entries(queryParams2).forEach(([key, value]) => url.searchParams.append(key, value));
-      
-      console.info('url: ', url);
-      
-      fetch(url.toString(),
+      const urlRelative = `tc-api/poi/list/filtered${url.search}`;
+      console.info('urlRelative: ', urlRelative);
+
+      fetch(urlRelative,
       {
         method: "GET",
         headers: {

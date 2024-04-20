@@ -1,6 +1,5 @@
 import { getAuthHeader } from "../utils/auth/getAuthHeader";
 import { flattenData } from "../components/tables/PoiTable/flattenData";
-import {makeData} from "../components/tables/PoiTable/makeData";
 
 export const createPoiUserFilteredSlice = (set, get) => ({
   poiUserFiltered: [],
@@ -39,23 +38,15 @@ const fetchPoiUserFilteredExecute = async (set, selectedCountries, minLatitude, 
   const countryIds = selectedCountries.map((country) => country.id);
   const authHeader = await getAuthHeader(pca, account);
 
-  const connString = 'http://localhost:44491/tc-api/poi/list/user/filtered';
-  const url = new URL(connString);
+  const url = new URL('http://localhost');
   const queryParams1 = { countryIds };
   const queryParams2 = { minLatitude, maxLatitude, minLongitude, maxLongitude };
   queryParams1.countryIds.forEach(id => url.searchParams.append('countryIds', id));
   Object.entries(queryParams2).forEach(([key, value]) => url.searchParams.append(key, value));
+  const urlRelative = `tc-api/poi/list/user/filtered${url.search}`;
+  console.info('urlRelative: ', urlRelative);
 
-  console.info('url: ', url);
-
-  /*
-  setTimeout(() =>{
-    set({poiUserFiltered: flattenData(makeData(1000), appData)});
-    console.info('appData in fetchPoiUserFiltered: ', appData);
-  }, 1000);
-  */
-
-  fetch(url.toString(),
+  fetch(urlRelative,
     {
       method: "GET",
       headers: {
