@@ -1,5 +1,6 @@
 ﻿using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.Build.Evaluation;
 using Serilog;
 using Trail_Composer.Models.DTOs;
 using Trail_Composer.Models.Generated;
@@ -22,7 +23,22 @@ namespace Trail_Composer.Controllers
         [HttpGet("{segmentId:int}")]
         public async Task<ActionResult<PoiFromAPI>> GetSegment(int segmentId)
         {
-            throw new NotImplementedException();
+            var segment = await _segmentService.GetSegmentByIdAsync(segmentId);
+
+            if (segment == null)
+                return NotFound();
+
+            return Ok(segment);
+        }
+
+        [HttpGet("gpx/{segmentId:int}")]
+        public async Task<IActionResult> GetGpxForSegment(int segmentId)
+        {
+            var gpx = await _segmentService.GetGpx(segmentId);
+            if (gpx == null)
+                return NotFound();
+
+            return File(gpx, "application/gpx");
         }
 
         [Authorize]
@@ -75,13 +91,20 @@ namespace Trail_Composer.Controllers
         }
 
         [Authorize]
-        [HttpPut("{poiId:int}")]
+        [HttpPut("{segmentId:int}")]
         [Consumes("multipart/form-data")]
         [RequestSizeLimit(10485760)] // Limiting to 10 MB (in bytes)
         // Also responsible for handling photos related to the poi
         public async Task<IActionResult> EditSegment([FromForm] SegmentFromAPI segment, int segmentId)
         {
-            throw new NotImplementedException();
+            var userId = TCUserDTO.GetUserIdFromContext(this.HttpContext);
+            //var userId = "703645aa-f169-4aa8-9fc9-e3dbb01960d9";
+
+            var result = await _segmentService.EditSegmentAsync(segmentId, segment, userId);
+
+            if (!result)
+                return StatusCode(400, "Error when editing poi");
+            return Ok(result);
         }
 
         [Authorize]

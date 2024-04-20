@@ -1,8 +1,8 @@
 ﻿namespace Trail_Composer.Models.DTOs.Comparers
 {
-    public class PoiListElementToApiComparer : IEqualityComparer<PoiListElementToApi>
+    public class SegmentToApiComparer
     {
-        public bool Equals(PoiListElementToApi? x, PoiListElementToApi? y)
+        public bool Equals(SegmentToApi? x, SegmentToApi? y)
         {
             if (ReferenceEquals(x, y))
             {
@@ -17,7 +17,7 @@
             return x.Id == y.Id;
         }
 
-        public int GetHashCode(PoiListElementToApi obj)
+        public int GetHashCode(SegmentToApi obj)
         {
             return obj.Id.GetHashCode();
         }
