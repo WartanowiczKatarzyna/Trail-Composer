@@ -89,32 +89,37 @@ const SegmentForm = () => {
     if (editMode && localSegmentId && appData) {
       const fetchData = async () => {
         try {
-          /*
-          const fetchedPoi = await fetch(`tc-api/poi/${localSegmentId}`).then(response => response.json());
+          const fetchedSegment = await fetch(`tc-api/segment/${localSegmentId}`).then(response => response.json());
 
-          setSelectedPOICountry(fetchedPoi.countryId);
-          setPoiName(fetchedPoi.name);
-          setPoiDescription(fetchedPoi.description);
-          setPoiLatitude(fetchedPoi.latitude);
-          setPoiLongitude(fetchedPoi.longitude);
+          setSelectedCountry(fetchedSegment.countryId);
+          setSegmentName(fetchedSegment.name);
+          setSegmentDescription(fetchedSegment.description);
+          setSelectedSegmentLevel(fetchedSegment.level);
 
-          setImagePreview(fetchedPoi.photoId ? `tc-api/poi-photo/${fetchedPoi.photoId}` : null);
-
-          let fetchedPoiTypes = appData.POITypes.filter(type => {
-            const foundType = fetchedPoi.poiTypes.find((fetchedType) => fetchedType === type.id);
+          let fetchedPathTypes = pathTypes.filter(type => {
+            const foundType = fetchedSegment.pathTypes.find((fetchedType) => fetchedType === type.id);
             return foundType;
           });
-          setSelectedPOITypes(fetchedPoiTypes);
+          setSelectedTypes(fetchedPathTypes);
 
-          formData.current.set('Name', fetchedPoi.name);
-          formData.current.set('CountryId', fetchedPoi.countryId);
-          formData.current.set('Longitude', fetchedPoi.longitude);
-          formData.current.set('Latitude', fetchedPoi.latitude);
-          formData.current.set('Description', fetchedPoi.description);
-          handlePoiTypes(fetchedPoiTypes);
-          photoId.current=fetchedPoi.photoId;
+          await fetchPois(fetchedSegment)
+            .then((fetchedPois) => flattenData(fetchedPois, appData))
+            .then((fetchedPois) => setData([...fetchedPois]));
 
-          showFormData(formData.current, "starting editMode"); */
+          const gpxBlob = new Blob([fetchedSegment.gpx], { type: 'application/gpx+xml' });
+          const gpxFile = new File([gpxBlob], `${fetchedSegment.name}.gpx`, { type: 'application/gpx+xml' });
+          console.info('gpxfile', gpxFile);
+          //setGpxFile(gpxFile);
+          //formData.current.set('Gpx', gpxFile);
+          //TCfileReader.current.readAsText(gpxFile);
+
+          formData.current.set('Name', fetchedSegment.name);
+          formData.current.set('CountryId', fetchedSegment.countryId);
+          formData.current.set('Description', fetchedSegment.description);
+          formData.current.set('Level', fetchedSegment.level);
+          handlePathTypes(fetchedPathTypes);
+
+          showFormData(formData.current, "starting editMode");
         } catch (error) {
           console.error('Error fetching poi:', error);
         }
@@ -125,7 +130,23 @@ const SegmentForm = () => {
   }, [editMode, localSegmentId, appData, segmentId]);
 
   useEffect(() => { console.info("gpx file", gpxFile) }, [gpxFile]);
+  useEffect(() => { console.info("table data", data) }, [data]);
   useEffect(() => { console.info("formErrors", formErrors) }, [formErrors]);
+
+  const fetchPois = async (fetchedSegment) => {
+    //debugger;
+    let fetchedPois = await Promise.all(
+      fetchedSegment.poiIds.map(async (poiId) => {
+        const fetchedPoi = await fetch(`tc-api/poi/${poiId}`)
+          .then((response) => response.json());
+        return {
+          ...fetchedPoi,
+          poiTypeIds: fetchedPoi.poiTypes
+        };
+      })
+    );
+    return fetchedPois;
+  };
 
   const validateInput = (name, value) => {
     const emptyMsg = 'Pole jest wymagane.';

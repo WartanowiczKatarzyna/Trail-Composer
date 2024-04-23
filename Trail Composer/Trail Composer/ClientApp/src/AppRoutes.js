@@ -17,6 +17,10 @@ const AppRoutes = [
     element: <SegmentForm />
   },
   {
+    path: '/edit-segment/:segmentId',
+    element: <SegmentForm />
+  },
+  {
     path: '/add-POI',
     element: <POIForm />
   },

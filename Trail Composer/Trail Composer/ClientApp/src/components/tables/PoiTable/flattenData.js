@@ -1,4 +1,5 @@
 export function flattenData(freshData, appData){
+  console.log('Received POIs in flattenData:', freshData);
   return freshData.map(row => {
     return {
       id: row.id,
