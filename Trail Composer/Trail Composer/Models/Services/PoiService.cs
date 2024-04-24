@@ -32,11 +32,12 @@ namespace Trail_Composer.Models.Services
                     Id = poi.Id,
                     TcuserId = poi.TcuserId,
                     Name = poi.Name,
+                    Username = poi.Tcuser.Name,
                     Latitude = poi.Latitude,
                     Longitude = poi.Longitude,
                     Description = poi.Description,
                     CountryId = poi.CountryId,
-                    PoiTypes = poi.PoiPoitypes.Select(poiPoiType => poiPoiType.Poitype).Select(poiType => poiType.Id).ToList(),
+                    PoiTypeIds = poi.PoiPoitypes.Select(poiPoiType => poiPoiType.Poitype).Select(poiType => poiType.Id).ToList(),
                     PhotoId = poi.Poiphotos.Select(photo => photo.Id).SingleOrDefault()
                 })
                 .Where(poi => poi.Id == id)
@@ -334,9 +335,9 @@ namespace Trail_Composer.Models.Services
 
                 if (poiApi.Photo == null || poiApi.Photo.Length <= 0)
                 {
-                    if (poiApi.deletePhoto != null)
+                    if (poiApi.DeletePhoto != null)
                     {
-                        var poiPhotoToDelete = poiDb.Poiphotos.FirstOrDefault(pp => pp.Id == poiApi.deletePhoto);
+                        var poiPhotoToDelete = poiDb.Poiphotos.FirstOrDefault(pp => pp.Id == poiApi.DeletePhoto);
                         if (poiPhotoToDelete == null)
                         {
                             await transaction.RollbackAsync();

@@ -12,7 +12,7 @@ namespace Trail_Composer.Models.DTOs
         public string? Description { get; set; }
 
         public IFormFile? Photo { get; set; }
-        public int? deletePhoto { get; set; }
+        public int? DeletePhoto { get; set; }
 
     }
 }

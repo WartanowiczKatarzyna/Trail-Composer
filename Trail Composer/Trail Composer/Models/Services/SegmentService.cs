@@ -45,13 +45,7 @@ namespace Trail_Composer.Models.Services
                 .Select(seg => new SegmentToApiWithGpx
                 {
                     Id = seg.Id,
-                    TcuserId = seg.TcuserId,
                     Name = seg.Name,
-                    Description = seg.Description,
-                    CountryId = seg.CountryId,
-                    Level = seg.LevelId,
-                    PathTypes = seg.SegmentTypes.Select(segType => segType.PathType).Select(pathType => pathType.Id).ToList(),
-                    PoiIds = seg.SegmentPois.Select(segPoi => segPoi.Id).ToList(),
                     Gpx = seg.GpxFile
                 })
                 .Where(seg => seg.Id == id)

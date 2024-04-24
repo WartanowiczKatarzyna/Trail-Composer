@@ -60,7 +60,7 @@ const PoiDetails = () => {
         let country = appData.Countries.find(c => c.id === poi.countryId);
         setPoiCountryName(country.countryName);
 
-        let types = poi.poiTypes.map(id => appData.POITypes.find(t => t.id === id).name);
+        let types = poi.poiTypeIds.map(id => appData.POITypes.find(t => t.id === id).name);
         setPoiTypesNames(types.join(', '));
       }
     setImagePreview(poi && poi.photoId ? `tc-api/poi-photo/${poi.photoId}` : null);

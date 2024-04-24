@@ -75,7 +75,7 @@ const PoiForm = () => {
           setImagePreview(fetchedPoi.photoId ? `tc-api/poi-photo/${fetchedPoi.photoId}` : null);
 
           let fetchedPoiTypes = appData.POITypes.filter(type => {
-            const foundType = fetchedPoi.poiTypes.find((fetchedType) => fetchedType === type.id);
+            const foundType = fetchedPoi.poiTypeIds.find((fetchedType) => fetchedType === type.id);
             return foundType;
           });
           setSelectedPOITypes(fetchedPoiTypes);

@@ -108,6 +108,7 @@ const SegmentForm = () => {
             .then((fetchedPois) => setData([...fetchedPois]));
 
           //look at photo to how to implement gpxFile
+          setGpxPreview([`tc-api/segment/gpx/${localSegmentId}`]);
 
           formData.current.set('Name', fetchedSegment.name);
           formData.current.set('CountryId', fetchedSegment.countryId);
@@ -381,7 +382,13 @@ const SegmentForm = () => {
   return (
     <div className={styles.SegmentForm}>
       <PoiModal isOpen={poiModal} toggle={togglePoiModal} onRowSelect={onRowSelect} />
-      <MapModal isOpen={mapModal} toggle={toggleMapModal} gpxArr={gpxPreview} type="gpx" {...{ gpxNotValidated, gpxValidated }} />
+      <MapModal
+        isOpen={mapModal}
+        toggle={toggleMapModal}
+        gpxArr={gpxPreview}
+        type={editMode ? "url" : "gpx"}
+        {...{ gpxNotValidated, gpxValidated }}
+      />
       <Form id="SegmentForm" onSubmit={handleSubmit} encType="multipart/form-data">
         <Container>
           <Row className={styles.SectionTitle}>
