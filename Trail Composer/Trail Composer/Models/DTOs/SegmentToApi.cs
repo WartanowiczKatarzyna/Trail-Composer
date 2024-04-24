@@ -11,7 +11,6 @@
         public int Level { get; set; }
         public required string Description { get; set; }
 
-        public byte[] Gpx { get; set; }
         public ICollection<int> PoiIds { get; set; } = new HashSet<int>();
 
         public override bool Equals(object? obj)

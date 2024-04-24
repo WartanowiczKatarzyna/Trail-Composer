@@ -34,11 +34,24 @@ namespace Trail_Composer.Controllers
         [HttpGet("gpx/{segmentId:int}")]
         public async Task<IActionResult> GetGpxForSegment(int segmentId)
         {
-            var gpx = await _segmentService.GetGpx(segmentId);
-            if (gpx == null)
+            var segment = await _segmentService.GetSegmentWithGpxByIdAsync(segmentId);
+            if (segment == null)
                 return NotFound();
+            var fileName = string.Concat(segment.Name, "_", segment.Id);
 
-            return File(gpx, "application/gpx");
+            return File(segment.Gpx, "application/xml", fileName);
+        }
+
+        [HttpGet("download-gpx/{segmentId:int}")]
+        public async Task<IActionResult> DownloadGpxForSegment(int segmentId)
+        {
+            var segment = await _segmentService.GetSegmentWithGpxByIdAsync(segmentId);
+            if (segment == null)
+                return NotFound();
+            var fileName = string.Concat(segment.Name, "_", segment.Id);
+
+            Response.Headers.Add("Content-Disposition", "attachment; filename=\"yourfile.ext\"");
+            return File(segment.Gpx, "application/xml", fileName);
         }
 
         [Authorize]

@@ -102,16 +102,12 @@ const SegmentForm = () => {
           });
           setSelectedTypes(fetchedPathTypes);
 
-          await fetchPois(fetchedSegment)
+          await fetch(`tc-api/poi/list/segment/${localSegmentId}`)
+            .then((response) => response.json())
             .then((fetchedPois) => flattenData(fetchedPois, appData))
             .then((fetchedPois) => setData([...fetchedPois]));
 
-          const gpxBlob = new Blob([fetchedSegment.gpx], { type: 'application/gpx+xml' });
-          const gpxFile = new File([gpxBlob], `${fetchedSegment.name}.gpx`, { type: 'application/gpx+xml' });
-          console.info('gpxfile', gpxFile);
-          //setGpxFile(gpxFile);
-          //formData.current.set('Gpx', gpxFile);
-          //TCfileReader.current.readAsText(gpxFile);
+          //look at photo to how to implement gpxFile
 
           formData.current.set('Name', fetchedSegment.name);
           formData.current.set('CountryId', fetchedSegment.countryId);
@@ -132,21 +128,6 @@ const SegmentForm = () => {
   useEffect(() => { console.info("gpx file", gpxFile) }, [gpxFile]);
   useEffect(() => { console.info("table data", data) }, [data]);
   useEffect(() => { console.info("formErrors", formErrors) }, [formErrors]);
-
-  const fetchPois = async (fetchedSegment) => {
-    //debugger;
-    let fetchedPois = await Promise.all(
-      fetchedSegment.poiIds.map(async (poiId) => {
-        const fetchedPoi = await fetch(`tc-api/poi/${poiId}`)
-          .then((response) => response.json());
-        return {
-          ...fetchedPoi,
-          poiTypeIds: fetchedPoi.poiTypes
-        };
-      })
-    );
-    return fetchedPois;
-  };
 
   const validateInput = (name, value) => {
     const emptyMsg = 'Pole jest wymagane.';
