@@ -66,6 +66,9 @@ namespace Trail_Composer.Models.Services
         }
         public async Task<int> AddSegmentAsync(SegmentFromAPI segment, TCUserDTO user)
         {
+            if (segment.Gpx == null || segment.Gpx.Length < 1)
+                return -2;
+
             using var transaction = await _context.Database.BeginTransactionAsync();
             try
             {
@@ -194,7 +197,9 @@ namespace Trail_Composer.Models.Services
 
                 segDb.Name = segApi.Name;
                 segDb.Description = segApi.Description;
-                segDb.GpxFile = GetFileContent(segApi.Gpx);
+
+                if (segApi.Gpx != null && segApi.Gpx.Length > 0)
+                    segDb.GpxFile = GetFileContent(segApi.Gpx);
 
                 segDb.LevelId = segApi.Level;
                 segDb.Level = segApiLevel;

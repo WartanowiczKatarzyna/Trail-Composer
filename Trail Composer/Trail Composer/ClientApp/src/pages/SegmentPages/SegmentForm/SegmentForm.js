@@ -32,6 +32,7 @@ const SegmentForm = () => {
   const [formErrors, setFormErrors] = useState({});
   const [submitting, setSubmitting] = useState(false);
   const [formErrorMessage, setFormErrorMessage] = useState('');
+  const [gpxType, setGpxType] = useState('gpx');
 
   const [selectedTypes, setSelectedTypes] = useState([]);
   const [selectedCountry, setSelectedCountry] = useState(29);
@@ -87,13 +88,14 @@ const SegmentForm = () => {
     formData.current.set("CountryId", selectedCountry);
 
     if (editMode && localSegmentId && appData) {
+      setGpxType('url');
+
       const fetchData = async () => {
         try {
           const fetchedSegment = await fetch(`tc-api/segment/${localSegmentId}`).then(response => response.json());
 
           setSelectedCountry(fetchedSegment.countryId);
           setSegmentName(fetchedSegment.name);
-          setSegmentDescription(fetchedSegment.description);
           setSelectedSegmentLevel(fetchedSegment.level);
 
           let fetchedPathTypes = pathTypes.filter(type => {
@@ -107,13 +109,21 @@ const SegmentForm = () => {
             .then((fetchedPois) => flattenData(fetchedPois, appData))
             .then((fetchedPois) => setData([...fetchedPois]));
 
-          //look at photo to how to implement gpxFile
           setGpxPreview([`tc-api/segment/gpx/${localSegmentId}`]);
+
+          if (fetchedSegment.description === null || fetchedSegment.description === "null") {
+            setSegmentDescription('');
+            formData.current.set('Description', '');
+          } else {
+            setSegmentDescription(fetchedSegment.description);
+            formData.current.set('Description', fetchedSegment.description);
+          }
 
           formData.current.set('Name', fetchedSegment.name);
           formData.current.set('CountryId', fetchedSegment.countryId);
           formData.current.set('Description', fetchedSegment.description);
           formData.current.set('Level', fetchedSegment.level);
+          formData.current.set('Gpx', '');
           handlePathTypes(fetchedPathTypes);
 
           showFormData(formData.current, "starting editMode");
@@ -150,7 +160,9 @@ const SegmentForm = () => {
         console.info("File[0]", value);
         console.info("File[0] value type", value.type);
         const fileValue = value;
-        if (!fileValue || !fileValue.name)
+        if (editMode && (!fileValue || !fileValue.name))
+          return '';
+        else if (!fileValue || !fileValue.name)
           return emptyMsg  // Gpx file is required
         else if (!fileValue.name.match(/.*\.gpx/))
           return 'Plik ma rozszerzenie inne niż gpx.';
@@ -181,6 +193,8 @@ const SegmentForm = () => {
       case "Gpx":
         gpxValidationNegative.current = false;
         const errors = validateInput(name, files[0]);
+        if (gpxType === 'url')
+          setGpxType('gpx');
         if (files.length > 0) {
           if (!errors) {
             toggleSpinner();
@@ -256,7 +270,7 @@ const SegmentForm = () => {
     })
       .then(response => {
         if (response.ok) {
-          if (response.status === 201) { // Created
+          if (response.status === 201 || response.status === 200) {
             console.log('Segment created successfully');
             return response.json();
           } else {
@@ -386,7 +400,7 @@ const SegmentForm = () => {
         isOpen={mapModal}
         toggle={toggleMapModal}
         gpxArr={gpxPreview}
-        type={editMode ? "url" : "gpx"}
+        type={gpxType}
         {...{ gpxNotValidated, gpxValidated }}
       />
       <Form id="SegmentForm" onSubmit={handleSubmit} encType="multipart/form-data">

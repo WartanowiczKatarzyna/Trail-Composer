@@ -9,7 +9,7 @@
         public required int Level { get; set; }
         public string? Description { get; set; }
 
-        public required IFormFile Gpx{ get; set; }
+        public IFormFile? Gpx{ get; set; }
         public ICollection<int>? PoiIds { get; set; }
     }
 }
