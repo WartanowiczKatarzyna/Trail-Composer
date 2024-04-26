@@ -5,6 +5,7 @@
         public required int Id { get; set; }
         public string TcuserId { get; set; }
         public required string Name { get; set; }
+        public string Username { get;set; }
         public int CountryId { get; set; }
         public ICollection<int> PathTypes { get; set; } = new HashSet<int>();
 

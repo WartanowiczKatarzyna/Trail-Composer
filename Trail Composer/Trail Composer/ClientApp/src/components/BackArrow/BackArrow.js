@@ -12,7 +12,7 @@ const BackArrow = () => {
 
   return (
   <div className="d-inline-block">
-    <i role="button" onClick={toPrevPage} className="bi bi-arrow-left fs-4"></i>
+    <i role="button" onClick={toPrevPage} className="bi bi-arrow-left fs-4 tc-activeIcon"></i>
   </div>
 );
 }

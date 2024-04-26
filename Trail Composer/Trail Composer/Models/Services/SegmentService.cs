@@ -27,6 +27,7 @@ namespace Trail_Composer.Models.Services
                     Id = seg.Id,
                     TcuserId = seg.TcuserId,
                     Name = seg.Name,
+                    Username = seg.Tcuser.Name,
                     Description = seg.Description,
                     CountryId = seg.CountryId,
                     Level = seg.LevelId,

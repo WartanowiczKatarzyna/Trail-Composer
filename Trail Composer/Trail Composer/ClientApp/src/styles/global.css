@@ -46,3 +46,7 @@ body {
     outline: none;
     box-shadow: none;
 }
+
+.tc-activeIcon:hover {
+    color: var(--main-color);
+}

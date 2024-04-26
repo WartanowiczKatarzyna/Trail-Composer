@@ -15,8 +15,9 @@ import { flattenData } from '../../../components/tables/PoiTable/flattenData.js'
 import { useTcStore } from '../../../store/TcStore.js';
 import BackArrow from '../../../components/BackArrow/BackArrow.js';
 import MapModal from "../../../modals/MapModal/MapModal";
+import PropTypes from 'prop-types';
 
-const SegmentForm = () => {
+const SegmentForm = ({editMode}) => {
   const appData = useContext(AppContext);
   const { result, error } = useMsalAuthentication(InteractionType.Redirect, { scopes: ['openid', 'offline_access'] });
   const { instance: pca, accounts } = useMsal();
@@ -25,7 +26,7 @@ const SegmentForm = () => {
 
   const { segmentId } = useParams();
   const [localSegmentId, setLocalSegmentId] = useState(segmentId);
-  const [editMode, setEditMode] = useState(false);
+  //const [editMode, setEditMode] = useState(false);
   const [poiModal, setPoiModal] = useState(false);
   const [mapModal, setMapModal] = useState(false);
 
@@ -78,11 +79,6 @@ const SegmentForm = () => {
   useEffect(() => {
     setLocalSegmentId(segmentId);
 
-    if (!isNaN(Number.parseInt(localSegmentId)))
-      setEditMode(true);
-    else
-      setEditMode(false);
-
     const form = document.getElementById("SegmentForm");
     formData.current = new FormData(form);
     formData.current.set("CountryId", selectedCountry);
@@ -111,6 +107,7 @@ const SegmentForm = () => {
 
           setGpxPreview([`tc-api/segment/gpx/${localSegmentId}`]);
 
+          console.info("fetchedSegment.description",fetchedSegment.description === null ? 'przyszedl null' : 'przyszedl string');
           if (fetchedSegment.description === null || fetchedSegment.description === "null") {
             setSegmentDescription('');
             formData.current.set('Description', '');
@@ -121,7 +118,6 @@ const SegmentForm = () => {
 
           formData.current.set('Name', fetchedSegment.name);
           formData.current.set('CountryId', fetchedSegment.countryId);
-          formData.current.set('Description', fetchedSegment.description);
           formData.current.set('Level', fetchedSegment.level);
           formData.current.set('Gpx', '');
           handlePathTypes(fetchedPathTypes);
@@ -583,7 +579,9 @@ const SegmentForm = () => {
   );
 };
 
-SegmentForm.propTypes = {};
+SegmentForm.propTypes = {
+  editMode : PropTypes.bool.isRequired
+};
 
 SegmentForm.defaultProps = {};
 

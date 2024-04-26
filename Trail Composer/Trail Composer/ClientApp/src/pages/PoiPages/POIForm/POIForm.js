@@ -9,8 +9,9 @@ import styles from './POIForm.module.css';
 import { getAuthHeader } from '../../../utils/auth/getAuthHeader.js';
 import BackArrow from '../../../components/BackArrow/BackArrow.js';
 import { useTcStore } from "../../../store/TcStore";
+import PropTypes from 'prop-types';
 
-const PoiForm = () => {
+const PoiForm = ({editMode}) => {
   const appData = useContext(AppContext);
   const { result, error } = useMsalAuthentication(InteractionType.Redirect, { scopes: ['openid', 'offline_access'] });
   const { instance: pca, accounts } = useMsal();
@@ -19,7 +20,6 @@ const PoiForm = () => {
 
   const { poiId } = useParams();
   const [localPoiId, setLocalPoiId] = useState(poiId);
-  const [editMode, setEditMode] = useState(false);
 
   const [formErrors, setFormErrors] = useState({});
   const [submitting, setSubmitting] = useState(false);
@@ -50,11 +50,6 @@ const PoiForm = () => {
 
   useEffect(() => {
     setLocalPoiId(poiId);
-
-    if (!isNaN(Number.parseInt(localPoiId)))
-      setEditMode(true);
-    else
-      setEditMode(false);
 
     const form = document.getElementById("POIForm");
     formData.current = new FormData(form);
@@ -493,7 +488,9 @@ const PoiForm = () => {
   );
 };
 
-PoiForm.propTypes = {};
+PoiForm.propTypes = {
+  editMode : PropTypes.bool.isRequired
+};
 
 PoiForm.defaultProps = {};
 
