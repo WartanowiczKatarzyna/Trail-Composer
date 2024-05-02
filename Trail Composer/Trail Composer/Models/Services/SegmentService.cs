@@ -2,10 +2,15 @@
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.ModelBinding.Binders;
 using Microsoft.EntityFrameworkCore;
+using NetTopologySuite.Geometries;
+using NetTopologySuite.IO;
+using System.Data.SqlClient;
 using Serilog;
 using Trail_Composer.Data;
 using Trail_Composer.Models.DTOs;
 using Trail_Composer.Models.Generated;
+using System.Data.SqlTypes;
+using Microsoft.SqlServer.Types;
 
 namespace Trail_Composer.Models.Services
 {
@@ -19,7 +24,7 @@ namespace Trail_Composer.Models.Services
         }
 
         public async Task<SegmentToApi> GetSegmentByIdAsync(int id)
-        {
+        {            
             var segment = await _context.Segments
                 .Include(seg => seg.SegmentPois)
                 .Select(seg => new SegmentToApi
@@ -53,6 +58,113 @@ namespace Trail_Composer.Models.Services
                 .SingleOrDefaultAsync();
 
             return segment;
+        }
+        public async Task<IEnumerable<SegmentToApi>> GetUserSegmentListAsync(string userId)
+        {
+            var segmentList = await _context.Segments
+                .Include(seg => seg.SegmentTypes)
+                .Where(seg => seg.TcuserId == userId)
+                .Select(seg => new SegmentToApi
+                {
+                    Id = seg.Id,
+                    TcuserId = seg.TcuserId,
+                    Name = seg.Name,
+                    Username = seg.Tcuser.Name,
+                    CountryId = seg.CountryId,
+                    Level = seg.LevelId,
+                    PathTypes = seg.SegmentTypes.Select(segType => segType.PathType).Select(pathType => pathType.Id).ToList(),
+                    PoiIds = seg.SegmentPois.Select(segPoi => segPoi.Id).ToList(),
+                })
+                .ToListAsync();
+
+            return segmentList;
+        }
+        public async Task<IEnumerable<SegmentToApi>> GetFilteredSegmentListAsync(string userId, int[] countryIds, decimal minLatitude, decimal maxLatitude,
+            decimal minLongitude, decimal maxLongitude)
+        {
+            var segmentList = await _context.Segments
+                .Include(segment => segment.SegmentTypes)
+                .Where(segment => (
+                                segment.TcuserId != userId &&
+                                (countryIds.Contains(segment.CountryId) || (countryIds.Length == 0)) &&
+                                (segment.MinLatitude > minLatitude) &&
+                                (segment.MaxLatitude < maxLatitude) &&
+                                (segment.MinLongitude > minLongitude) &&
+                                (segment.MaxLongitude < maxLongitude)
+                            ))
+                .Select(seg => new SegmentToApi
+                {
+                    Id = seg.Id,
+                    TcuserId = seg.TcuserId,
+                    Name = seg.Name,
+                    Username = seg.Tcuser.Name,
+                    CountryId = seg.CountryId,
+                    Level = seg.LevelId,
+                    PathTypes = seg.SegmentTypes.Select(segType => segType.PathType).Select(pathType => pathType.Id).ToList(),
+                    PoiIds = seg.SegmentPois.Select(segPoi => segPoi.Id).ToList(),
+                })
+                .OrderBy(poi => poi.Id)
+                .Take(1000)
+                .ToListAsync();
+
+            return segmentList;
+        }
+        public async Task<IEnumerable<SegmentToApi>> GetFilteredUserSegmentListAsync(string userId, int[] countryIds, decimal minLatitude, decimal maxLatitude,
+            decimal minLongitude, decimal maxLongitude)
+        {
+            var segmentList = await _context.Segments
+                .Include(segment => segment.SegmentTypes)
+                .Where(segment => (
+                                segment.TcuserId == userId &&
+                                (countryIds.Contains(segment.CountryId) || (countryIds.Length == 0)) &&
+                                (segment.MinLatitude > minLatitude) &&
+                                (segment.MaxLatitude < maxLatitude) &&
+                                (segment.MinLongitude > minLongitude) &&
+                                (segment.MaxLongitude < maxLongitude)
+                            ))
+                .Select(seg => new SegmentToApi
+                {
+                    Id = seg.Id,
+                    TcuserId = seg.TcuserId,
+                    Name = seg.Name,
+                    Username = seg.Tcuser.Name,
+                    CountryId = seg.CountryId,
+                    Level = seg.LevelId,
+                    PathTypes = seg.SegmentTypes.Select(segType => segType.PathType).Select(pathType => pathType.Id).ToList(),
+                    PoiIds = seg.SegmentPois.Select(segPoi => segPoi.Id).ToList(),
+                })
+                .OrderBy(poi => poi.Id)
+                .Take(1000)
+                .ToListAsync();
+
+            return segmentList;
+        }
+        public async Task<IEnumerable<SegmentToApi>> GetSegmentListByTrailAsync(int trailId)
+        {
+            var segmentList = await _context.Segments
+                .Include(seg => seg.SegmentTypes)
+                .Join(
+                    _context.TrailSegments,
+                    seg => seg.Id,
+                    ts => ts.TrailId,
+                    (seg, ts) => new { seg, ts }
+                )
+                .Where(mergedElem => mergedElem.ts.TrailId == trailId)
+                .OrderBy(mergedElem => mergedElem.ts.SegmentOrder)
+                .Select(mergedElem => new SegmentToApi
+                {
+                    Id = mergedElem.seg.Id,
+                    TcuserId = mergedElem.seg.TcuserId,
+                    Name = mergedElem.seg.Name,
+                    Username = mergedElem.seg.Tcuser.Name,
+                    CountryId = mergedElem.seg.CountryId,
+                    Level = mergedElem.seg.LevelId,
+                    PathTypes = mergedElem.seg.SegmentTypes.Select(segType => segType.PathType).Select(pathType => pathType.Id).ToList(),
+                    PoiIds = mergedElem.seg.SegmentPois.Select(segPoi => segPoi.Id).ToList(),
+                })
+                .ToListAsync();
+
+            return segmentList;
         }
         public async Task<byte[]> GetGpx(int segmentId)
         {
@@ -93,7 +205,6 @@ namespace Trail_Composer.Models.Services
                     _context.Tcusers.Add(tcuser);
                 }
 
-
                 // adding Segment
                 var newSegment = new Segment
                 {
@@ -102,7 +213,10 @@ namespace Trail_Composer.Models.Services
                     Name = segment.Name,
                     Description = segment.Description,
                     GpxFile = GetFileContent(segment.Gpx),
-                        
+                    MinLongitude = segment.MinLongitude,
+                    MaxLongitude = segment.MaxLongitude,
+                    MinLatitude = segment.MinLatitude,
+                    MaxLatitude = segment.MaxLatitude,
                     Country = country,
                     Level = level,
                 };
@@ -164,7 +278,6 @@ namespace Trail_Composer.Models.Services
                 return -1;
             }
         }
-
         public async Task<bool> EditSegmentAsync(int segId, SegmentFromAPI segApi, string userId)
         {
             using var transaction = await _context.Database.BeginTransactionAsync();
@@ -198,6 +311,10 @@ namespace Trail_Composer.Models.Services
 
                 segDb.Name = segApi.Name;
                 segDb.Description = segApi.Description;
+                segDb.MinLongitude = segApi.MinLongitude;
+                segDb.MaxLongitude = segApi.MaxLongitude;
+                segDb.MinLatitude = segApi.MinLatitude;
+                segDb.MaxLatitude = segApi.MaxLatitude;
 
                 if (segApi.Gpx != null && segApi.Gpx.Length > 0)
                     segDb.GpxFile = GetFileContent(segApi.Gpx);
@@ -262,6 +379,40 @@ namespace Trail_Composer.Models.Services
             catch (Exception ex)
             {
                 await transaction.RollbackAsync();
+            }
+            return false;
+        }
+        public async Task<bool> DeleteSegmentAsync(int id, string userId)
+        {
+            using var transaction = await _context.Database.BeginTransactionAsync();
+            try
+            {
+                var seg = await _context.Segments
+                    .Include(seg => seg.SegmentTypes)
+                    .Include(seg => seg.SegmentPois)
+                    .Include(seg => seg.TrailSegments)
+                    .FirstOrDefaultAsync(seg => seg.Id == id && seg.TcuserId == userId);
+
+                if (seg == null)
+                {
+                    await transaction.RollbackAsync();
+                    Log.Error("DeleteSegmentAsync error: segment is null");
+                    return false;
+                }
+
+                _context.SegmentPois.RemoveRange(seg.SegmentPois);
+                _context.TrailSegments.RemoveRange(seg.TrailSegments);
+                _context.Segments.Remove(seg);
+
+                await _context.SaveChangesAsync();
+                await transaction.CommitAsync();
+
+                return true;
+            }
+            catch (Exception ex)
+            {
+                await transaction.RollbackAsync();
+                Log.Error($"DeleteSegmentAsync error: {ex.Message}");
             }
             return false;
         }

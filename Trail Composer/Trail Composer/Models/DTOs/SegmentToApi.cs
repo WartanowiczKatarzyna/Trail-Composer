@@ -10,7 +10,7 @@
         public ICollection<int> PathTypes { get; set; } = new HashSet<int>();
 
         public int Level { get; set; }
-        public required string Description { get; set; }
+        public string? Description { get; set; }
 
         public ICollection<int> PoiIds { get; set; } = new HashSet<int>();
 

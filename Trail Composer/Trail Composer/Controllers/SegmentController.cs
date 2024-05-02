@@ -58,7 +58,9 @@ namespace Trail_Composer.Controllers
         [HttpGet("list/user")]
         public async Task<IActionResult> GetSegmentListByUser()
         {
-            throw new NotImplementedException();
+            var userId = TCUserDTO.GetUserIdFromContext(this.HttpContext);
+            var result = await _segmentService.GetUserSegmentListAsync(userId);
+            return Ok(result);
         }
 
         [Authorize]
@@ -66,7 +68,9 @@ namespace Trail_Composer.Controllers
         public async Task<IActionResult> GetFilteredSegmentList([FromQuery] int[] countryIds, [FromQuery] decimal minLatitude, [FromQuery] decimal maxLatitude,
             [FromQuery] decimal minLongitude, [FromQuery] decimal maxLongitude)
         {
-            throw new NotImplementedException();
+            var userId = TCUserDTO.GetUserIdFromContext(this.HttpContext);
+            var result = await _segmentService.GetFilteredSegmentListAsync(userId, countryIds, minLatitude, maxLatitude, minLongitude, maxLongitude);
+            return Ok(result);
         }
 
         [Authorize]
@@ -74,13 +78,16 @@ namespace Trail_Composer.Controllers
         public async Task<IActionResult> GetFilteredUserSegmentList([FromQuery] int[] countryIds, [FromQuery] decimal minLatitude, [FromQuery] decimal maxLatitude,
             [FromQuery] decimal minLongitude, [FromQuery] decimal maxLongitude)
         {
-            throw new NotImplementedException();
+            var userId = TCUserDTO.GetUserIdFromContext(this.HttpContext);
+            var result = await _segmentService.GetFilteredUserSegmentListAsync(userId, countryIds, minLatitude, maxLatitude, minLongitude, maxLongitude);
+            return Ok(result);
         }
 
         [HttpGet("list/trail/{trailId:int}")]
         public async Task<IActionResult> GetSegmentListByTrail(int trailId)
         {
-            throw new NotImplementedException();
+            var result = await _segmentService.GetSegmentListByTrailAsync(trailId);
+            return Ok(result);
         }
 
         [Authorize]
@@ -124,7 +131,13 @@ namespace Trail_Composer.Controllers
         [HttpDelete("{segmentId:int}")]
         public async Task<IActionResult> DeleteSegment(int segmentId)
         {
-            throw new NotImplementedException();
+            var userId = TCUserDTO.GetUserIdFromContext(this.HttpContext);
+            bool deletedSuccess = await _segmentService.DeleteSegmentAsync(segmentId, userId);
+
+            if (deletedSuccess)
+                return Ok();
+
+            return NotFound();
         }
     }
 }

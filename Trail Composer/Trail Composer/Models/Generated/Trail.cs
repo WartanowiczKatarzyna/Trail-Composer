@@ -17,6 +17,14 @@ public partial class Trail
 
     public string? Description { get; set; }
 
+    public decimal MinLongitude { get; set; }
+
+    public decimal MaxLongitude { get; set; }
+
+    public decimal MinLatitude { get; set; }
+
+    public decimal MaxLatitude { get; set; }
+
     public virtual PathLevel Level { get; set; } = null!;
 
     public virtual Tcuser Tcuser { get; set; } = null!;

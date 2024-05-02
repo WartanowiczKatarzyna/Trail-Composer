@@ -15,11 +15,17 @@ public partial class Segment
 
     public string Name { get; set; } = null!;
 
-    public int Length { get; set; }
-
     public string? Description { get; set; }
 
-    public byte[]? GpxFile { get; set; }
+    public byte[] GpxFile { get; set; } = null!;
+
+    public decimal MinLongitude { get; set; }
+
+    public decimal MaxLongitude { get; set; }
+
+    public decimal MinLatitude { get; set; }
+
+    public decimal MaxLatitude { get; set; }
 
     public virtual Country Country { get; set; } = null!;
 
