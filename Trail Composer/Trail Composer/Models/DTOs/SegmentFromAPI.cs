@@ -4,9 +4,9 @@
     {
         public required string Name { get; set; }
         public required int CountryId { get; set; }
-        public ICollection<int> PathTypes { get; set; }
+        public ICollection<int> PathTypeIds { get; set; }
 
-        public required int Level { get; set; }
+        public required int LevelId { get; set; }
         public string? Description { get; set; }
 
         public IFormFile? Gpx{ get; set; }

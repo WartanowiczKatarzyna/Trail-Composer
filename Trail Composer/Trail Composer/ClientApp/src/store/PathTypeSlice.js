@@ -1,13 +1,11 @@
 export const createPathTypeSlice = (set) => ({
   pathTypes: [],
 
-  fetchPathTypes: async () => {
-    let mockPathTypes = [
-      {"id": 1, "name": "piesza"},
-      {"id": 2, "name": "rowerowa"},
-      {"id": 3, "name": "kajakowa"}
-    ];
-
-    set({pathTypes: [...mockPathTypes]});
+  fetchPathTypes: () => {
+    fetch("tc-api/path-types").then(response => response.json()).then(data => {
+      const pathTypeTmp = [...data];
+      pathTypeTmp.sort((ptA, ptB) => (ptA.name > ptB.name) ? 1 : -1);
+      set({pathTypes: pathTypeTmp})
+    });
   },
 })

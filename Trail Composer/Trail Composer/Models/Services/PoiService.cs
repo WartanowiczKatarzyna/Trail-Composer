@@ -224,7 +224,7 @@ namespace Trail_Composer.Models.Services
                     _context.Pois.Add(newPoi);
 
                     // adding Poi - Poitype relations
-                    foreach (var typeId in poi.PoiTypes)
+                    foreach (var typeId in poi.PoiTypeIds)
                     {
                         var type = await _context.Poitypes.FindAsync(typeId);
 
@@ -312,7 +312,7 @@ namespace Trail_Composer.Models.Services
 
                 //_context.AttachRange(poiDb.PoiPoitypes); -> seem to do nothing
                 _context.PoiPoitypes.RemoveRange(poiDb.PoiPoitypes);
-                foreach (var poiTypeApiId in poiApi.PoiTypes)
+                foreach (var poiTypeApiId in poiApi.PoiTypeIds)
                 {
                     var poiTypeApi = _context.Poitypes.Find(poiTypeApiId);
                     if (poiTypeApi == null)

@@ -1,0 +1,8 @@
+.SectionTitleContainer {
+  width: fit-content;
+}
+.SectionTitle {
+  font-family: var(--font-family);
+  font-weight: var(--section-header-font-weight);
+  font-size: var(--section-header-font-size);
+}

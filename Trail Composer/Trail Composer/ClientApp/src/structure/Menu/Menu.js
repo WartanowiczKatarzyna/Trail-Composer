@@ -18,7 +18,7 @@ const Menu = () => (
       <AccordionHeader targetId='2' className={styles.SectionHeader}> Odcinki </AccordionHeader>
       <AccordionBody accordionId='2'>
         <NavLink tag={Link} className={styles.NavLink} to="/add-segment">Nowy odcinek</NavLink>
-        <NavLink tag={Link} className={styles.NavLink} to="/">Moje odcinki</NavLink>
+        <NavLink tag={Link} className={styles.NavLink} to="/list-segment/user">Moje odcinki</NavLink>
       </AccordionBody>
 
       <AccordionHeader targetId='3' className={styles.SectionHeader}> POI </AccordionHeader>

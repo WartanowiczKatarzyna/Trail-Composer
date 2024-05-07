@@ -35,8 +35,8 @@ namespace Trail_Composer.Models.Services
                     Username = seg.Tcuser.Name,
                     Description = seg.Description,
                     CountryId = seg.CountryId,
-                    Level = seg.LevelId,
-                    PathTypes = seg.SegmentTypes.Select(segType => segType.PathType).Select(pathType => pathType.Id).ToList(),
+                    LevelId = seg.LevelId,
+                    PathTypeIds = seg.SegmentTypes.Select(segType => segType.PathType).Select(pathType => pathType.Id).ToList(),
                     PoiIds = seg.SegmentPois.Select(segPoi => segPoi.Id).ToList(),
                 })
                 .Where(seg => seg.Id == id)
@@ -71,8 +71,8 @@ namespace Trail_Composer.Models.Services
                     Name = seg.Name,
                     Username = seg.Tcuser.Name,
                     CountryId = seg.CountryId,
-                    Level = seg.LevelId,
-                    PathTypes = seg.SegmentTypes.Select(segType => segType.PathType).Select(pathType => pathType.Id).ToList(),
+                    LevelId = seg.LevelId,
+                    PathTypeIds = seg.SegmentTypes.Select(segType => segType.PathType).Select(pathType => pathType.Id).ToList(),
                     PoiIds = seg.SegmentPois.Select(segPoi => segPoi.Id).ToList(),
                 })
                 .ToListAsync();
@@ -99,11 +99,10 @@ namespace Trail_Composer.Models.Services
                     Name = seg.Name,
                     Username = seg.Tcuser.Name,
                     CountryId = seg.CountryId,
-                    Level = seg.LevelId,
-                    PathTypes = seg.SegmentTypes.Select(segType => segType.PathType).Select(pathType => pathType.Id).ToList(),
-                    PoiIds = seg.SegmentPois.Select(segPoi => segPoi.Id).ToList(),
+                    LevelId = seg.LevelId,
+                    PathTypeIds = seg.SegmentTypes.Select(segType => segType.PathType).Select(pathType => pathType.Id).ToList()
                 })
-                .OrderBy(poi => poi.Id)
+                .OrderBy(seg => seg.Id)
                 .Take(1000)
                 .ToListAsync();
 
@@ -112,6 +111,8 @@ namespace Trail_Composer.Models.Services
         public async Task<IEnumerable<SegmentToApi>> GetFilteredUserSegmentListAsync(string userId, int[] countryIds, decimal minLatitude, decimal maxLatitude,
             decimal minLongitude, decimal maxLongitude)
         {
+            var segment = await _context.Segments.FindAsync(4);
+            
             var segmentList = await _context.Segments
                 .Include(segment => segment.SegmentTypes)
                 .Where(segment => (
@@ -129,11 +130,10 @@ namespace Trail_Composer.Models.Services
                     Name = seg.Name,
                     Username = seg.Tcuser.Name,
                     CountryId = seg.CountryId,
-                    Level = seg.LevelId,
-                    PathTypes = seg.SegmentTypes.Select(segType => segType.PathType).Select(pathType => pathType.Id).ToList(),
-                    PoiIds = seg.SegmentPois.Select(segPoi => segPoi.Id).ToList(),
+                    LevelId = seg.LevelId,
+                    PathTypeIds = seg.SegmentTypes.Select(segType => segType.PathType).Select(pathType => pathType.Id).ToList()
                 })
-                .OrderBy(poi => poi.Id)
+                .OrderBy(seg => seg.Id)
                 .Take(1000)
                 .ToListAsync();
 
@@ -158,8 +158,8 @@ namespace Trail_Composer.Models.Services
                     Name = mergedElem.seg.Name,
                     Username = mergedElem.seg.Tcuser.Name,
                     CountryId = mergedElem.seg.CountryId,
-                    Level = mergedElem.seg.LevelId,
-                    PathTypes = mergedElem.seg.SegmentTypes.Select(segType => segType.PathType).Select(pathType => pathType.Id).ToList(),
+                    LevelId = mergedElem.seg.LevelId,
+                    PathTypeIds = mergedElem.seg.SegmentTypes.Select(segType => segType.PathType).Select(pathType => pathType.Id).ToList(),
                     PoiIds = mergedElem.seg.SegmentPois.Select(segPoi => segPoi.Id).ToList(),
                 })
                 .ToListAsync();
@@ -186,7 +186,7 @@ namespace Trail_Composer.Models.Services
             try
             {
                 var country = await _context.Countries.FindAsync(segment.CountryId);
-                var level = await _context.PathLevels.FindAsync(segment.Level);
+                var level = await _context.PathLevels.FindAsync(segment.LevelId);
                 var tcuser = await _context.Tcusers.FindAsync(user.Id);
 
                 if (country == null ||  level == null)
@@ -224,7 +224,7 @@ namespace Trail_Composer.Models.Services
                 _context.Segments.Add(newSegment);
 
                 // adding Segment - Pathtype relations
-                foreach (var typeId in segment.PathTypes)
+                foreach (var typeId in segment.PathTypeIds)
                 {
                     var type = await _context.PathTypes.FindAsync(typeId);
                 
@@ -288,12 +288,12 @@ namespace Trail_Composer.Models.Services
                     .Include(s => s.SegmentPois)
                     .FirstOrDefaultAsync(s => s.Id == segId && s.TcuserId == userId);
                 var segApiCountry = await _context.Countries.FindAsync(segApi.CountryId);
-                var segApiLevel = await _context.PathLevels.FindAsync(segApi.Level);
+                var segApiLevel = await _context.PathLevels.FindAsync(segApi.LevelId);
 
                 if (segDb == null)
                 {
                     await transaction.RollbackAsync();
-                    Log.Error("EditSegmentAsync error: couldn't find poi;");
+                    Log.Error("EditSegmentAsync error: couldn't find segment;");
                     return false;
                 }
                 else if (segApiCountry == null)
@@ -319,14 +319,14 @@ namespace Trail_Composer.Models.Services
                 if (segApi.Gpx != null && segApi.Gpx.Length > 0)
                     segDb.GpxFile = GetFileContent(segApi.Gpx);
 
-                segDb.LevelId = segApi.Level;
+                segDb.LevelId = segApi.LevelId;
                 segDb.Level = segApiLevel;
 
                 segDb.CountryId = segApi.CountryId;
                 segDb.Country = segApiCountry;
 
                 _context.SegmentTypes.RemoveRange(segDb.SegmentTypes);
-                foreach (var segTypeApiId in segApi.PathTypes)
+                foreach (var segTypeApiId in segApi.PathTypeIds)
                 {
                     var segTypeApi = _context.PathTypes.Find(segTypeApiId);
                     if (segTypeApi == null)
@@ -400,6 +400,7 @@ namespace Trail_Composer.Models.Services
                     return false;
                 }
 
+                _context.SegmentTypes.RemoveRange(seg.SegmentTypes);
                 _context.SegmentPois.RemoveRange(seg.SegmentPois);
                 _context.TrailSegments.RemoveRange(seg.TrailSegments);
                 _context.Segments.Remove(seg);

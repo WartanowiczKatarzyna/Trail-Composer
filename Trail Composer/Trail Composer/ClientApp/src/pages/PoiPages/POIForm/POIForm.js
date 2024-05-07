@@ -1,4 +1,4 @@
-import { useState, useEffect, useContext, useRef } from 'react';
+import React, { useState, useEffect, useContext, useRef } from 'react';
 import { useNavigate, useParams } from 'react-router-dom';
 import { Button, Form, FormGroup, Label, Input, FormFeedback, Col, Row, Container, FormText } from 'reactstrap';
 import App, { AppContext } from '../../../App.js';
@@ -10,6 +10,8 @@ import { getAuthHeader } from '../../../utils/auth/getAuthHeader.js';
 import BackArrow from '../../../components/BackArrow/BackArrow.js';
 import { useTcStore } from "../../../store/TcStore";
 import PropTypes from 'prop-types';
+import SectionTitle from "../../../components/SectionTitle/SectionTitle";
+import SectionButtons from "../../../components/SectionButtons/SectionButtons";
 
 const PoiForm = ({editMode}) => {
   const appData = useContext(AppContext);
@@ -298,20 +300,14 @@ const PoiForm = ({editMode}) => {
       <Form id="POIForm" onSubmit={handleSubmit} encType="multipart/form-data">
         <Container>
           <Row className={styles.SectionTitle}>
-            <Col sm={1} className="d-flex justify-content-start" >
-              <BackArrow />
-            </Col>
-            <Col>
-              {editMode ? 'Edytowanie POI' : 'Tworzenie POI'}
-            </Col>
+            <SectionTitle>{editMode ? 'Edytowanie POI' : 'Tworzenie POI'}</SectionTitle>
           </Row>
-
           <Row>
             <Col sm={6}>
 
               <FormGroup row>
                 <Label for="POIname" sm={4} lg={3} className="text-end">Nazwa</Label>
-                <Col sm={8} lg={9} >
+                <Col sm={8} lg={9}>
                   <Input
                     name="Name"
                     id="POIname"
@@ -327,7 +323,7 @@ const PoiForm = ({editMode}) => {
 
               <FormGroup row>
                 <Label for="POIcountry" sm={4} lg={3} className="text-end">Kraj</Label>
-                <Col sm={8} lg={9} >
+                <Col sm={8} lg={9}>
                   <Input
                     name="CountryId"
                     id="POIcountry"
@@ -351,7 +347,7 @@ const PoiForm = ({editMode}) => {
 
               <FormGroup row>
                 <Label for="PoiTypes" sm={4} lg={3} className="text-end">Typ</Label>
-                <Col sm={8} lg={9} >
+                <Col sm={8} lg={9}>
                   {
                     !!appData &&
                     (<Multiselect
@@ -373,7 +369,7 @@ const PoiForm = ({editMode}) => {
 
               <FormGroup row>
                 <Label for="POIDescription" sm={4} lg={3} className="text-end">Opis</Label>
-                <Col sm={8} lg={9} >
+                <Col sm={8} lg={9}>
                   <Input
                     type="textarea"
                     name="Description"
@@ -393,7 +389,7 @@ const PoiForm = ({editMode}) => {
 
               <FormGroup row>
                 <Label for="POILatitude" sm={4} lg={3} className="text-end">Szerokość</Label>
-                <Col sm={8} lg={9} >
+                <Col sm={8} lg={9}>
                   <Input
                     name="Latitude"
                     type="number"
@@ -412,7 +408,7 @@ const PoiForm = ({editMode}) => {
 
               <FormGroup row>
                 <Label for="POILongitude" sm={4} lg={3} className="text-end">Długość</Label>
-                <Col sm={8} lg={9} >
+                <Col sm={8} lg={9}>
                   <Input
                     name="Longitude"
                     type="number"
@@ -443,7 +439,7 @@ const PoiForm = ({editMode}) => {
 
               <FormGroup row>
                 <Label for="POIPhoto" sm={4} lg={3} className="text-end">Zdjęcie</Label>
-                <Col sm={8} lg={9} >
+                <Col sm={8} lg={9}>
                   <Row>
                     <Col sm={11}>
                       <Input
@@ -458,14 +454,15 @@ const PoiForm = ({editMode}) => {
                       <FormFeedback>{formErrors.Photo}</FormFeedback>
                     </Col>
                     <Col sm={1}>
-                      {imagePreview && (<div className="mt-2 mt-lg-0"><i role="button" onClick={deletePhoto} className="bi bi-trash fs-4"></i></div>)}
+                      {imagePreview && (<div className="mt-2 mt-lg-0"><i role="button" onClick={deletePhoto}
+                                                                         className="bi bi-trash fs-4"></i></div>)}
                     </Col>
                   </Row>
                 </Col>
               </FormGroup>
 
               {
-                !!imagePreview && (<img src={imagePreview} alt="Preview" className={styles.Photo} />)
+                !!imagePreview && (<img src={imagePreview} alt="Preview" className={styles.Photo}/>)
               }
 
             </Col>
@@ -489,7 +486,7 @@ const PoiForm = ({editMode}) => {
 };
 
 PoiForm.propTypes = {
-  editMode : PropTypes.bool.isRequired
+  editMode: PropTypes.bool.isRequired
 };
 
 PoiForm.defaultProps = {};

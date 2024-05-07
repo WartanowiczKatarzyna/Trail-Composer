@@ -1,13 +1,11 @@
 export const createPathLevelSlice = (set) => ({
   pathLevels: [],
 
-  fetchPathLevels: async () => {
-    let mockPathLevels = [
-      {"id": 1, "level": "początkujący"},
-      {"id": 2, "level": "średni"},
-      {"id": 3, "level": "zaawansowany"}
-    ];
-
-    set({pathLevels: [...mockPathLevels]});
+  fetchPathLevels: () => {
+    fetch("tc-api/path-levels").then(response => response.json()).then(data => {
+      const pathLevelsTmp = [...data];
+      pathLevelsTmp.sort((plA, plB) => (plA.name > plB.name) ? -1 : 1);
+      set({pathLevels: pathLevelsTmp })
+    });
   },
 })

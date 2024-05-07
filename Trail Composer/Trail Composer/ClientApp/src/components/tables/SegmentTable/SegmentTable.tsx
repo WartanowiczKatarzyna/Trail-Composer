@@ -13,7 +13,7 @@ import { AppContext, AppContextValueType } from '../../../App';
 import { LocalTable } from '../LocalTable/LocalTable';
 import { ColumnVisibility } from '../LocalTable/ColumnVisibility';
 
-export  function TrailTable({
+export  function SegmentTable({
   data,
   onDelete,
   onEdit,
@@ -71,7 +71,7 @@ export  function TrailTable({
         footer: (props: { column: { id: any; }; }) => props.column.id,
       },
       {
-        accessorKey: 'segmentTypes',
+        accessorKey: 'pathTypes',
         cell: (info: { getValue: () => any; }) => info.getValue(),
         header: () => <span>Typ odcinka</span>,
         footer: (props: { column: { id: any; }; }) => props.column.id,

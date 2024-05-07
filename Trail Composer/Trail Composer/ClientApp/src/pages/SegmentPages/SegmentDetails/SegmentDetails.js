@@ -9,11 +9,12 @@ import { getAuthHeader } from '../../../utils/auth/getAuthHeader.js';
 import BackArrow from '../../../components/BackArrow/BackArrow.js';
 import {useTcStore} from "../../../store/TcStore";
 import TCMap from "../../../components/TCMap/TCMap";
+import SectionTitle from "../../../components/SectionTitle/SectionTitle";
+import SectionButtons from "../../../components/SectionButtons/SectionButtons";
 
 // artefact = segment
 
 const SegmentDetails = () => {
-  const appData = useContext(AppContext);
   const { instance: pca, accounts } = useMsal();
   const account = useAccount(accounts[0] || {});
 
@@ -30,6 +31,7 @@ const SegmentDetails = () => {
   const [username, setUsername] = useState('');
   const [distance, setDistance] = useState('');
   const [downloadGpxUrl, setDownloadGpxUrl] = useState('');
+  const CountryNamesMap = useTcStore(state => state.CountryNamesMap);
   const pathLevels = useTcStore((state) => state.pathLevels);
   const pathTypes = useTcStore((state) => state.pathTypes);
   //const refreshsegmentUserFiltered = useTcStore((state) => state.refreshsegmentUserFiltered);
@@ -59,23 +61,22 @@ const SegmentDetails = () => {
   }, [artefactId, spinnerON, spinnerOFF, navigate]);
 
   useEffect(() => {
-    if (artefact && appData) {
+    if (artefact && pathTypes.length && pathLevels.length && Array.from(CountryNamesMap).length) {
       setOwner({localAccountId: artefact.tcuserId});
 
-      const country = appData.Countries.find(c => c.id === artefact.countryId);
-      setCountryName(country.countryName);
+      setCountryName(CountryNamesMap?.get(artefact.countryId) || 'nieznany');
 
-      const levelObj = pathLevels.find(l => l.id === artefact.level);
+      const levelObj = pathLevels.find(l => l.id == artefact.levelId) || 'nieznany';
       setPathLevelName(levelObj.level);
 
-      let type = artefact.pathTypes.map(id => pathTypes.find(t => t.id === id).name);
-      setPathTypesNames(type.join(', '));
+      let type = artefact?.pathTypeIds?.map(id => pathTypes.find(t => t.id == id)?.name || 'nieznany');
+      setPathTypesNames(type?.join(', ') || 'nieznany');
 
       setUsername(artefact.username);
       setDescription(artefact.description);
       setArtefactName(artefact.name);
 
-      if( artefactId ) {
+      if( parseInt(artefactId) ) {
         setGpxPreview(`tc-api/segment/gpx/${artefactId}`);
         setDownloadGpxUrl(`tc-api/segment/download-gpx/${artefactId}`);
       } else {
@@ -83,8 +84,7 @@ const SegmentDetails = () => {
         setDownloadGpxUrl('');
       }
     }
-
-  }, [ artefact, artefactId, pathTypes, pathLevels, appData ]);
+  }, [ artefact, artefactId, pathTypes, pathLevels, CountryNamesMap ]);
 
   const deleteArtefact = async () => {
     const authorizationHeader = await getAuthHeader(pca, account);
@@ -132,17 +132,10 @@ const SegmentDetails = () => {
   return (
     <Container className={styles.DetailsContainer}>
       <Row className={styles.SectionTitle}>
-        <Col sm={1} className="d-flex justify-content-start">
-          <BackArrow/>
-        </Col>
-        <Col>{artefact ? artefactName : 'Ładuję...'}</Col>
-        {isOwner &&
-          (<Col sm={2} className="d-flex justify-content-end">
-            <div className="d-inline-block"><i role="button" onClick={toEdit} className="bi bi-pen fs-4 tc-activeIcon"></i>
-            </div>
-            <div className="d-inline-block ms-2"><i role="button" onClick={deleteArtefact}
-                                                    className="bi bi-trash fs-4 tc-activeIcon"></i></div>
-          </Col>)}
+        <div className="d-flex justify-content-between">
+          <SectionTitle>{artefact ? artefactName : 'Ładuję...'}</SectionTitle>
+          {isOwner && (<SectionButtons editHandler={toEdit} deleteHandler={deleteArtefact}/>)}
+        </div>
       </Row>
       <Row className='pt-2'>
         {artefact && (<Col sm={4}>

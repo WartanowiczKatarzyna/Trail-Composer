@@ -5,6 +5,7 @@ import { PoiTable } from '../tables/PoiTable/PoiTable';
 import { Badge } from 'reactstrap';
 import { flattenData } from '../tables/PoiTable/flattenData';
 import { AppContext } from '../../App';
+import { useTcStore } from "../../store/TcStore";
 
 /**
  * 
@@ -14,6 +15,8 @@ import { AppContext } from '../../App';
  */
 const PoiListPageComponent = ({url}) => {
   const appData = useContext(AppContext);
+  const spinnerON = useTcStore(state => state.spinnerON);
+  const spinnerOFF = useTcStore(state => state.spinnerOFF);
 
   const [data, setData] = useState([]);
   const showColumns = {
@@ -24,15 +27,18 @@ const PoiListPageComponent = ({url}) => {
   };
 
   const fetchData = () => {
+    spinnerON();
     fetch(url)
       .then(response => {
         if (response.status === 200)
           return response.json()
       })
       .then(responseData => { 
-        setData(flattenData(responseData, appData)); 
+        setData(flattenData(responseData, appData));
+        spinnerOFF();
       })
       .catch(error => {
+        spinnerOFF();
         console.log(error);
       });
   };

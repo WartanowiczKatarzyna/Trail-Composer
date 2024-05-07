@@ -12,6 +12,7 @@ import TcSpinner from '../../../components/TCSpinner/TCSpinner.js';
 import { AppContext } from '../../../App.js';
 import { getAuthHeader } from '../../../utils/auth/getAuthHeader.js';
 import {useTcStore} from "../../../store/TcStore";
+import SectionTitle from "../../../components/SectionTitle/SectionTitle";
 
 const UserPoiListPage = () => {
   const appData = useContext(AppContext);
@@ -86,8 +87,11 @@ const UserPoiListPage = () => {
   }, []);
   
   return (
-    data ? 
-      <PoiTable {...{data, onDelete, onEdit, onRowSelect, showColumns}} />
+    data ?
+      <>
+        <div className="ms-4"><SectionTitle>Moje POI</SectionTitle></div>
+        <PoiTable {...{data, onDelete, onEdit, onRowSelect, showColumns}} />
+      </>
       : <TcSpinner />
     );
 };

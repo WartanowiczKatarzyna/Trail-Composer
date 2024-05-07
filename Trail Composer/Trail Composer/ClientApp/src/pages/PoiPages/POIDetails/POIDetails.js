@@ -7,8 +7,9 @@ import styles from './POIDetails.module.css';
 
 import App, { AppContext } from '../../../App.js';
 import { getAuthHeader } from '../../../utils/auth/getAuthHeader.js';
-import BackArrow from '../../../components/BackArrow/BackArrow.js';
 import {useTcStore} from "../../../store/TcStore";
+import SectionTitle from "../../../components/SectionTitle/SectionTitle";
+import SectionButtons from "../../../components/SectionButtons/SectionButtons";
 
 const PoiDetails = () => {
   const appData = useContext(AppContext);
@@ -95,15 +96,10 @@ const PoiDetails = () => {
   return (
   <Container className={styles.PoiDetails}>
     <Row className={styles.SectionTitle}>
-      <Col sm={1} className="d-flex justify-content-start" >
-        <BackArrow />
-      </Col>
-      <Col>{poi ? poi.name : 'Ładuję...'}</Col>
-      {isOwner && 
-        (<Col sm={2} className="d-flex justify-content-end" >
-          <div className="d-inline-block"><i role="button" onClick={toEditPoi} className="bi bi-pen fs-4"></i></div>
-          <div className="d-inline-block ms-2"><i role="button" onClick={deletePoi} className="bi bi-trash fs-4"></i></div>
-        </Col>)}
+      <div className="d-flex justify-content-between">
+        <SectionTitle>{poi ? poi.name : 'Ładuję...'}</SectionTitle>
+        { isOwner && (<SectionButtons editHandler={toEditPoi} deleteHandler={deletePoi} />)}
+      </div>
     </Row>
     <Row className='pt-2'>
       {poi && (<Col sm={4}>

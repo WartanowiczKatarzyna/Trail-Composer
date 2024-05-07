@@ -1,12 +1,13 @@
 import HomePage from "./pages/HomePage/HomePage"
-import NotFoundPage from "./pages/errorPages/NotFoundPage/NotFoundPage";
+import SegmentForm from "./pages/SegmentPages/SegmentForm/SegmentForm";
+import SegmentDetails from "./pages/SegmentPages/SegmentDetails/SegmentDetails";
+import UserSegmentListPage from "./pages/SegmentPages/UserSegmentListPage/UserSegmentListPage";
 import POIForm from "./pages/PoiPages/POIForm/POIForm"
 import PoiDetails from "./pages/PoiPages/POIDetails/POIDetails";
 import UserPoiListPage from "./pages/PoiPages/UserPoiListPage/UserPoiListPage";
-import SegmentForm from "./pages/SegmentPages/SegmentForm/SegmentForm";
-import SegmentDetails from "./pages/SegmentPages/SegmentDetails/SegmentDetails";
 import SegmentPoiListPage from "./pages/PoiPages/SegmentPoiListPage/SegmentPoiListPage";
 import TrailPoiListPage from "./pages/PoiPages/TrailPoiListPage/TrailPoiListPage";
+import NotFoundPage from "./pages/errorPages/NotFoundPage/NotFoundPage";
 
 const AppRoutes = [
   {
@@ -22,16 +23,20 @@ const AppRoutes = [
     element: <SegmentForm editMode={true}/>
   },
   {
+    path: '/details-segment/:segmentId',
+    element: <SegmentDetails />
+  },
+  {
+    path: '/list-segment/user',
+    element: <UserSegmentListPage />
+  },
+  {
     path: '/add-POI',
     element: <POIForm editMode={false}/>
   },
   {
     path: '/edit-POI/:poiId',
     element: <POIForm editMode={true}/>
-  },
-  {
-    path: '/details-segment/:segmentId',
-    element: <SegmentDetails />
   },
   {
     path: '/details-POI/:poiId',

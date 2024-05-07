@@ -7,9 +7,9 @@
         public required string Name { get; set; }
         public string Username { get;set; }
         public int CountryId { get; set; }
-        public ICollection<int> PathTypes { get; set; } = new HashSet<int>();
+        public ICollection<int> PathTypeIds { get; set; } = new HashSet<int>();
 
-        public int Level { get; set; }
+        public int LevelId { get; set; }
         public string? Description { get; set; }
 
         public ICollection<int> PoiIds { get; set; } = new HashSet<int>();

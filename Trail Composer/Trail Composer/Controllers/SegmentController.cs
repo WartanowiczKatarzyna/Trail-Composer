@@ -94,7 +94,6 @@ namespace Trail_Composer.Controllers
         [HttpPost]
         [Consumes("multipart/form-data")]
         [RequestSizeLimit(10485760)] // Limiting to 10 MB (in bytes)
-        // Also adds photos to database
         public async Task<IActionResult> CreateSegment([FromForm] SegmentFromAPI segment)
         {
             Log.Debug("very begining of CreateSegment");
@@ -114,7 +113,6 @@ namespace Trail_Composer.Controllers
         [HttpPut("{segmentId:int}")]
         [Consumes("multipart/form-data")]
         [RequestSizeLimit(10485760)] // Limiting to 10 MB (in bytes)
-        // Also responsible for handling photos related to the poi
         public async Task<IActionResult> EditSegment([FromForm] SegmentFromAPI segment, int segmentId)
         {
             var userId = TCUserDTO.GetUserIdFromContext(this.HttpContext);

@@ -16,6 +16,7 @@ import { useTcStore } from '../../../store/TcStore.js';
 import BackArrow from '../../../components/BackArrow/BackArrow.js';
 import MapModal from "../../../modals/MapModal/MapModal";
 import PropTypes from 'prop-types';
+import SectionTitle from "../../../components/SectionTitle/SectionTitle";
 
 const SegmentForm = ({editMode}) => {
   const appData = useContext(AppContext);
@@ -92,10 +93,11 @@ const SegmentForm = ({editMode}) => {
 
           setSelectedCountry(fetchedSegment.countryId);
           setSegmentName(fetchedSegment.name);
-          setSelectedSegmentLevel(fetchedSegment.level);
+          setSelectedSegmentLevel(fetchedSegment.levelId);
+
 
           let fetchedPathTypes = pathTypes.filter(type => {
-            const foundType = fetchedSegment.pathTypes.find((fetchedType) => fetchedType === type.id);
+            const foundType = fetchedSegment.pathTypeIds.find((fetchedTypeId) => fetchedTypeId == type.id);
             return foundType;
           });
           setSelectedTypes(fetchedPathTypes);
@@ -118,8 +120,14 @@ const SegmentForm = ({editMode}) => {
 
           formData.current.set('Name', fetchedSegment.name);
           formData.current.set('CountryId', fetchedSegment.countryId);
-          formData.current.set('Level', fetchedSegment.level);
+          formData.current.set('LevelId', fetchedSegment.levelId);
           formData.current.set('Gpx', '');
+
+          formData.current.set('Length', fetchedSegment?.length);
+          formData.current.set('MaxLatitude', fetchedSegment?.maxLatitude);
+          formData.current.set('MaxLongitude', fetchedSegment?.maxLongitude);
+          formData.current.set('MinLatitude', fetchedSegment?.minLatitude);
+          formData.current.set('MinLongitude', fetchedSegment?.minLongitude);
           handlePathTypes(fetchedPathTypes);
 
           showFormData(formData.current, "starting editMode");
@@ -146,11 +154,11 @@ const SegmentForm = ({editMode}) => {
         break;
       case "CountryId":
         break;
-      case "PathTypes":
+      case "PathTypeIds":
         if (value.length < 1)
           return 'Wybierz co najmniej jedną opcję.';
         break;
-      case "Level":
+      case "LevelId":
         break;
       case "Gpx":
         console.info("File[0]", value);
@@ -209,7 +217,7 @@ const SegmentForm = ({editMode}) => {
       case "Name":
         setSegmentName(value);
         break;
-      case "Level":
+      case "LevelId":
         setSelectedSegmentLevel(value);
         break;
       case "Description":
@@ -311,7 +319,7 @@ const SegmentForm = ({editMode}) => {
 
   // Callback when PathTypes are selected or removed
   const handlePathTypes = (selectedList) => {
-    const name = "PathTypes";
+    const name = "PathTypeIds";
     setSelectedTypes(selectedList);
 
     formData.current.delete(name);
@@ -383,10 +391,22 @@ const SegmentForm = ({editMode}) => {
     toggleMapModal();
   };
 
-  const gpxValidated = (boudingBox, distance) => {
+  const gpxValidated = (boundingBox, distance) => {
     toggleSpinner();
-    console.info('boudingBox: ', boudingBox);
-    console.info("distance:", distance);
+    formData.current.set('Length', Math.round(distance)); // rounded to 1 meter
+    const { lat: maxLatitude, lng: maxLongitude } = boundingBox.getNorthEast();
+    const { lat: minLatitude, lng: minLongitude } = boundingBox.getSouthWest();
+    formData.current.set('MaxLatitude', maxLatitude.toFixed(6));
+    formData.current.set('MaxLongitude', maxLongitude.toFixed(6));
+    formData.current.set('MinLatitude', minLatitude.toFixed(6));
+    formData.current.set('MinLongitude', minLongitude.toFixed(6));
+
+    console.info('boudingBox: ', boundingBox);
+    console.info('maxLatitude: ', maxLatitude.toFixed(6));
+    console.info('maxLongitude: ', maxLongitude.toFixed(6));
+    console.info('minLatitude: ', minLatitude.toFixed(6));
+    console.info('minLongitude: ', minLongitude.toFixed(6));
+    console.info("distance rounded to meters [m]:", Math.round(distance));
   };
 
   return (
@@ -402,14 +422,8 @@ const SegmentForm = ({editMode}) => {
       <Form id="SegmentForm" onSubmit={handleSubmit} encType="multipart/form-data">
         <Container>
           <Row className={styles.SectionTitle}>
-            <Col sm={1} className="d-flex justify-content-start" >
-              <BackArrow />
-            </Col>
-            <Col>
-              {editMode ? 'Edytowanie odcinka' : 'Tworzenie odcinka'}
-            </Col>
+            <SectionTitle>{editMode ? 'Edytowanie odcinka' : 'Tworzenie odcinka'}</SectionTitle>
           </Row>
-
           <Row>
             <Col sm={12} xxl={6}>
 
@@ -467,11 +481,11 @@ const SegmentForm = ({editMode}) => {
                       displayValue="name"
                       showCheckbox
                       placeholder="wybierz"
-                      className={!!formErrors.PathTypes ? styles.MultiselectError : styles.Multiselect}
+                      className={!!formErrors.PathTypeIds ? styles.MultiselectError : styles.Multiselect}
                     />)
                   }
-                  <Input name="PathTypes" invalid={!!formErrors.PathTypes} className="d-none"></Input>
-                  <FormFeedback>{formErrors.PathTypes}</FormFeedback>
+                  <Input name="PathTypeIds" invalid={!!formErrors.PathTypeIds} className="d-none"></Input>
+                  <FormFeedback>{formErrors.PathTypeIds}</FormFeedback>
                 </Col>
               </FormGroup>
 
@@ -479,11 +493,11 @@ const SegmentForm = ({editMode}) => {
                 <Label for="PathLevel" sm={4} lg={3} className="text-end">Poziom trudności</Label>
                 <Col sm={8} lg={9} >
                   <Input
-                    name="Level"
-                    id="PathLevel"
+                    name="LevelId"
+                    id="LevelId"
                     type="select"
                     onChange={handleInputChange}
-                    invalid={!!formErrors.Level}
+                    invalid={!!formErrors.LevelId}
                     value={selectedSegmentLevel}
                   >
                     {
@@ -495,7 +509,7 @@ const SegmentForm = ({editMode}) => {
                         )) : null
                     }
                   </Input>
-                  <FormFeedback>{formErrors.Level}</FormFeedback>
+                  <FormFeedback>{formErrors.LevelId}</FormFeedback>
                 </Col>
               </FormGroup>
 

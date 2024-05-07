@@ -10,5 +10,6 @@ export interface SegmentRowData extends WithId {
   segmentTypeIds: number[]
   segmentTypes?: string
   subRows?: RowData[]
-  level: string
+  levelId: number
+  level?: string
 }

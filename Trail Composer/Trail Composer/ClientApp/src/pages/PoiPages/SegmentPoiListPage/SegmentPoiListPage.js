@@ -3,22 +3,27 @@ import { useParams } from 'react-router-dom';
 import PropTypes from 'prop-types';
 import styles from './SegmentPoiListPage.module.css';
 import PoiListPageComponent from '../../../components/PoiListPageComponent/PoiListPageComponent';
+import SectionTitle from "../../../components/SectionTitle/SectionTitle";
 
 const SegmentPoiListPage = () => {
-  const { segmentId } = useParams();
+  const {segmentId} = useParams();
   const [url, setUrl] = useState('');
 
   useEffect(() => {
     setUrl(`tc-api/poi/list/segment/${segmentId}`);
   }, []);
 
-  useEffect(()=>{
+  useEffect(() => {
     console.info('url: ', url);
   }, [url]);
 
   return (
-    <PoiListPageComponent {...{url}}/>
-  );
+    <>
+      <div className="ms-4"><SectionTitle>Lista POI odcinka</SectionTitle></div>
+      <PoiListPageComponent {...{url}}/>
+    </>
+  )
+    ;
 }
 
 SegmentPoiListPage.propTypes = {};
