@@ -17,6 +17,7 @@ import BackArrow from '../../../components/BackArrow/BackArrow.js';
 import MapModal from "../../../modals/MapModal/MapModal";
 import PropTypes from 'prop-types';
 import SectionTitle from "../../../components/SectionTitle/SectionTitle";
+import replaceDot from '../../../utils/auth/replaceDot.js';
 
 const SegmentForm = ({editMode}) => {
   const appData = useContext(AppContext);
@@ -398,10 +399,10 @@ const SegmentForm = ({editMode}) => {
     formData.current.set('Length', Math.round(distance)); // rounded to 1 meter
     const { lat: maxLatitude, lng: maxLongitude } = boundingBox.getNorthEast();
     const { lat: minLatitude, lng: minLongitude } = boundingBox.getSouthWest();
-    formData.current.set('MaxLatitude', maxLatitude.toFixed(6));
-    formData.current.set('MaxLongitude', maxLongitude.toFixed(6));
-    formData.current.set('MinLatitude', minLatitude.toFixed(6));
-    formData.current.set('MinLongitude', minLongitude.toFixed(6));
+    formData.current.set('MaxLatitude', replaceDot(maxLatitude.toFixed(6)));
+    formData.current.set('MaxLongitude', replaceDot(maxLongitude.toFixed(6)));
+    formData.current.set('MinLatitude', replaceDot(minLatitude.toFixed(6)));
+    formData.current.set('MinLongitude', replaceDot(minLongitude.toFixed(6)));
 
     console.info('boudingBox: ', boundingBox);
     console.info('maxLatitude: ', maxLatitude.toFixed(6));
@@ -470,12 +471,12 @@ const SegmentForm = ({editMode}) => {
               </FormGroup>
 
               <FormGroup row>
-                <Label for="PathTypes" sm={4} lg={3} className="text-end">Typ ścieżki</Label>
+                <Label for="PathTypeIds" sm={4} lg={3} className="text-end">Typ ścieżki</Label>
                 <Col sm={8} lg={9} >
                   {
                     !!appData &&
                     (<Multiselect
-                      id="PathTypes"
+                      id="PathTypeIds"
                       options={pathTypes}
                       selectedValues={selectedTypes}
                       onSelect={handlePathTypes}

@@ -12,6 +12,7 @@ import { useTcStore } from "../../../store/TcStore";
 import PropTypes from 'prop-types';
 import SectionTitle from "../../../components/SectionTitle/SectionTitle";
 import SectionButtons from "../../../components/SectionButtons/SectionButtons";
+import replaceDot from '../../../utils/auth/replaceDot.js';
 
 const PoiForm = ({editMode}) => {
   const appData = useContext(AppContext);
@@ -72,7 +73,7 @@ const PoiForm = ({editMode}) => {
           setImagePreview(fetchedPoi.photoId ? `tc-api/poi-photo/${fetchedPoi.photoId}` : null);
 
           let fetchedPoiTypes = appData.POITypes.filter(type => {
-            const foundType = fetchedPoi.poiTypeIds.find((fetchedType) => fetchedType === type.id);
+            const foundType = fetchedPoi.poiTypeIds.find((fetchedTypeId) => fetchedTypeId === type.id);
             return foundType;
           });
           setSelectedPOITypes(fetchedPoiTypes);
@@ -110,7 +111,7 @@ const PoiForm = ({editMode}) => {
         if (value.trim() === '')
           return emptyMsg;
         break;
-      case "PoiTypes":
+      case "PoiTypeIds":
         if (value.length < 1)
           return 'Wybierz co najmniej jedną opcję.';
         break;
@@ -179,10 +180,18 @@ const PoiForm = ({editMode}) => {
         break;
       case "Latitude":
         setPoiLatitude(value);
-        break;
+        
+        const errLat = validateInput(name, value);
+        formData.current.set(name, replaceDot(value));
+        setFormErrors(formErrors => ({ ...formErrors, [name]: errLat }));
+        return;
       case "Longitude":
         setPoiLongitude(value);
-        break;
+      
+        const errLong = validateInput(name, value);
+        formData.current.set(name, replaceDot(value));
+        setFormErrors(formErrors => ({ ...formErrors, [name]: errLong }));
+        return;
     }
 
     const errors = validateInput(name, value);
@@ -262,7 +271,7 @@ const PoiForm = ({editMode}) => {
 
   // Callback when POITypes are selected or removed
   const handlePoiTypes = (selectedList) => {
-    const name = "PoiTypes";
+    const name = "PoiTypeIds";
     setSelectedPOITypes(selectedList);
 
     formData.current.delete(name);
@@ -346,12 +355,12 @@ const PoiForm = ({editMode}) => {
               </FormGroup>
 
               <FormGroup row>
-                <Label for="PoiTypes" sm={4} lg={3} className="text-end">Typ</Label>
+                <Label for="PoiTypeIds" sm={4} lg={3} className="text-end">Typ</Label>
                 <Col sm={8} lg={9}>
                   {
                     !!appData &&
                     (<Multiselect
-                      id="PoiTypes"
+                      id="PoiTypeIds"
                       options={appData.POITypes}
                       selectedValues={selectedPOITypes}
                       onSelect={handlePoiTypes}
@@ -359,11 +368,11 @@ const PoiForm = ({editMode}) => {
                       displayValue="name"
                       showCheckbox
                       placeholder="wybierz"
-                      className={!!formErrors.PoiTypes ? styles.MultiselectError : styles.Multiselect}
+                      className={!!formErrors.PoiTypeIds ? styles.MultiselectError : styles.Multiselect}
                     />)
                   }
-                  <Input name="PoiTypes" invalid={!!formErrors.PoiTypes} className="d-none"></Input>
-                  <FormFeedback>{formErrors.PoiTypes}</FormFeedback>
+                  <Input name="PoiTypeIds" invalid={!!formErrors.PoiTypeIds} className="d-none"></Input>
+                  <FormFeedback>{formErrors.PoiTypeIds}</FormFeedback>
                 </Col>
               </FormGroup>
 
