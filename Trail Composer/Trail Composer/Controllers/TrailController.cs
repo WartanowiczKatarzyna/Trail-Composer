@@ -52,7 +52,16 @@ namespace Trail_Composer.Controllers
         [RequestSizeLimit(10485760)] // Limiting to 10 MB (in bytes)
         public async Task<IActionResult> CreateTrail([FromForm] TrailFromApi trail)
         {
-            throw new NotImplementedException();
+            var user = TCUserDTO.GetUserFromContext(this.HttpContext);
+            if (user == null)
+                return StatusCode(401, "Authenticated but not authorized");
+
+            var newTrailId = await _trailService.AddTrailAsync(trail, user);
+
+            if (newTrailId > -1)
+                return new CreatedResult($"/tc-api/segment/{newTrailId}", newTrailId);
+
+            return StatusCode(500, "Couldn't add segment");
         }
 
         [Authorize]

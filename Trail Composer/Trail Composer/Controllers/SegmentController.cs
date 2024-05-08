@@ -104,9 +104,9 @@ namespace Trail_Composer.Controllers
             var newSegmentId = await _segmentService.AddSegmentAsync(segment, user);
 
             if (newSegmentId > -1)
-                return new CreatedResult($"/tc-api/poi/{newSegmentId}", newSegmentId);
+                return new CreatedResult($"/tc-api/segment/{newSegmentId}", newSegmentId);
 
-            return StatusCode(500, "Couldn't add POI");
+            return StatusCode(500, "Couldn't add segment");
         }
 
         [Authorize]

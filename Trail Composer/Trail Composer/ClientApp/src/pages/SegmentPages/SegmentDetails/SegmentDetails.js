@@ -67,7 +67,7 @@ const SegmentDetails = () => {
       setCountryName(CountryNamesMap?.get(artefact.countryId) || 'nieznany');
 
       const levelObj = pathLevels.find(l => l.id == artefact.levelId) || 'nieznany';
-      setPathLevelName(levelObj.level);
+      setPathLevelName(levelObj.name);
 
       let type = artefact?.pathTypeIds?.map(id => pathTypes.find(t => t.id == id)?.name || 'nieznany');
       setPathTypesNames(type?.join(', ') || 'nieznany');

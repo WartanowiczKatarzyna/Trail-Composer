@@ -123,7 +123,9 @@ const SegmentForm = ({editMode}) => {
           formData.current.set('LevelId', fetchedSegment.levelId);
           formData.current.set('Gpx', '');
 
-          formData.current.set('Length', fetchedSegment?.length);
+          const lengthNum = parseFloat(fetchedSegment?.length);
+          const lengthNumRounded = Number.isNaN(lengthNum) ? 0 : Math.round(lengthNum);
+          formData.current.set('Length', lengthNumRounded.toString());
           formData.current.set('MaxLatitude', fetchedSegment?.maxLatitude);
           formData.current.set('MaxLongitude', fetchedSegment?.maxLongitude);
           formData.current.set('MinLatitude', fetchedSegment?.minLatitude);
@@ -504,7 +506,7 @@ const SegmentForm = ({editMode}) => {
                       pathLevels ?
                         pathLevels.map((option) => (
                           <option key={option.id} value={option.id}>
-                            {option.level}
+                            {option.name}
                           </option>
                         )) : null
                     }
