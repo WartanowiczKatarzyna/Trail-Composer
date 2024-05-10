@@ -31,6 +31,86 @@ namespace Trail_Composer.Models.Services
 
             return trail;
         }
+        public async Task<IEnumerable<TrailToApi>> GetUserTrailListAsync(string userId)
+        {
+            var trailList = await _context.Trails
+                .Include(trail => trail.TrailSegments)
+                .Where(trail => trail.TcuserId == userId)
+                .Select(trail => new TrailToApi
+                {
+                    Id = trail.Id,
+                    TcuserId = trail.TcuserId,
+                    Name = trail.Name,
+                    Username = trail.Tcuser.Name,
+                    LevelId = trail.LevelId,
+                    CountryIds = trail.TrailCountries.Select(country => country.Id).ToList(),
+                    PathTypeIds = trail.TrailTypes.Select(trailType => trailType.PathType).Select(pathType => pathType.Id).ToList(),
+                    SegmentIds = trail.TrailSegments.Select(trailSeg => trailSeg.Id).ToList(),
+                })
+                .ToListAsync();
+
+            return trailList;
+        }
+        public async Task<IEnumerable<TrailToApi>> GetFilteredTrailListAsync(string userId, int[] countryIds, decimal minLatitude, decimal maxLatitude,
+           decimal minLongitude, decimal maxLongitude)
+        {
+            var trailList = await _context.Trails
+                .Include(trail => trail.TrailTypes)
+                .Where(trail => (
+                                trail.TcuserId != userId &&
+                                (trail.TrailCountries.Select(trailCountry => trailCountry.CountryId).ToList().Intersect(countryIds).Any() || 
+                                (countryIds.Length == 0)) &&
+                                (trail.MinLatitude > minLatitude) &&
+                                (trail.MaxLatitude < maxLatitude) &&
+                                (trail.MinLongitude > minLongitude) &&
+                                (trail.MaxLongitude < maxLongitude)
+                            ))
+                .Select(trail => new TrailToApi
+                {
+                    Id = trail.Id,
+                    TcuserId = trail.TcuserId,
+                    Name = trail.Name,
+                    Username = trail.Tcuser.Name,
+                    LevelId = trail.LevelId,
+                    CountryIds = trail.TrailCountries.Select(country => country.Id).ToList(),
+                    PathTypeIds = trail.TrailTypes.Select(trailType => trailType.PathType).Select(pathType => pathType.Id).ToList()
+                })
+                .OrderBy(trail => trail.Id)
+                .Take(1000)
+                .ToListAsync();
+
+            return trailList;
+        }
+        public async Task<IEnumerable<SegmentToApi>> GetFilteredUserTrailListAsync(string userId, int[] countryIds, decimal minLatitude, decimal maxLatitude,
+            decimal minLongitude, decimal maxLongitude)
+        {
+            var trailList = await _context.Trails
+                .Include(trail => trail.TrailTypes)
+                .Where(trail => (
+                                trail.TcuserId == userId &&
+                                (trail.TrailCountries.Select(trailCountry => trailCountry.CountryId).ToList().Intersect(countryIds).Any() ||
+                                (countryIds.Length == 0)) &&
+                                (trail.MinLatitude > minLatitude) &&
+                                (trail.MaxLatitude < maxLatitude) &&
+                                (trail.MinLongitude > minLongitude) &&
+                                (trail.MaxLongitude < maxLongitude)
+                            ))
+                .Select(trail => new TrailToApi
+                {
+                    Id = trail.Id,
+                    TcuserId = trail.TcuserId,
+                    Name = trail.Name,
+                    Username = trail.Tcuser.Name,
+                    LevelId = trail.LevelId,
+                    CountryIds = trail.TrailCountries.Select(country => country.Id).ToList(),
+                    PathTypeIds = trail.TrailTypes.Select(trailType => trailType.PathType).Select(pathType => pathType.Id).ToList()
+                })
+                .OrderBy(trail => trail.Id)
+                .Take(1000)
+                .ToListAsync();
+
+            return trailList;
+        }
         public async Task<int> AddTrailAsync(TrailFromApi trail, TCUserDTO user)
         {
             if (trail.CountryIds.Count < 1 || trail.PathTypeIds.Count < 1)

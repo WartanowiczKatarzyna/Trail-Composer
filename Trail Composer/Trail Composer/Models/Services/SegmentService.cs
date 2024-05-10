@@ -110,9 +110,7 @@ namespace Trail_Composer.Models.Services
         }
         public async Task<IEnumerable<SegmentToApi>> GetFilteredUserSegmentListAsync(string userId, int[] countryIds, decimal minLatitude, decimal maxLatitude,
             decimal minLongitude, decimal maxLongitude)
-        {
-            var segment = await _context.Segments.FindAsync(4);
-            
+        {            
             var segmentList = await _context.Segments
                 .Include(segment => segment.SegmentTypes)
                 .Where(segment => (
