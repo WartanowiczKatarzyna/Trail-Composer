@@ -20,7 +20,12 @@ namespace Trail_Composer.Controllers
         [HttpGet("{trailId:int}")]
         public async Task<ActionResult<TrailToApi>> GetTrail(int trailId)
         {
-            throw new NotImplementedException();
+            var trail = await _trailService.GetTrailByIdAsync(trailId);
+
+            if (trail == null)
+                return NotFound();
+
+            return Ok(trail);
         }
 
         [Authorize]

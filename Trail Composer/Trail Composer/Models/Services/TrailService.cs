@@ -1,4 +1,5 @@
-﻿using NetTopologySuite.Triangulate;
+﻿using Microsoft.EntityFrameworkCore;
+using NetTopologySuite.Triangulate;
 using Trail_Composer.Data;
 using Trail_Composer.Models.DTOs;
 using Trail_Composer.Models.Generated;
@@ -9,6 +10,27 @@ namespace Trail_Composer.Models.Services
     {
         private readonly TrailComposerDbContext _context;
 
+        public async Task<TrailToApi> GetTrailByIdAsync(int id)
+        {
+            var trail = await _context.Trails
+                .Include(trail => trail.TrailSegments)
+                .Select(trail => new TrailToApi
+                {
+                    Id = trail.Id,
+                    TcuserId = trail.TcuserId,
+                    Name = trail.Name,
+                    Username = trail.Tcuser.Name,
+                    Description = trail.Description,
+                    LevelId = trail.LevelId,
+                    CountryIds = trail.TrailCountries.Select(country => country.Id).ToList(),
+                    PathTypeIds = trail.TrailTypes.Select(trailType => trailType.PathType).Select(pathType => pathType.Id).ToList(),
+                    SegmentIds = trail.TrailSegments.Select(trailSeg => trailSeg.Id).ToList(),
+                })
+                .Where(trail => trail.Id == id)
+                .SingleOrDefaultAsync();
+
+            return trail;
+        }
         public async Task<int> AddTrailAsync(TrailFromApi trail, TCUserDTO user)
         {
             if (trail.CountryIds.Count < 1 || trail.PathTypeIds.Count < 1)
