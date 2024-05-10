@@ -7,7 +7,6 @@ import { useMsal, useAccount, useMsalAuthentication, AuthenticatedTemplate } fro
 import { InteractionType } from '@azure/msal-browser';
 import styles from './POIForm.module.css';
 import { getAuthHeader } from '../../../utils/auth/getAuthHeader.js';
-import BackArrow from '../../../components/BackArrow/BackArrow.js';
 import { useTcStore } from "../../../store/TcStore";
 import PropTypes from 'prop-types';
 import SectionTitle from "../../../components/SectionTitle/SectionTitle";

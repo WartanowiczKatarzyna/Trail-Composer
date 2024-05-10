@@ -1,0 +1,42 @@
+.SearchContainer,
+.ContentContainer {
+    padding-top: 0;
+    margin: 0;
+}
+
+.ModalBody {
+    background-color: var(--neutral-grey);
+}
+
+.ContentContainer, .ModalHeader, .TabContent {
+    background-color: var(--background-color);
+}
+
+.TabNavLink {
+    --bs-nav-tabs-link-active-bg: var(--background-color);
+    --bs-nav-link-color: var(--background-color);
+    --bs-nav-tabs-link-active-border-color: var(--background-color);
+    --bs-nav-link-hover-color: var(--background-color);
+}
+
+.TableContainer {
+    @media (min-width: 768px) {
+        padding-left: 11px ;
+    }
+}
+
+.Badge {
+    margin-left: 3rem;
+}
+
+@media (max-width: 767px) {
+    .ContentContainer {
+        padding-top: 0;
+    }
+}
+
+@media (min-width: 768px) {
+    .ContentContainer {
+
+    }
+}

@@ -4,9 +4,7 @@ import { Button, Col, Row, Container } from 'reactstrap';
 import { useMsal, useAccount, useIsAuthenticated } from "@azure/msal-react";
 import styles from './SegmentDetails.module.css';
 
-import { AppContext } from '../../../App.js';
 import { getAuthHeader } from '../../../utils/auth/getAuthHeader.js';
-import BackArrow from '../../../components/BackArrow/BackArrow.js';
 import {useTcStore} from "../../../store/TcStore";
 import TCMap from "../../../components/TCMap/TCMap";
 import SectionTitle from "../../../components/SectionTitle/SectionTitle";

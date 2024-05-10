@@ -1,7 +1,9 @@
 import HomePage from "./pages/HomePage/HomePage"
+import TrailForm from "./pages/TrailPages/TrailForm/TrailForm";
 import SegmentForm from "./pages/SegmentPages/SegmentForm/SegmentForm";
 import SegmentDetails from "./pages/SegmentPages/SegmentDetails/SegmentDetails";
 import UserSegmentListPage from "./pages/SegmentPages/UserSegmentListPage/UserSegmentListPage";
+import TrailSegmentListPage from "./pages/SegmentPages/TrailSegmentListPage/TrailSegmentListPage";
 import POIForm from "./pages/PoiPages/POIForm/POIForm"
 import PoiDetails from "./pages/PoiPages/POIDetails/POIDetails";
 import UserPoiListPage from "./pages/PoiPages/UserPoiListPage/UserPoiListPage";
@@ -13,6 +15,14 @@ const AppRoutes = [
   {
     index: true,
     element: <HomePage />
+  },
+  {
+    path: '/add-trail',
+    element: <TrailForm editMode={false}/>
+  },
+  {
+    path: '/edit-trail/:trail',
+    element: <TrailForm editMode={true}/>
   },
   {
     path: '/add-segment',
@@ -29,6 +39,10 @@ const AppRoutes = [
   {
     path: '/list-segment/user',
     element: <UserSegmentListPage />
+  },
+  {
+    path: '/list-segment/trail/:trailId',
+    element: <TrailSegmentListPage />
   },
   {
     path: '/add-POI',

@@ -5,8 +5,8 @@ import App, { AppContext } from '../../../App.js';
 import Multiselect from 'multiselect-react-dropdown';
 import { useMsal, useAccount, useMsalAuthentication, AuthenticatedTemplate } from "@azure/msal-react";
 import { InteractionType } from '@azure/msal-browser';
-import styles from './SegmentForm.module.css';
-import PoiModal from '../../../modals/PoiModal/PoiModal'
+import styles from './TrailForm.module.css';
+import SegmentModal from '../../../modals/SegmentModal/SegmentModal' //RWW SegmentModal new
 import { getAuthHeader } from '../../../utils/auth/getAuthHeader.js';
 import { PoiTable } from '../../../components/tables/PoiTable/PoiTable.tsx';
 import { moveUp, moveDown, addRow, deleteRow } from '../../../components/tables/rowActions.js';
@@ -18,7 +18,7 @@ import PropTypes from 'prop-types';
 import SectionTitle from "../../../components/SectionTitle/SectionTitle";
 import replaceDot from '../../../utils/auth/replaceDot.js';
 
-const SegmentForm = ({editMode}) => {
+const TrailForm = ({editMode}) => {
   const appData = useContext(AppContext);
   const { result, error } = useMsalAuthentication(InteractionType.Redirect, { scopes: ['openid', 'offline_access'] });
   const { instance: pca, accounts } = useMsal();
@@ -80,7 +80,7 @@ const SegmentForm = ({editMode}) => {
   useEffect(() => {
     setLocalSegmentId(segmentId);
 
-    const form = document.getElementById("SegmentForm");
+    const form = document.getElementById("TrailForm");
     formData.current = new FormData(form);
     formData.current.set("CountryId", selectedCountry);
 
@@ -412,8 +412,8 @@ const SegmentForm = ({editMode}) => {
   };
 
   return (
-    <div className={styles.SegmentForm}>
-      <PoiModal isOpen={poiModal} toggle={togglePoiModal} onRowSelect={onRowSelect} />
+    <div className={styles.TrailForm}>
+      <SegmentModal isOpen={poiModal} toggle={togglePoiModal} onRowSelect={onRowSelect} /> //RWW SegmentModal new
       <MapModal
         isOpen={mapModal}
         toggle={toggleMapModal}
@@ -421,10 +421,10 @@ const SegmentForm = ({editMode}) => {
         type={gpxType}
         {...{ gpxNotValidated, gpxValidated }}
       />
-      <Form id="SegmentForm" onSubmit={handleSubmit} encType="multipart/form-data">
+      <Form id="TrailForm" onSubmit={handleSubmit} encType="multipart/form-data">
         <Container>
           <Row className={styles.SectionTitle}>
-            <SectionTitle>{editMode ? 'Edytowanie odcinka' : 'Tworzenie odcinka'}</SectionTitle>
+            <SectionTitle>{editMode ? 'Edytowanie trasy' : 'Tworzenie trasy'}</SectionTitle>
           </Row>
           <Row>
             <Col sm={12} xxl={6}>
@@ -572,7 +572,7 @@ const SegmentForm = ({editMode}) => {
             <Col sm={12} xxl={6} className='d-flex flex-column align-items-sm-start'>
               <div>
                 <Button onClick={togglePoiModal} className={styles.PoiModalButton}>
-                  Dodaj POI
+                  Dodaj odcinek
                 </Button>
               </div>
               <PoiTable {...{ data, showColumns, onMoveDown, onMoveUp, onDelete }} />
@@ -595,10 +595,10 @@ const SegmentForm = ({editMode}) => {
   );
 };
 
-SegmentForm.propTypes = {
+TrailForm.propTypes = {
   editMode : PropTypes.bool.isRequired
 };
 
-SegmentForm.defaultProps = {};
+TrailForm.defaultProps = {};
 
-export default SegmentForm;
+export default TrailForm;
