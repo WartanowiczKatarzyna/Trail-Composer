@@ -81,14 +81,27 @@ namespace Trail_Composer.Controllers
         [RequestSizeLimit(10485760)] // Limiting to 10 MB (in bytes)
         public async Task<IActionResult> EditTrail([FromForm] TrailFromApi trail, int trailId)
         {
-            throw new NotImplementedException();
+            var userId = TCUserDTO.GetUserIdFromContext(this.HttpContext);
+            //var userId = "703645aa-f169-4aa8-9fc9-e3dbb01960d9";
+
+            var result = await _trailService.EditTrailAsync(trailId, trail, userId);
+
+            if (!result)
+                return StatusCode(400, "Error when editing segment");
+            return Ok(result);
         }
 
         [Authorize]
         [HttpDelete("{trailId:int}")]
         public async Task<IActionResult> DeleteTrail(int trailId)
         {
-            throw new NotImplementedException();
+            var userId = TCUserDTO.GetUserIdFromContext(this.HttpContext);
+            bool deletedSuccess = await _trailService.DeleteTrailAsync(trailId, userId);
+
+            if (deletedSuccess)
+                return Ok();
+
+            return NotFound();
         }
     }
 }
