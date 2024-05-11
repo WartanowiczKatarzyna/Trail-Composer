@@ -8,7 +8,7 @@ import styles from './SegmentModal.module.css';
 import { AppContext } from '../../App.js';
 
 import GeoSearch from '../../components/GeoSearch/GeoSearch.js';
-import { PoiTable } from '../../components/tables/PoiTable/PoiTable.tsx';
+import { SegmentTable } from '../../components/tables/SegmentTable/SegmentTable.tsx';
 import TcSpinner from '../../components/TCSpinner/TCSpinner.js';
 import { useTcStore } from '../../store/TcStore.js';
 
@@ -26,37 +26,37 @@ const SegmentModal = ({ isOpen, toggle, onRowSelect }) => {
     'actions': false
   };
 
-// needed for 'user' tab: contains list of poi created by the current user
-  const userData = useTcStore((state) => state.poiUserFiltered);
-  const userSelectedCountries = useTcStore((state) => state.poiUserFilteredSelectedCountries);
-  const userMinLatitude = useTcStore((state) => state.poiUserFilteredMinLatitude);
-  const userMaxLatitude = useTcStore((state) => state.poiUserFilteredMaxLatitude);
-  const userMinLongitude = useTcStore((state) => state.poiUserFilteredMinLongitude);
-  const userMaxLongitude = useTcStore((state) => state.poiUserFilteredMaxLongitude);
-  const afterUserSearch = useTcStore((state) => state.poiUserAfterSearch);
-  const [newUserPoiListFlag, setNewUserPoiListFlag] = useState(false);
+// needed for 'user' tab: contains list of Segments created by the current user
+  const userData = useTcStore((state) => state.SegmentUserFiltered);
+  const userSelectedCountries = useTcStore((state) => state.SegmentUserFilteredSelectedCountries);
+  const userMinLatitude = useTcStore((state) => state.SegmentUserFilteredMinLatitude);
+  const userMaxLatitude = useTcStore((state) => state.SegmentUserFilteredMaxLatitude);
+  const userMinLongitude = useTcStore((state) => state.SegmentUserFilteredMinLongitude);
+  const userMaxLongitude = useTcStore((state) => state.SegmentUserFilteredMaxLongitude);
+  const afterUserSearch = useTcStore((state) => state.SegmentUserAfterSearch);
+  const [newUserSegmentListFlag, setNewUserSegmentListFlag] = useState(false);
   const [userTooManyResultsMsg, setUserTooManyResultsMsg] = useState('');
 
-  const fetchUserData = useTcStore((state) => state.fetchPoiUserFiltered);
+  const fetchUserData = useTcStore((state) => state.fetchSegmentUserFiltered);
 
-  // needed for 'other' tab: contains list of poi other than the ones created by the current user
-  const otherData = useTcStore((state) => state.poiOtherFiltered);
-  const otherSelectedCountries = useTcStore((state) => state.poiOtherFilteredSelectedCountries);
-  const otherMinLatitude = useTcStore((state) => state.poiOtherFilteredMinLatitude);
-  const otherMaxLatitude = useTcStore((state) => state.poiOtherFilteredMaxLatitude);
-  const otherMinLongitude = useTcStore((state) => state.poiOtherFilteredMinLongitude);
-  const otherMaxLongitude = useTcStore((state) => state.poiOtherFilteredMaxLongitude);
-  const afterOtherSearch = useTcStore((state) => state.poiOtherAfterSearch);
-  const [newOtherPoiListFlag, setNewOtherPoiListFlag] = useState(false);
+  // needed for 'other' tab: contains list of Segments other than the ones created by the current user
+  const otherData = useTcStore((state) => state.SegmentOtherFiltered);
+  const otherSelectedCountries = useTcStore((state) => state.SegmentOtherFilteredSelectedCountries);
+  const otherMinLatitude = useTcStore((state) => state.SegmentOtherFilteredMinLatitude);
+  const otherMaxLatitude = useTcStore((state) => state.SegmentOtherFilteredMaxLatitude);
+  const otherMinLongitude = useTcStore((state) => state.SegmentOtherFilteredMinLongitude);
+  const otherMaxLongitude = useTcStore((state) => state.SegmentOtherFilteredMaxLongitude);
+  const afterOtherSearch = useTcStore((state) => state.SegmentOtherAfterSearch);
+  const [newOtherSegmentListFlag, setNewOtherSegmentListFlag] = useState(false);
   const [otherTooManyResultsMsg, setOtherTooManyResultsMsg] = useState('');
 
-  const fetchOtherData = useTcStore((state) => state.fetchPoiOtherFiltered);
+  const fetchOtherData = useTcStore((state) => state.fetchSegmentOtherFiltered);
   /**
    * change flag used to inform geoSearch that there's new userData
    * and check if they need to be informed about reaching search limit
    */
   useEffect(() => {
-    setNewUserPoiListFlag((s) => !s);
+    setNewUserSegmentListFlag((s) => !s);
     if (userData.length < 1000) {
       setUserTooManyResultsMsg('');
     } else {
@@ -70,7 +70,7 @@ const SegmentModal = ({ isOpen, toggle, onRowSelect }) => {
    * and check if they need to be informed about reaching search limit
    */
   useEffect(() => {
-    setNewOtherPoiListFlag((s) => !s);
+    setNewOtherSegmentListFlag((s) => !s);
     if (userData.length < 1000) {
       setOtherTooManyResultsMsg('');
     } else {
@@ -88,27 +88,27 @@ const SegmentModal = ({ isOpen, toggle, onRowSelect }) => {
   };
 
   /**
-   * function passed to GeoSearch used to get the desired pois created by the current user
+   * function passed to GeoSearch used to get the desired Segments created by the current user
    * @param {*} selectedCountries 
    * @param {*} minLatitude 
    * @param {*} maxLatitude 
    * @param {*} minLongitude 
    * @param {*} maxLongitude 
    */
-  const searchUserPoi = (selectedCountries, minLatitude, maxLatitude, minLongitude, maxLongitude) => {
+  const searchUserSegment = (selectedCountries, minLatitude, maxLatitude, minLongitude, maxLongitude) => {
     setShowTcSpinner(true);
     fetchUserData(selectedCountries, minLatitude, maxLatitude, minLongitude, maxLongitude, pca, account, appData);
   };
 
   /**
-   * function passed to GeoSearch used to get the desired pois not created by the current user
+   * function passed to GeoSearch used to get the desired Segments not created by the current user
    * @param {*} selectedCountries 
    * @param {*} minLatitude 
    * @param {*} maxLatitude 
    * @param {*} minLongitude 
    * @param {*} maxLongitude 
    */
-  const searchOtherPoi = (selectedCountries, minLatitude, maxLatitude, minLongitude, maxLongitude) => {
+  const searchOtherSegment = (selectedCountries, minLatitude, maxLatitude, minLongitude, maxLongitude) => {
     setShowTcSpinner(true);
     fetchOtherData(selectedCountries, minLatitude, maxLatitude, minLongitude, maxLongitude, pca, account, appData);
   };
@@ -148,16 +148,16 @@ const SegmentModal = ({ isOpen, toggle, onRowSelect }) => {
                       maxLatitude={userMaxLatitude} 
                       minLongitude={userMinLongitude} 
                       maxLongitude={userMaxLongitude} 
-                      newDataFlag={newUserPoiListFlag} 
+                      newDataFlag={newUserSegmentListFlag}
                       tooManyResultsMsg={userTooManyResultsMsg}
-                      search={searchUserPoi}
+                      search={searchUserSegment}
                       afterSearch={afterUserSearch}
                     />
                   </Col>
                   <Col md="9" xl="10" fluid>
                     <div className={styles.TableContainer}>
                       { userData.length > 0 ?
-                        <PoiTable {...{onRowSelect, showColumns}} data={userData}/> :
+                        <SegmentTable {...{onRowSelect, showColumns}} data={userData}/> :
                         <Badge className={styles.Badge}>Brak danych</Badge>
                       }
                     </div>
@@ -175,16 +175,16 @@ const SegmentModal = ({ isOpen, toggle, onRowSelect }) => {
                       maxLatitude={otherMaxLatitude} 
                       minLongitude={otherMinLongitude} 
                       maxLongitude={otherMaxLongitude} 
-                      newDataFlag={newOtherPoiListFlag} 
+                      newDataFlag={newOtherSegmentListFlag}
                       tooManyResultsMsg={otherTooManyResultsMsg}
-                      search={searchOtherPoi}
+                      search={searchOtherSegment}
                       afterSearch={afterOtherSearch}
                     />
                   </Col>
                   <Col md="9" xl="10" fluid>
                     <div className={styles.TableContainer}>
                       {otherData.length > 0 ?
-                        <PoiTable {...{onRowSelect, showColumns}} data={otherData}/> :
+                        <SegmentTable {...{onRowSelect, showColumns}} data={otherData}/> :
                         <Badge className={styles.Badge}>Brak danych</Badge>
                       }
                     </div>

@@ -10,5 +10,6 @@ export interface TrailRowData extends WithId {
   trailTypeIds: number[]
   trailTypes?: string
   subRows?: RowData[]
-  level: string
+  levelId: number
+  level?: string
 }

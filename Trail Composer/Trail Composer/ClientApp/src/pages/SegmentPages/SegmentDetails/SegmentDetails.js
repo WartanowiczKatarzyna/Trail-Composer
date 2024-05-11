@@ -32,7 +32,7 @@ const SegmentDetails = () => {
   const CountryNamesMap = useTcStore(state => state.CountryNamesMap);
   const pathLevels = useTcStore((state) => state.pathLevels);
   const pathTypes = useTcStore((state) => state.pathTypes);
-  //const refreshsegmentUserFiltered = useTcStore((state) => state.refreshsegmentUserFiltered);
+  const refreshSegmentUserFiltered = useTcStore((state) => state.refreshSegmentUserFiltered);
   const spinnerON = useTcStore((state) => state.spinnerON);
   const spinnerOFF = useTcStore((state) => state.spinnerOFF);
 
@@ -94,7 +94,7 @@ const SegmentDetails = () => {
       }})
       .then(response => {
         console.log(response.status);
-        //refreshsegmentUserFiltered(pca, account, appData);
+        refreshSegmentUserFiltered(pca, account);
         navigate(-1);
       })
       .catch(error => {

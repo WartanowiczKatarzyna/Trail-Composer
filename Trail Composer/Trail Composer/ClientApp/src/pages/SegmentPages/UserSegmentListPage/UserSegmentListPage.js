@@ -1,7 +1,6 @@
 import React, { useState, useContext, useEffect, useRef } from 'react';
 import { useNavigate, useParams } from 'react-router-dom';
 import { useMsal, useAccount, useIsAuthenticated } from "@azure/msal-react";
-import PropTypes from 'prop-types';
 import styles from './UserPoiListPage.module.css';
 
 import { SegmentTable } from '../../../components/tables/SegmentTable/SegmentTable.tsx';
@@ -26,7 +25,7 @@ const UserSegmentListPage = () => {
   const navigate = useNavigate();
 
   const [data, setData] = useState(null);
-  //const refreshPoiUserFiltered = useTcStore((state) => state.refreshPoiUserFiltered);
+  const refreshSegmentUserFiltered = useTcStore((state) => state.refreshSegmentUserFiltered);
 
   const showColumns = {
     'id': false,
@@ -78,7 +77,7 @@ const UserSegmentListPage = () => {
       .then(response => {
         console.log(response.status);
         fetchData();
-        //refreshPoiUserFiltered(pca, account, appData);
+        refreshSegmentUserFiltered(pca, account);
       })
       .catch(error => {
         console.error('Error deleting Segment:', error);
@@ -100,9 +99,5 @@ const UserSegmentListPage = () => {
       : <TcSpinner />
     );
 };
-
-UserSegmentListPage.propTypes = {};
-
-UserSegmentListPage.defaultProps = {};
 
 export default UserSegmentListPage;

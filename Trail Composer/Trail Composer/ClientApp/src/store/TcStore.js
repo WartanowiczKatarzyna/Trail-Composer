@@ -1,6 +1,8 @@
 import { create } from 'zustand'
 import { createPoiUserFilteredSlice } from './PoiUserFilteredSlice';
+import { createSegmentUserFilteredSlice } from './SegmentUserFilteredSlice';
 import { createPoiOtherFilteredSlice } from './PoiOtherFilteredSlice';
+import { createSegmentOtherFilteredSlice } from './SegmentOtherFilteredSlice';
 import { createSegmentSlice } from './SegmentSlice';
 import { createTrailSlice } from './TrailSlice';
 import { createPathLevelSlice } from './PathLevelSlice';
@@ -12,7 +14,9 @@ import { createPOITypeSlice } from "./POITypeSlice";
 
 export const useTcStore = create((...a) => ({
   ...createPoiUserFilteredSlice(...a),
+  ...createSegmentUserFilteredSlice(...a),
   ...createPoiOtherFilteredSlice(...a),
+  ...createSegmentOtherFilteredSlice(...a),
   ...createPathLevelSlice(...a),
   ...createPathTypeSlice(...a),
   ...createSegmentSlice(...a),

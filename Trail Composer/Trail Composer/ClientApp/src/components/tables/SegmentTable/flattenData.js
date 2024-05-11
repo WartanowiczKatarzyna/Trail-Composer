@@ -20,7 +20,7 @@ export function flattenData(freshData, CountryNamesMap, pathTypes, pathLevels){
       pathTypes: row.pathTypeIds?.map(pathTypeId => pathTypes.find(pathType => pathType.id == pathTypeId)?.name || 'nieznany').join(', '),
       subRows: row.subRows,
       levelId: row.levelId,
-      level: pathLevels?.find(pathLevel => pathLevel.id == row.levelId)?.level || 'nieznany',
+      level: pathLevels?.find(pathLevel => pathLevel.id == row.levelId)?.name || 'nieznany',
     };
   });
 };
