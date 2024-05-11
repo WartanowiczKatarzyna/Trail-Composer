@@ -72,6 +72,7 @@ namespace Trail_Composer.Models.Services
                     Username = seg.Tcuser.Name,
                     CountryId = seg.CountryId,
                     LevelId = seg.LevelId,
+                    // zwracać długość tutaj
                     PathTypeIds = seg.SegmentTypes.Select(segType => segType.PathType).Select(pathType => pathType.Id).ToList(),
                     PoiIds = seg.SegmentPois.Select(segPoi => segPoi.Id).ToList(),
                 })
@@ -157,6 +158,7 @@ namespace Trail_Composer.Models.Services
                     Username = mergedElem.seg.Tcuser.Name,
                     CountryId = mergedElem.seg.CountryId,
                     LevelId = mergedElem.seg.LevelId,
+                    // zwracać długość tutaj
                     PathTypeIds = mergedElem.seg.SegmentTypes.Select(segType => segType.PathType).Select(pathType => pathType.Id).ToList(),
                     PoiIds = mergedElem.seg.SegmentPois.Select(segPoi => segPoi.Id).ToList(),
                 })
@@ -211,6 +213,7 @@ namespace Trail_Composer.Models.Services
                     Name = segment.Name,
                     Description = segment.Description,
                     GpxFile = GetFileContent(segment.Gpx),
+                    PathLength = segment.PathLength,
                     MinLongitude = segment.MinLongitude,
                     MaxLongitude = segment.MaxLongitude,
                     MinLatitude = segment.MinLatitude,
@@ -308,14 +311,17 @@ namespace Trail_Composer.Models.Services
                 }
 
                 segDb.Name = segApi.Name;
-                segDb.Description = segApi.Description;
-                segDb.MinLongitude = segApi.MinLongitude;
-                segDb.MaxLongitude = segApi.MaxLongitude;
-                segDb.MinLatitude = segApi.MinLatitude;
-                segDb.MaxLatitude = segApi.MaxLatitude;
+                segDb.Description = segApi.Description; 
 
                 if (segApi.Gpx != null && segApi.Gpx.Length > 0)
+                {
                     segDb.GpxFile = GetFileContent(segApi.Gpx);
+                    segDb.MinLongitude = segApi.MinLongitude;
+                    segDb.MaxLongitude = segApi.MaxLongitude;
+                    segDb.MinLatitude = segApi.MinLatitude;
+                    segDb.MaxLatitude = segApi.MaxLatitude;
+                    segDb.PathLength = segApi.PathLength;
+                }                    
 
                 segDb.LevelId = segApi.LevelId;
                 segDb.Level = segApiLevel;

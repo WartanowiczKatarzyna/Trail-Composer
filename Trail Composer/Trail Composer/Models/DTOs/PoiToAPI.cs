@@ -8,8 +8,8 @@ namespace Trail_Composer.Models.DTOs
         public required string Name { get; set; }
         public string Username { get; set; }
         public int CountryId { get; set; }         
-        public decimal Longitude { get; set; }  //długość geograficzna
-        public decimal Latitude { get; set; }   //szerokość geograficzna
+        public int Longitude { get; set; }  //długość geograficzna
+        public int Latitude { get; set; }   //szerokość geograficzna
 
         public override bool Equals(object? obj)
         {

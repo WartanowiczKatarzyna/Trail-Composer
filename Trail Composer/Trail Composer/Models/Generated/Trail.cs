@@ -17,13 +17,13 @@ public partial class Trail
 
     public string? Description { get; set; }
 
-    public decimal MinLongitude { get; set; }
+    public int MinLongitude { get; set; }
 
-    public decimal MaxLongitude { get; set; }
+    public int MaxLongitude { get; set; }
 
-    public decimal MinLatitude { get; set; }
+    public int MinLatitude { get; set; }
 
-    public decimal MaxLatitude { get; set; }
+    public int MaxLatitude { get; set; }
 
     public virtual PathLevel Level { get; set; } = null!;
 

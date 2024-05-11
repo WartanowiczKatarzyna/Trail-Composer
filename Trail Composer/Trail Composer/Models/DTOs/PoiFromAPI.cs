@@ -7,8 +7,8 @@ namespace Trail_Composer.Models.DTOs
         public required string Name { get; set; }
         public int CountryId { get; set; }
         public ICollection<int> PoiTypeIds { get; set; } = new List<int>();          
-        public decimal Longitude { get; set; }  //długość geograficzna
-        public decimal Latitude { get; set; }   //szerokość geograficzna
+        public int Longitude { get; set; }  //długość geograficzna
+        public int Latitude { get; set; }   //szerokość geograficzna
         public string? Description { get; set; }
 
         public IFormFile? Photo { get; set; }

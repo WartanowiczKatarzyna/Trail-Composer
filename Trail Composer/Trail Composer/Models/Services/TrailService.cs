@@ -84,7 +84,7 @@ namespace Trail_Composer.Models.Services
 
             return trailList;
         }
-        public async Task<IEnumerable<SegmentToApi>> GetFilteredUserTrailListAsync(string userId, int[] countryIds, decimal minLatitude, decimal maxLatitude,
+        public async Task<IEnumerable<TrailToApi>> GetFilteredUserTrailListAsync(string userId, int[] countryIds, decimal minLatitude, decimal maxLatitude,
             decimal minLongitude, decimal maxLongitude)
         {
             var trailList = await _context.Trails
@@ -315,7 +315,7 @@ namespace Trail_Composer.Models.Services
                 {
                     for (int i = 0; i < trailApi.SegmentIds.Count; i++)
                     {
-                        var seg = await _context.Pois.FindAsync(trailApi.SegmentIds.ElementAt(i));
+                        var seg = await _context.Segments.FindAsync(trailApi.SegmentIds.ElementAt(i));
 
                         if (seg == null)
                             continue;

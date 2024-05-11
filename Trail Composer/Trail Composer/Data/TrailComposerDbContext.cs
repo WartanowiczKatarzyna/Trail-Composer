@@ -107,12 +107,8 @@ public partial class TrailComposerDbContext : DbContext
             entity.Property(e => e.Description)
                 .HasColumnType("text")
                 .HasColumnName("description");
-            entity.Property(e => e.Latitude)
-                .HasColumnType("decimal(10, 6)")
-                .HasColumnName("latitude");
-            entity.Property(e => e.Longitude)
-                .HasColumnType("decimal(10, 6)")
-                .HasColumnName("longitude");
+            entity.Property(e => e.Latitude).HasColumnName("latitude");
+            entity.Property(e => e.Longitude).HasColumnName("longitude");
             entity.Property(e => e.Name)
                 .HasMaxLength(50)
                 .IsUnicode(false)
@@ -196,22 +192,15 @@ public partial class TrailComposerDbContext : DbContext
                 .HasColumnName("description");
             entity.Property(e => e.GpxFile).HasColumnName("gpx_file");
             entity.Property(e => e.LevelId).HasColumnName("Level_id");
-            entity.Property(e => e.MaxLatitude)
-                .HasColumnType("decimal(10, 6)")
-                .HasColumnName("max_latitude");
-            entity.Property(e => e.MaxLongitude)
-                .HasColumnType("decimal(10, 6)")
-                .HasColumnName("max_longitude");
-            entity.Property(e => e.MinLatitude)
-                .HasColumnType("decimal(10, 6)")
-                .HasColumnName("min_latitude");
-            entity.Property(e => e.MinLongitude)
-                .HasColumnType("decimal(10, 6)")
-                .HasColumnName("min_longitude");
+            entity.Property(e => e.MaxLatitude).HasColumnName("max_latitude");
+            entity.Property(e => e.MaxLongitude).HasColumnName("max_longitude");
+            entity.Property(e => e.MinLatitude).HasColumnName("min_latitude");
+            entity.Property(e => e.MinLongitude).HasColumnName("min_longitude");
             entity.Property(e => e.Name)
                 .HasMaxLength(50)
                 .IsUnicode(false)
                 .HasColumnName("name");
+            entity.Property(e => e.PathLength).HasColumnName("path_length");
             entity.Property(e => e.TcuserId)
                 .HasMaxLength(256)
                 .IsUnicode(false)
@@ -302,18 +291,10 @@ public partial class TrailComposerDbContext : DbContext
                 .HasColumnType("text")
                 .HasColumnName("description");
             entity.Property(e => e.LevelId).HasColumnName("Level_id");
-            entity.Property(e => e.MaxLatitude)
-                .HasColumnType("decimal(10, 6)")
-                .HasColumnName("max_latitude");
-            entity.Property(e => e.MaxLongitude)
-                .HasColumnType("decimal(10, 6)")
-                .HasColumnName("max_longitude");
-            entity.Property(e => e.MinLatitude)
-                .HasColumnType("decimal(10, 6)")
-                .HasColumnName("min_latitude");
-            entity.Property(e => e.MinLongitude)
-                .HasColumnType("decimal(10, 6)")
-                .HasColumnName("min_longitude");
+            entity.Property(e => e.MaxLatitude).HasColumnName("max_latitude");
+            entity.Property(e => e.MaxLongitude).HasColumnName("max_longitude");
+            entity.Property(e => e.MinLatitude).HasColumnName("min_latitude");
+            entity.Property(e => e.MinLongitude).HasColumnName("min_longitude");
             entity.Property(e => e.Name)
                 .HasMaxLength(50)
                 .IsUnicode(false)
