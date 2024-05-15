@@ -10,6 +10,7 @@ import { getAuthHeader } from '../../../utils/auth/getAuthHeader.js';
 import {useTcStore} from "../../../store/TcStore";
 import SectionTitle from "../../../components/SectionTitle/SectionTitle";
 import SectionButtons from "../../../components/SectionButtons/SectionButtons";
+import {geoRefIntToFloat} from "../../../utils/geoRef";
 
 const PoiDetails = () => {
   const appData = useContext(AppContext);
@@ -108,15 +109,15 @@ const PoiDetails = () => {
         <Row className='mt-3'>{`Współrzędne geograficzne`}</Row>
         <Row className='mt-1'>
           <ul className='ms-4'>
-            <li>{`szerokość: ${poi.latitude}`}</li>
-            <li>{`długość: ${poi.longitude}`}</li>
+            <li>{`szerokość: ${geoRefIntToFloat(poi.latitude)}`}</li>
+            <li>{`długość: ${geoRefIntToFloat(poi.longitude)}`}</li>
           </ul>
         </Row>
         <Row className='mt-2'>{poi.description!==null && (`Opis:`)}</Row>
         <Row className='mt-1'>{poi.description!==null && `${poi.description}`}</Row>
       </Col>)}
       <Col sm={8} className='d-flex justify-content-center'>
-        {!!imagePreview && ( <img src={imagePreview} alt="Preview" className={styles.Photo} /> )}
+        {!!imagePreview && ( <img src={imagePreview} alt="Preview" className={`mt-3 mt-sm-0 ${styles.Photo}`} /> )}
       </Col>
     </Row>
   </Container>  

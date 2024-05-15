@@ -52,8 +52,8 @@ namespace Trail_Composer.Models.Services
 
             return trailList;
         }
-        public async Task<IEnumerable<TrailToApi>> GetFilteredTrailListAsync(string userId, int[] countryIds, decimal minLatitude, decimal maxLatitude,
-           decimal minLongitude, decimal maxLongitude)
+        public async Task<IEnumerable<TrailToApi>> GetFilteredTrailListAsync(string userId, int[] countryIds, int minLatitude, int maxLatitude,
+           int minLongitude, int maxLongitude)
         {
             var trailList = await _context.Trails
                 .Include(trail => trail.TrailTypes)
@@ -84,8 +84,8 @@ namespace Trail_Composer.Models.Services
 
             return trailList;
         }
-        public async Task<IEnumerable<TrailToApi>> GetFilteredUserTrailListAsync(string userId, int[] countryIds, decimal minLatitude, decimal maxLatitude,
-            decimal minLongitude, decimal maxLongitude)
+        public async Task<IEnumerable<TrailToApi>> GetFilteredUserTrailListAsync(string userId, int[] countryIds, int minLatitude, int maxLatitude,
+            int minLongitude, int maxLongitude)
         {
             var trailList = await _context.Trails
                 .Include(trail => trail.TrailTypes)

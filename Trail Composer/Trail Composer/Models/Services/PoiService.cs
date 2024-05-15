@@ -65,8 +65,8 @@ namespace Trail_Composer.Models.Services
 
             return poiList;
         }
-        public async Task<IEnumerable<PoiListElementToApi>> GetFilteredPoiListAsync (string userId, int[] countryIds, decimal minLatitude, decimal maxLatitude,
-            decimal minLongitude, decimal maxLongitude)
+        public async Task<IEnumerable<PoiListElementToApi>> GetFilteredPoiListAsync (string userId, int[] countryIds, int minLatitude, int maxLatitude,
+            int minLongitude, int maxLongitude)
         {
             var poiList = await _context.Pois
                 .Include(poi => poi.PoiPoitypes)
@@ -95,8 +95,8 @@ namespace Trail_Composer.Models.Services
 
             return poiList;
         }
-        public async Task<IEnumerable<PoiListElementToApi>> GetFilteredUserPoiListAsync (string userId, int[] countryIds, decimal minLatitude, decimal maxLatitude,
-            decimal minLongitude, decimal maxLongitude)
+        public async Task<IEnumerable<PoiListElementToApi>> GetFilteredUserPoiListAsync (string userId, int[] countryIds, int minLatitude, int maxLatitude,
+            int minLongitude, int maxLongitude)
         {
             var poiList = await _context.Pois
                 .Include(poi => poi.PoiPoitypes)

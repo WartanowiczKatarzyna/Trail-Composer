@@ -39,8 +39,8 @@ namespace Trail_Composer.Controllers
 
         [Authorize]
         [HttpGet("list/filtered")]
-        public async Task<IActionResult> GetFilteredTrailList([FromQuery] int[] countryIds, [FromQuery] decimal minLatitude, [FromQuery] decimal maxLatitude,
-            [FromQuery] decimal minLongitude, [FromQuery] decimal maxLongitude)
+        public async Task<IActionResult> GetFilteredTrailList([FromQuery] int[] countryIds, [FromQuery] int minLatitude, [FromQuery] int maxLatitude,
+            [FromQuery] int minLongitude, [FromQuery] int maxLongitude)
         {
             var userId = TCUserDTO.GetUserIdFromContext(this.HttpContext);
             var result = await _trailService.GetFilteredTrailListAsync(userId, countryIds, minLatitude, maxLatitude, minLongitude, maxLongitude);
@@ -49,8 +49,8 @@ namespace Trail_Composer.Controllers
 
         [Authorize]
         [HttpGet("list/user/filtered")]
-        public async Task<IActionResult> GetFilteredUserTrailList([FromQuery] int[] countryIds, [FromQuery] decimal minLatitude, [FromQuery] decimal maxLatitude,
-            [FromQuery] decimal minLongitude, [FromQuery] decimal maxLongitude)
+        public async Task<IActionResult> GetFilteredUserTrailList([FromQuery] int[] countryIds, [FromQuery] int minLatitude, [FromQuery] int maxLatitude,
+            [FromQuery] int minLongitude, [FromQuery] int maxLongitude)
         {
             var userId = TCUserDTO.GetUserIdFromContext(this.HttpContext);
             var result = await _trailService.GetFilteredUserTrailListAsync(userId, countryIds, minLatitude, maxLatitude, minLongitude, maxLongitude);

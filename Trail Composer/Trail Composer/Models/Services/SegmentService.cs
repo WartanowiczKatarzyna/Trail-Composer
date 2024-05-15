@@ -80,8 +80,8 @@ namespace Trail_Composer.Models.Services
 
             return segmentList;
         }
-        public async Task<IEnumerable<SegmentToApi>> GetFilteredSegmentListAsync(string userId, int[] countryIds, decimal minLatitude, decimal maxLatitude,
-            decimal minLongitude, decimal maxLongitude)
+        public async Task<IEnumerable<SegmentToApi>> GetFilteredSegmentListAsync(string userId, int[] countryIds, int minLatitude, int maxLatitude,
+            int minLongitude, int maxLongitude)
         {
             var segmentList = await _context.Segments
                 .Include(segment => segment.SegmentTypes)
@@ -109,8 +109,8 @@ namespace Trail_Composer.Models.Services
 
             return segmentList;
         }
-        public async Task<IEnumerable<SegmentToApi>> GetFilteredUserSegmentListAsync(string userId, int[] countryIds, decimal minLatitude, decimal maxLatitude,
-            decimal minLongitude, decimal maxLongitude)
+        public async Task<IEnumerable<SegmentToApi>> GetFilteredUserSegmentListAsync(string userId, int[] countryIds, int minLatitude, int maxLatitude,
+            int minLongitude, int maxLongitude)
         {            
             var segmentList = await _context.Segments
                 .Include(segment => segment.SegmentTypes)

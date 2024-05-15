@@ -65,8 +65,8 @@ namespace Trail_Composer.Controllers
 
         [Authorize]
         [HttpGet("list/filtered")]
-        public async Task<IActionResult> GetFilteredSegmentList([FromQuery] int[] countryIds, [FromQuery] decimal minLatitude, [FromQuery] decimal maxLatitude,
-            [FromQuery] decimal minLongitude, [FromQuery] decimal maxLongitude)
+        public async Task<IActionResult> GetFilteredSegmentList([FromQuery] int[] countryIds, [FromQuery] int minLatitude, [FromQuery] int maxLatitude,
+            [FromQuery] int minLongitude, [FromQuery] int maxLongitude)
         {
             var userId = TCUserDTO.GetUserIdFromContext(this.HttpContext);
             var result = await _segmentService.GetFilteredSegmentListAsync(userId, countryIds, minLatitude, maxLatitude, minLongitude, maxLongitude);
@@ -75,8 +75,8 @@ namespace Trail_Composer.Controllers
 
         [Authorize]
         [HttpGet("list/user/filtered")]
-        public async Task<IActionResult> GetFilteredUserSegmentList([FromQuery] int[] countryIds, [FromQuery] decimal minLatitude, [FromQuery] decimal maxLatitude,
-            [FromQuery] decimal minLongitude, [FromQuery] decimal maxLongitude)
+        public async Task<IActionResult> GetFilteredUserSegmentList([FromQuery] int[] countryIds, [FromQuery] int minLatitude, [FromQuery] int maxLatitude,
+            [FromQuery] int minLongitude, [FromQuery] int maxLongitude)
         {
             var userId = TCUserDTO.GetUserIdFromContext(this.HttpContext);
             var result = await _segmentService.GetFilteredUserSegmentListAsync(userId, countryIds, minLatitude, maxLatitude, minLongitude, maxLongitude);

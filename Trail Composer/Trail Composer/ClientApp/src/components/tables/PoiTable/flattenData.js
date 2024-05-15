@@ -1,3 +1,5 @@
+import {geoRefIntToFloat} from "../../../utils/geoRef";
+
 export function flattenData(freshData, appData){
   console.log('Received POIs in flattenData:', freshData);
   return freshData.map(row => {
@@ -5,8 +7,8 @@ export function flattenData(freshData, appData){
       id: row.id,
       name: row.name,
       username: row.username,
-      longitude: row.longitude,
-      latitude: row.latitude,
+      longitude: geoRefIntToFloat(row.longitude),
+      latitude: geoRefIntToFloat(row.latitude),
       countryId: row.countryId,
       subRows: row.subRows,
       country: appData?.CountryNamesMap?.get(row.countryId) || 'nieznany',

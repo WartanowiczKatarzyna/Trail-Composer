@@ -12,6 +12,7 @@ import PropTypes from 'prop-types';
 import SectionTitle from "../../../components/SectionTitle/SectionTitle";
 import SectionButtons from "../../../components/SectionButtons/SectionButtons";
 import replaceDot from '../../../utils/auth/replaceDot.js';
+import {geoRefFloatToIntStr, geoRefIntToFloat} from "../../../utils/geoRef";
 
 const PoiForm = ({editMode}) => {
   const appData = useContext(AppContext);
@@ -66,8 +67,10 @@ const PoiForm = ({editMode}) => {
 
           setSelectedPOICountry(fetchedPoi.countryId);
           setPoiName(fetchedPoi.name);
-          setPoiLatitude(fetchedPoi.latitude);
-          setPoiLongitude(fetchedPoi.longitude);
+          const latitude = geoRefIntToFloat(fetchedPoi.latitude);
+          const longitude = geoRefIntToFloat(fetchedPoi.longitude);
+          setPoiLatitude(latitude);
+          setPoiLongitude(longitude);
 
           setImagePreview(fetchedPoi.photoId ? `tc-api/poi-photo/${fetchedPoi.photoId}` : null);
 
@@ -87,8 +90,8 @@ const PoiForm = ({editMode}) => {
 
           formData.current.set('Name', fetchedPoi.name);
           formData.current.set('CountryId', fetchedPoi.countryId);
-          formData.current.set('Longitude', fetchedPoi.longitude);
-          formData.current.set('Latitude', fetchedPoi.latitude);
+          formData.current.set('Longitude', longitude);
+          formData.current.set('Latitude', latitude);
           handlePoiTypes(fetchedPoiTypes);
           photoId.current = fetchedPoi.photoId;
 
@@ -181,14 +184,14 @@ const PoiForm = ({editMode}) => {
         setPoiLatitude(value);
         
         const errLat = validateInput(name, value);
-        formData.current.set(name, replaceDot(value));
+        formData.current.set(name, value);
         setFormErrors(formErrors => ({ ...formErrors, [name]: errLat }));
         return;
       case "Longitude":
         setPoiLongitude(value);
       
         const errLong = validateInput(name, value);
-        formData.current.set(name, replaceDot(value));
+        formData.current.set(name, value);
         setFormErrors(formErrors => ({ ...formErrors, [name]: errLong }));
         return;
     }
@@ -221,6 +224,15 @@ const PoiForm = ({editMode}) => {
 
     const authorizationHeader = await getAuthHeader(pca, account);
 
+    const formDataToBeSent = new FormData();
+    for (const [key, value] of formData.current.entries()) {
+      if(key === 'Latitude' || key === 'Longitude') {
+        formDataToBeSent.append(key, geoRefFloatToIntStr(value));
+      } else {
+        formDataToBeSent.append(key, value);
+      }
+    }
+
     let connString = 'tc-api/poi';
     let connMethod = 'POST'
     if (editMode) {
@@ -230,7 +242,7 @@ const PoiForm = ({editMode}) => {
     toggleSpinner();
     fetch(connString, {
       method: connMethod,
-      body: formData.current,
+      body: formDataToBeSent,
       headers: {
         Authorization: authorizationHeader
       }
