@@ -16,7 +16,7 @@ import { useTcStore } from '../../../store/TcStore.js';
 import MapModal from "../../../modals/MapModal/MapModal";
 import PropTypes from 'prop-types';
 import SectionTitle from "../../../components/SectionTitle/SectionTitle";
-import replaceDot from '../../../utils/auth/replaceDot.js';
+import {geoRefFloatToIntStr} from "../../../utils/geoRef";
 
 const SegmentForm = ({editMode}) => {
   const appData = useContext(AppContext);
@@ -123,9 +123,9 @@ const SegmentForm = ({editMode}) => {
           formData.current.set('LevelId', fetchedSegment.levelId);
           formData.current.set('Gpx', '');
 
-          const lengthNum = parseFloat(fetchedSegment?.length);
-          const lengthNumRounded = Number.isNaN(lengthNum) ? 0 : Math.round(lengthNum);
-          formData.current.set('Length', lengthNumRounded.toString());
+          const pathLengthNum = parseInt(fetchedSegment?.pathLength);
+          const pathLengthNumChecked = Number.isNaN(pathLengthNum) ? 0 : pathLengthNum;
+          formData.current.set('PathLength', pathLengthNumChecked.toString());
           formData.current.set('MaxLatitude', fetchedSegment?.maxLatitude);
           formData.current.set('MaxLongitude', fetchedSegment?.maxLongitude);
           formData.current.set('MinLatitude', fetchedSegment?.minLatitude);
@@ -395,19 +395,19 @@ const SegmentForm = ({editMode}) => {
 
   const gpxValidated = (boundingBox, distance) => {
     toggleSpinner();
-    formData.current.set('Length', Math.round(distance)); // rounded to 1 meter
+    formData.current.set('PathLength', Math.round(distance).toString()); // rounded to 1 meter
     const { lat: maxLatitude, lng: maxLongitude } = boundingBox.getNorthEast();
     const { lat: minLatitude, lng: minLongitude } = boundingBox.getSouthWest();
-    formData.current.set('MaxLatitude', replaceDot(maxLatitude.toFixed(6)));
-    formData.current.set('MaxLongitude', replaceDot(maxLongitude.toFixed(6)));
-    formData.current.set('MinLatitude', replaceDot(minLatitude.toFixed(6)));
-    formData.current.set('MinLongitude', replaceDot(minLongitude.toFixed(6)));
+    formData.current.set('MaxLatitude', geoRefFloatToIntStr(maxLatitude));
+    formData.current.set('MaxLongitude', geoRefFloatToIntStr(maxLongitude));
+    formData.current.set('MinLatitude', geoRefFloatToIntStr(minLatitude));
+    formData.current.set('MinLongitude', geoRefFloatToIntStr(minLongitude));
 
     console.info('boudingBox: ', boundingBox);
-    console.info('maxLatitude: ', maxLatitude.toFixed(6));
-    console.info('maxLongitude: ', maxLongitude.toFixed(6));
-    console.info('minLatitude: ', minLatitude.toFixed(6));
-    console.info('minLongitude: ', minLongitude.toFixed(6));
+    console.info('maxLatitude: ', geoRefFloatToIntStr(maxLatitude));
+    console.info('maxLongitude: ', geoRefFloatToIntStr(maxLongitude));
+    console.info('minLatitude: ', geoRefFloatToIntStr(minLatitude));
+    console.info('minLongitude: ', geoRefFloatToIntStr(minLongitude));
     console.info("distance rounded to meters [m]:", Math.round(distance));
   };
 

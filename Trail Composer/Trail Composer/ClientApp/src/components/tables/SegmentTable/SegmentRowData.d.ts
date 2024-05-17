@@ -4,7 +4,7 @@ export interface SegmentRowData extends WithId {
   id: number
   name: string
   username: string
-  length: number
+  pathLength: number
   countryId: number
   country?: string
   segmentTypeIds: number[]

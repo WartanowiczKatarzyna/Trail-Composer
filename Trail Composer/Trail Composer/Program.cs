@@ -43,6 +43,7 @@ builder.Services
 builder.Services.AddScoped<PoiService>();
 builder.Services.AddScoped<SegmentService>();
 builder.Services.AddScoped<TrailService>();
+builder.Services.AddScoped<TCUserService>();
 
 var app = builder.Build();
 

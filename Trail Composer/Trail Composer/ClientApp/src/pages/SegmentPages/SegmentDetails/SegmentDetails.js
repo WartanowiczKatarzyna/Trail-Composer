@@ -115,7 +115,7 @@ const SegmentDetails = () => {
     setGpxPreview(null);
   };
 
-  const gpxValidated = (boudingBox, distance) => {
+  const gpxValidated = (boundingBox, distance) => {
     spinnerOFF();
     const distanceNumKm = Number.parseFloat(distance)/1000;
     if(distanceNumKm < 10) {
@@ -123,7 +123,7 @@ const SegmentDetails = () => {
     } else {
       setDistance(Math.round(distanceNumKm).toString());
     }
-    console.info('boudingBox: ', boudingBox);
+    console.info('boundingBox: ', boundingBox);
     console.info("distance:", distance);
   };
 
@@ -151,7 +151,7 @@ const SegmentDetails = () => {
         </Col>)}
         <Col sm={8} className='d-flex justify-content-center'>
           {!!gpxPreview && (
-            <div className={styles.MapContainer}>
+            <div className={`mt-3 mt-sm-0 ${styles.MapContainer}`}>
               <TCMap gpxArr={[gpxPreview]} {...{gpxNotValidated, gpxValidated}} />
             </div>)}
         </Col>

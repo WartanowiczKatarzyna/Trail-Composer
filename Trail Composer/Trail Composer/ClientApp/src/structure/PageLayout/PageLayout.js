@@ -18,13 +18,13 @@ const PageLayout = ({ children }) => (
       <Row fluid noGutters>
         <AuthenticatedTemplate>
           <Col md="3" xl="2" fluid className={styles.MenuContainer}> <Menu/> </Col>
-          <Col md="9" xl="10" fluid className={styles.ContentContainer}> {children} </Col>
+          <Col md="9" xl="10" fluid className={`ps-2 pe-2 ${styles.ContentContainer}`}> {children} </Col>
         </AuthenticatedTemplate>
         <UnauthenticatedTemplate>
-        <Col md="12" xl="12" fluid className={styles.ContentContainer + ' ' + styles.ContentContainerUnauthorized}>
-          <div className={styles.ContentSpacer}></div>
-          {children}
-        </Col>
+          <Col md="12" xl="12" fluid className={`ps-2 pe-2 ${styles.ContentContainer} ${styles.ContentContainerUnauthorized}`}>
+            <div className={styles.ContentSpacer}></div>
+            {children}
+          </Col>
         </UnauthenticatedTemplate>
       </Row>
     </Container>

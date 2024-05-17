@@ -8,7 +8,7 @@ import { useIsAuthenticated, useMsalAuthentication } from "@azure/msal-react";
 import { InteractionType } from '@azure/msal-browser';
 
 import Logo from "../../assets/trails-composer-logo.png";
-import { LoginButton } from '../../components/LoginButton/LoginButton';
+import { LoginButton } from '../../components/HeaderButtons/LoginButton';
 
 //2nd navbar will change depending if the user is logged in or not
 const Header = () => {

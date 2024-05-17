@@ -1,8 +1,8 @@
 export function flattenData(freshData, CountryNamesMap, pathTypes, pathLevels){
   return freshData?.map(row => {
     let distanceStrKm = '';
-    if(row?.length > 0.1) {
-      const distanceNumKm = Number.parseFloat(row.length)/1000;
+    if(row?.pathLength > 0.1) {
+      const distanceNumKm = Number.parseFloat(row.pathLength)/1000.0;
       if(distanceNumKm < 10) {
         distanceStrKm = distanceNumKm.toFixed(1).toString();
       } else {
@@ -13,7 +13,7 @@ export function flattenData(freshData, CountryNamesMap, pathTypes, pathLevels){
       id: row.id,
       name: row.name,
       username: row.username,
-      length: distanceStrKm,
+      pathLength: distanceStrKm,
       countryId: row.countryId,
       country: CountryNamesMap?.get(row.countryId) || 'nieznany',
       pathTypeIds: row.pathTypeIds,

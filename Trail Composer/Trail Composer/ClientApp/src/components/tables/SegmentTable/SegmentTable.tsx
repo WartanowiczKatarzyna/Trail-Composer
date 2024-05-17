@@ -53,7 +53,7 @@ export  function SegmentTable({
         footer: (props: { column: { id: any; }; }) => props.column.id,
       },
       {
-        accessorKey: 'length',
+        accessorKey: 'pathLength',
         cell: (info: { getValue: () => any; }) => info.getValue(),
         header: () => <span>Długość</span>,
         footer: (props: { column: { id: any; }; }) => props.column.id,

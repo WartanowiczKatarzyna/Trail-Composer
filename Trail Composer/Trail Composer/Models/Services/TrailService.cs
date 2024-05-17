@@ -148,10 +148,10 @@ namespace Trail_Composer.Models.Services
                     TcuserId = user.Id,
                     Name = trail.Name,
                     Description = trail.Description,
-                    MinLongitude = trail.MinLongitude,
-                    MaxLongitude = trail.MaxLongitude,
-                    MinLatitude = trail.MinLatitude,
-                    MaxLatitude = trail.MaxLatitude,
+                    MinLongitude = trail.MinLongitude.GetValueOrDefault(),
+                    MaxLongitude = trail.MaxLongitude.GetValueOrDefault(),
+                    MinLatitude = trail.MinLatitude.GetValueOrDefault(),
+                    MaxLatitude = trail.MaxLatitude.GetValueOrDefault(),
                     Level = level,
                 };
 
@@ -258,10 +258,10 @@ namespace Trail_Composer.Models.Services
 
                 trailDb.Name = trailApi.Name;
                 trailDb.Description = trailApi.Description;
-                trailDb.MinLongitude = trailApi.MinLongitude;
-                trailDb.MaxLongitude = trailApi.MaxLongitude;
-                trailDb.MinLatitude = trailApi.MinLatitude;
-                trailDb.MaxLatitude = trailApi.MaxLatitude;
+                trailDb.MinLongitude = trailApi.MinLongitude.GetValueOrDefault();
+                trailDb.MaxLongitude = trailApi.MaxLongitude.GetValueOrDefault();
+                trailDb.MinLatitude = trailApi.MinLatitude.GetValueOrDefault();
+                trailDb.MaxLatitude = trailApi.MaxLatitude.GetValueOrDefault();
 
                 trailDb.LevelId = trailApi.LevelId;
                 trailDb.Level = trailApiLevel;

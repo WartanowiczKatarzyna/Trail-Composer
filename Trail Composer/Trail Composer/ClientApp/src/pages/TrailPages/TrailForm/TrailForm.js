@@ -10,13 +10,12 @@ import SegmentModal from '../../../modals/SegmentModal/SegmentModal' //RWW Segme
 import { getAuthHeader } from '../../../utils/auth/getAuthHeader.js';
 import { PoiTable } from '../../../components/tables/PoiTable/PoiTable.tsx';
 import { moveUp, moveDown, addRow, deleteRow } from '../../../components/tables/rowActions.js';
-import { makeData } from '../../../components/tables/PoiTable/makeData.ts';
 import { flattenData } from '../../../components/tables/PoiTable/flattenData.js';
 import { useTcStore } from '../../../store/TcStore.js';
 import MapModal from "../../../modals/MapModal/MapModal";
 import PropTypes from 'prop-types';
 import SectionTitle from "../../../components/SectionTitle/SectionTitle";
-import replaceDot from '../../../utils/auth/replaceDot.js';
+import {geoRefFloatToIntStr} from "../../../utils/geoRef";
 
 const TrailForm = ({editMode}) => {
   const appData = useContext(AppContext);
@@ -398,16 +397,16 @@ const TrailForm = ({editMode}) => {
     formData.current.set('Length', Math.round(distance)); // rounded to 1 meter
     const { lat: maxLatitude, lng: maxLongitude } = boundingBox.getNorthEast();
     const { lat: minLatitude, lng: minLongitude } = boundingBox.getSouthWest();
-    formData.current.set('MaxLatitude', replaceDot(maxLatitude.toFixed(6)));
-    formData.current.set('MaxLongitude', replaceDot(maxLongitude.toFixed(6)));
-    formData.current.set('MinLatitude', replaceDot(minLatitude.toFixed(6)));
-    formData.current.set('MinLongitude', replaceDot(minLongitude.toFixed(6)));
+    formData.current.set('MaxLatitude', geoRefFloatToIntStr(maxLatitude));
+    formData.current.set('MaxLongitude', geoRefFloatToIntStr(maxLongitude));
+    formData.current.set('MinLatitude', geoRefFloatToIntStr(minLatitude));
+    formData.current.set('MinLongitude', geoRefFloatToIntStr(minLongitude));
 
     console.info('boudingBox: ', boundingBox);
-    console.info('maxLatitude: ', maxLatitude.toFixed(6));
-    console.info('maxLongitude: ', maxLongitude.toFixed(6));
-    console.info('minLatitude: ', minLatitude.toFixed(6));
-    console.info('minLongitude: ', minLongitude.toFixed(6));
+    console.info('maxLatitude: ', geoRefFloatToIntStr(maxLatitude));
+    console.info('maxLongitude: ', geoRefFloatToIntStr(maxLongitude));
+    console.info('minLatitude: ', geoRefFloatToIntStr(minLatitude));
+    console.info('minLongitude: ', geoRefFloatToIntStr(minLongitude));
     console.info("distance rounded to meters [m]:", Math.round(distance));
   };
 

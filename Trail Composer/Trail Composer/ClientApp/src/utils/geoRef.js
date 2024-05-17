@@ -1,6 +1,8 @@
+const factor = 1000000.0;
+
 export function geoRefFloatToIntStr(value) {
-  return Math.round(value * 1000000).toString();
+  return Math.round(value * factor).toString();
 }
 export function geoRefIntToFloat(value) {
-  return value / 1000000;
+  return value / factor;
 }

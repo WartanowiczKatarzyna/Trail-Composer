@@ -1,5 +1,6 @@
 import { getAuthHeader } from "../utils/auth/getAuthHeader";
 import { flattenData } from "../components/tables/SegmentTable/flattenData";
+import {geoRefFloatToIntStr} from "../utils/geoRef";
 
 export const createSegmentUserFilteredSlice = (set, get) => ({
   SegmentUserFiltered: [],
@@ -42,7 +43,7 @@ const fetchSegmentUserFilteredExecute = async (set, get, selectedCountries, minL
   const queryParams1 = { countryIds };
   const queryParams2 = { minLatitude, maxLatitude, minLongitude, maxLongitude };
   queryParams1.countryIds.forEach(id => url.searchParams.append('countryIds', id));
-  Object.entries(queryParams2).forEach(([key, value]) => url.searchParams.append(key, value));
+  Object.entries(queryParams2).forEach(([key, value]) => url.searchParams.append(key, geoRefFloatToIntStr(value)));
   const urlRelative = `tc-api/Segment/list/user/filtered${url.search}`;
   console.info('urlRelative: ', urlRelative);
 

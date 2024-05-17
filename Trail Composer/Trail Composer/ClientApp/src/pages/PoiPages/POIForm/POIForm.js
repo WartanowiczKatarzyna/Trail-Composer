@@ -11,7 +11,6 @@ import { useTcStore } from "../../../store/TcStore";
 import PropTypes from 'prop-types';
 import SectionTitle from "../../../components/SectionTitle/SectionTitle";
 import SectionButtons from "../../../components/SectionButtons/SectionButtons";
-import replaceDot from '../../../utils/auth/replaceDot.js';
 import {geoRefFloatToIntStr, geoRefIntToFloat} from "../../../utils/geoRef";
 
 const PoiForm = ({editMode}) => {

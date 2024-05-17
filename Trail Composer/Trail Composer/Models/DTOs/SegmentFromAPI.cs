@@ -13,9 +13,9 @@
         public IFormFile? Gpx{ get; set; }
         public ICollection<int>? PoiIds { get; set; }
 
-        public int MaxLatitude { get; set; }
-        public int MaxLongitude { get; set; }
-        public int MinLatitude { get; set; }
-        public int MinLongitude { get; set; }
+        public int? MaxLatitude { get; set; }
+        public int? MaxLongitude { get; set; }
+        public int? MinLatitude { get; set; }
+        public int? MinLongitude { get; set; }
     }
 }

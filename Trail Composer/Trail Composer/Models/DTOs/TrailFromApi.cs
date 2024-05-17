@@ -12,13 +12,13 @@ namespace Trail_Composer.Models.DTOs
 
         public string? Description { get; set; }
 
-        public int MinLongitude { get; set; }
+        public int? MinLongitude { get; set; }
 
-        public int MaxLongitude { get; set; }
+        public int? MaxLongitude { get; set; }
 
-        public int MinLatitude { get; set; }
+        public int? MinLatitude { get; set; }
 
-        public int MaxLatitude { get; set; }
+        public int? MaxLatitude { get; set; }
 
         public ICollection<int> CountryIds { get; set; } = new List<int>();
         public ICollection<int> PathTypeIds { get; set; } = new List<int>();

@@ -34,6 +34,7 @@ namespace Trail_Composer.Models.Services
                     Name = seg.Name,
                     Username = seg.Tcuser.Name,
                     Description = seg.Description,
+                    PathLength = seg.PathLength,
                     CountryId = seg.CountryId,
                     LevelId = seg.LevelId,
                     PathTypeIds = seg.SegmentTypes.Select(segType => segType.PathType).Select(pathType => pathType.Id).ToList(),
@@ -72,7 +73,7 @@ namespace Trail_Composer.Models.Services
                     Username = seg.Tcuser.Name,
                     CountryId = seg.CountryId,
                     LevelId = seg.LevelId,
-                    // zwracać długość tutaj
+                    PathLength = seg.PathLength,
                     PathTypeIds = seg.SegmentTypes.Select(segType => segType.PathType).Select(pathType => pathType.Id).ToList(),
                     PoiIds = seg.SegmentPois.Select(segPoi => segPoi.Id).ToList(),
                 })
@@ -99,6 +100,7 @@ namespace Trail_Composer.Models.Services
                     TcuserId = seg.TcuserId,
                     Name = seg.Name,
                     Username = seg.Tcuser.Name,
+                    PathLength = seg.PathLength,
                     CountryId = seg.CountryId,
                     LevelId = seg.LevelId,
                     PathTypeIds = seg.SegmentTypes.Select(segType => segType.PathType).Select(pathType => pathType.Id).ToList()
@@ -128,6 +130,7 @@ namespace Trail_Composer.Models.Services
                     TcuserId = seg.TcuserId,
                     Name = seg.Name,
                     Username = seg.Tcuser.Name,
+                    PathLength = seg.PathLength,
                     CountryId = seg.CountryId,
                     LevelId = seg.LevelId,
                     PathTypeIds = seg.SegmentTypes.Select(segType => segType.PathType).Select(pathType => pathType.Id).ToList()
@@ -158,7 +161,7 @@ namespace Trail_Composer.Models.Services
                     Username = mergedElem.seg.Tcuser.Name,
                     CountryId = mergedElem.seg.CountryId,
                     LevelId = mergedElem.seg.LevelId,
-                    // zwracać długość tutaj
+                    PathLength = mergedElem.seg.PathLength,
                     PathTypeIds = mergedElem.seg.SegmentTypes.Select(segType => segType.PathType).Select(pathType => pathType.Id).ToList(),
                     PoiIds = mergedElem.seg.SegmentPois.Select(segPoi => segPoi.Id).ToList(),
                 })
@@ -214,10 +217,10 @@ namespace Trail_Composer.Models.Services
                     Description = segment.Description,
                     GpxFile = GetFileContent(segment.Gpx),
                     PathLength = segment.PathLength,
-                    MinLongitude = segment.MinLongitude,
-                    MaxLongitude = segment.MaxLongitude,
-                    MinLatitude = segment.MinLatitude,
-                    MaxLatitude = segment.MaxLatitude,
+                    MinLongitude = segment.MinLongitude.GetValueOrDefault(),
+                    MaxLongitude = segment.MaxLongitude.GetValueOrDefault(),
+                    MinLatitude = segment.MinLatitude.GetValueOrDefault(),
+                    MaxLatitude = segment.MaxLatitude.GetValueOrDefault(),
                     Country = country,
                     Level = level,
                 };
@@ -316,10 +319,10 @@ namespace Trail_Composer.Models.Services
                 if (segApi.Gpx != null && segApi.Gpx.Length > 0)
                 {
                     segDb.GpxFile = GetFileContent(segApi.Gpx);
-                    segDb.MinLongitude = segApi.MinLongitude;
-                    segDb.MaxLongitude = segApi.MaxLongitude;
-                    segDb.MinLatitude = segApi.MinLatitude;
-                    segDb.MaxLatitude = segApi.MaxLatitude;
+                    segDb.MinLongitude = segApi.MinLongitude.GetValueOrDefault();
+                    segDb.MaxLongitude = segApi.MaxLongitude.GetValueOrDefault();
+                    segDb.MinLatitude = segApi.MinLatitude.GetValueOrDefault();
+                    segDb.MaxLatitude = segApi.MaxLatitude.GetValueOrDefault();
                     segDb.PathLength = segApi.PathLength;
                 }                    
 
