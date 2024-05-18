@@ -126,10 +126,6 @@ const SegmentForm = ({editMode}) => {
           const pathLengthNum = parseInt(fetchedSegment?.pathLength);
           const pathLengthNumChecked = Number.isNaN(pathLengthNum) ? 0 : pathLengthNum;
           formData.current.set('PathLength', pathLengthNumChecked.toString());
-          formData.current.set('MaxLatitude', fetchedSegment?.maxLatitude);
-          formData.current.set('MaxLongitude', fetchedSegment?.maxLongitude);
-          formData.current.set('MinLatitude', fetchedSegment?.minLatitude);
-          formData.current.set('MinLongitude', fetchedSegment?.minLongitude);
           handlePathTypes(fetchedPathTypes);
 
           showFormData(formData.current, "starting editMode");
