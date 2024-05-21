@@ -125,10 +125,6 @@ const TrailForm = ({editMode}) => {
           const lengthNum = parseFloat(fetchedSegment?.length);
           const lengthNumRounded = Number.isNaN(lengthNum) ? 0 : Math.round(lengthNum);
           formData.current.set('Length', lengthNumRounded.toString());
-          formData.current.set('MaxLatitude', fetchedSegment?.maxLatitude);
-          formData.current.set('MaxLongitude', fetchedSegment?.maxLongitude);
-          formData.current.set('MinLatitude', fetchedSegment?.minLatitude);
-          formData.current.set('MinLongitude', fetchedSegment?.minLongitude);
           handlePathTypes(fetchedPathTypes);
 
           showFormData(formData.current, "starting editMode");

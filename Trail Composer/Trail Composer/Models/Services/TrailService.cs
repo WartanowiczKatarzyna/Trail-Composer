@@ -10,7 +10,10 @@ namespace Trail_Composer.Models.Services
     public class TrailService
     {
         private readonly TrailComposerDbContext _context;
-
+        public TrailService(TrailComposerDbContext context)
+        {
+            _context = context;
+        }
         public async Task<TrailToApi> GetTrailByIdAsync(int id)
         {
             var trail = await _context.Trails

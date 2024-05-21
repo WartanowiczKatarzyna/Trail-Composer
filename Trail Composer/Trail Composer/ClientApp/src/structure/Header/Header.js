@@ -8,7 +8,7 @@ import { useIsAuthenticated, useMsalAuthentication } from "@azure/msal-react";
 import { InteractionType } from '@azure/msal-browser';
 
 import Logo from "../../assets/trails-composer-logo.png";
-import { LoginButton } from '../../components/HeaderButtons/LoginButton';
+import { AzureADB2CButtons } from '../../components/AzureADB2CButtons/AzureADB2CButtons';
 
 //2nd navbar will change depending if the user is logged in or not
 const Header = () => {
@@ -32,14 +32,7 @@ const Header = () => {
         </NavLink>
       </Nav>
 
-      <Nav className="flex-row" navbar>
-        <NavLink tag={Link} className="text-dark" to="/">
-          <Button size="sm">{isAuthenticated ? 'Konto' : 'Utwórz konto'}</Button>
-        </NavLink>
-        <NavLink tag={Link} className="text-dark" to="/">
-          <LoginButton />
-        </NavLink>
-      </Nav>
+      <AzureADB2CButtons />
 
     </Navbar>
   );

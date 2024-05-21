@@ -34,11 +34,11 @@ namespace Trail_Composer.Controllers
         }
         
         [HttpPut]
-        public async Task<IActionResult> ChangeUsername(string username)
+        public async Task<IActionResult> ChangeUsername()
         {
-            var userId = TCUserDTO.GetUserIdFromContext(this.HttpContext);
+            var user = TCUserDTO.GetUserFromContext(this.HttpContext);
 
-            var result = await _tcuserService.EditUsernameAsync(userId, username);
+            var result = await _tcuserService.EditUsernameAsync(user.Id, user.Name);
 
             if (!result)
                 return StatusCode(500, "Error when changing username");

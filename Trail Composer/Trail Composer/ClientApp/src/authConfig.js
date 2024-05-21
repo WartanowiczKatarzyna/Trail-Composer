@@ -8,11 +8,23 @@ import { LogLevel } from '@azure/msal-browser';
 export const b2cPolicies = {
     names: {
         signUpSignIn: 'B2C_1_trail_compo_sign_in_or_sign_up',
+        signUp: 'B2C_1_trail_compo_sign_up',
+        resetPassword: 'B2C_1_trail_compo_password_reset',
+        editProfile: "B2C_1_trail_compo_edit_profile"
     },
     authorities: {
         signUpSignIn: {
             authority: 'https://trailcompo.b2clogin.com/trailcompo.onmicrosoft.com/B2C_1_trail_compo_sign_in_or_sign_up',
         },
+        signUp: {
+            authority: 'https://trailcompo.b2clogin.com/trailcompo.onmicrosoft.com/B2C_1_trailcompo_sign_up',
+        },
+        resetPassword: {
+            authority: 'https://trailcompo.b2clogin.com/trailcompo.onmicrosoft.com/B2C_1_trail_compo_password_reset',
+        },
+        editProfile: {
+            authority: "https://trailcompo.b2clogin.com/trailcompo.onmicrosoft.com/B2C_1_trail_compo_edit_profile",
+        }
     },
     authorityDomain: 'trailcompo.b2clogin.com',
 };

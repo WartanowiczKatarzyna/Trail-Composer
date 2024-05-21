@@ -10,7 +10,10 @@ namespace Trail_Composer.Models.Services
     public class TCUserService : Controller
     {
         private readonly TrailComposerDbContext _context;
-
+        public TCUserService(TrailComposerDbContext context)
+        {
+            _context = context;
+        }
         public async Task<string> GetUsernameAsync(string userId)
         {
             var user = await _context.Tcusers.FindAsync(userId);
@@ -23,16 +26,25 @@ namespace Trail_Composer.Models.Services
             return user.Name;
         }
         
-        public async Task<bool> EditUsernameAsync(string username, string userId)
+        public async Task<bool> EditUsernameAsync(string userId, string username)
         {
             using var transaction = await _context.Database.BeginTransactionAsync();
             try
             {
-                var user = _context.Tcusers.Find(userId);
+                Tcuser user = await _context.Tcusers.FindAsync(userId);
                 if (user == null)
                 {
-                    await transaction.RollbackAsync();
-                    return false;
+                    user = new Tcuser
+                    {
+                        Id = userId,
+                        Name = username
+                    };
+                    _context.Tcusers.Add(user);
+
+                    await _context.SaveChangesAsync();
+                    await transaction.CommitAsync();
+
+                    return true;
                 }
 
                 user.Name = username;
@@ -45,6 +57,7 @@ namespace Trail_Composer.Models.Services
             catch (Exception ex)
             {
                 await transaction.RollbackAsync();
+                Log.Debug(ex.Message);
             }
             return false;
         }
