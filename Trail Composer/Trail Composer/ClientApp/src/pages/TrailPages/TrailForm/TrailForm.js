@@ -6,180 +6,166 @@ import Multiselect from 'multiselect-react-dropdown';
 import { useMsal, useAccount, useMsalAuthentication, AuthenticatedTemplate } from "@azure/msal-react";
 import { InteractionType } from '@azure/msal-browser';
 import styles from './TrailForm.module.css';
-import SegmentModal from '../../../modals/SegmentModal/SegmentModal' //RWW SegmentModal new
+import SegmentModal from '../../../modals/SegmentModal/SegmentModal'
 import { getAuthHeader } from '../../../utils/auth/getAuthHeader.js';
-import { PoiTable } from '../../../components/tables/PoiTable/PoiTable.tsx';
+import { SegmentTable } from '../../../components/tables/SegmentTable/SegmentTable.tsx';
 import { moveUp, moveDown, addRow, deleteRow } from '../../../components/tables/rowActions.js';
-import { flattenData } from '../../../components/tables/PoiTable/flattenData.js';
+import { flattenData } from '../../../components/tables/SegmentTable/flattenData.js';
 import { useTcStore } from '../../../store/TcStore.js';
 import MapModal from "../../../modals/MapModal/MapModal";
 import PropTypes from 'prop-types';
 import SectionTitle from "../../../components/SectionTitle/SectionTitle";
-import {geoRefFloatToIntStr} from "../../../utils/geoRef";
 
 const TrailForm = ({editMode}) => {
-  const appData = useContext(AppContext);
   const { result, error } = useMsalAuthentication(InteractionType.Redirect, { scopes: ['openid', 'offline_access'] });
   const { instance: pca, accounts } = useMsal();
   const account = useAccount(accounts[0] || {});
   const navigate = useNavigate();
 
-  const { segmentId } = useParams();
-  const [localSegmentId, setLocalSegmentId] = useState(segmentId);
+  const { trailId } = useParams();
+  const [localTrailId, setLocalTrailId] = useState(trailId);
   //const [editMode, setEditMode] = useState(false);
-  const [poiModal, setPoiModal] = useState(false);
+  const [segmentModal, setSegmentModal] = useState(false);
   const [mapModal, setMapModal] = useState(false);
 
   const [formErrors, setFormErrors] = useState({});
   const [submitting, setSubmitting] = useState(false);
   const [formErrorMessage, setFormErrorMessage] = useState('');
-  const [gpxType, setGpxType] = useState('gpx');
 
   const [selectedTypes, setSelectedTypes] = useState([]);
-  const [selectedCountry, setSelectedCountry] = useState(29);
-  const [selectedSegmentLevel, setSelectedSegmentLevel] = useState(1);
-  const [segmentName, setSegmentName] = useState('');
-  const [segmentDescription, setSegmentDescription] = useState('');
-  const [gpxFile, setGpxFile] = useState(null);
+  const [selectedCountries, setSelectedCountries] = useState([{id: 29, name: 'Polska'}]);
+  const [selectedTrailLevel, setSelectedTrailLevel] = useState(1);
+  const [trailName, setTrailName] = useState('');
+  const [trailDescription, setTrailDescription] = useState('');
   const [gpxPreview, setGpxPreview] = useState(null);
+  const [countriesOptions, setCountriesOptions] = useState([]);
+  const [storeReady, setStoreReady] = useState(false);
 
   const pathLevels = useTcStore((state) => state.pathLevels);
   const pathTypes = useTcStore((state) => state.pathTypes);
   const toggleSpinner = useTcStore((state) => state.toggleSpinner);
+  const spinnerON = useTcStore((state) => state.spinnerON);
+  const spinnerOFF = useTcStore((state) => state.spinnerOFF);
+  const Countries = useTcStore(state => state.Countries);
+  const CountryNamesMap = useTcStore(state => state.CountryNamesMap);
 
   let formData = useRef(new FormData());
-  const gpxValidationNegative = useRef(false);
-  const TCfileReader = useRef(null);
+  const blockClicks = useRef(false);
 
-  const togglePoiModal = () => setPoiModal(p => (!p));
+  const toggleSegmentModal = () => setSegmentModal(p => (!p));
   const toggleMapModal = () => setMapModal(m => (!m));
 
-  // states needed for PoiTable
+  // states needed for SegmentTable
   const [data, setData] = useState([]);
   const showColumns = {
     'id': false,
     'username': false,
-    'latitude': false,
-    'longitude': false,
+    'pathLength': false,
+    'level': false,
     'country': false,
-    'poiTypes': false
+    'pathTypes': false
   }
 
   useEffect(() => {
-    TCfileReader.current = new FileReader();
-
-    TCfileReader.current.onloadend = () => {
-      setGpxPreview(() => {
-        toggleMapModal();
-        return [TCfileReader.current.result];
-      });
-    }
-  }, []);
+    const multiselectOptions = Countries.length > 0 ? Countries.map( (option) =>
+      ({id: option.id, name: option.countryName })) : [];
+    setCountriesOptions(multiselectOptions);
+  }, [Countries]);
 
   useEffect(() => {
-    setLocalSegmentId(segmentId);
+    setStoreReady(Countries.length > 0 && Array.from(CountryNamesMap).length > 0 && pathTypes.length > 0 && pathLevels.length > 0);
+  }, [Countries, CountryNamesMap, pathTypes, pathLevels]);
+
+  useEffect(() => {
+    setLocalTrailId(trailId);
 
     const form = document.getElementById("TrailForm");
     formData.current = new FormData(form);
-    formData.current.set("CountryId", selectedCountry);
+    handleCountries(selectedCountries);
 
-    if (editMode && localSegmentId && appData) {
-      setGpxType('url');
+    if (editMode && trailId && storeReady) {
 
       const fetchData = async () => {
+
         try {
-          const fetchedSegment = await fetch(`tc-api/segment/${localSegmentId}`).then(response => response.json());
+          const fetchedTrail = await fetch(`tc-api/trail/${trailId}`).then(response => response.json());
 
-          setSelectedCountry(fetchedSegment.countryId);
-          setSegmentName(fetchedSegment.name);
-          setSelectedSegmentLevel(fetchedSegment.levelId);
+          setTrailName(fetchedTrail.name);
+          setSelectedTrailLevel(fetchedTrail.levelId);
 
+          const fetchedCountriesOptions = fetchedTrail.countryIds.map( id => ({ id: id, name: CountryNamesMap.get(id) }));
+          handleCountries(fetchedCountriesOptions);
 
           let fetchedPathTypes = pathTypes.filter(type => {
-            const foundType = fetchedSegment.pathTypeIds.find((fetchedTypeId) => fetchedTypeId == type.id);
+            const foundType = fetchedTrail.pathTypeIds.find((fetchedTypeId) => fetchedTypeId == type.id);
             return foundType;
           });
-          setSelectedTypes(fetchedPathTypes);
+          handlePathTypes(fetchedPathTypes);
 
-          await fetch(`tc-api/poi/list/segment/${localSegmentId}`)
+          await fetch(`tc-api/segment/list/trail/${localTrailId}`)
             .then((response) => response.json())
-            .then((fetchedPois) => flattenData(fetchedPois, appData))
-            .then((fetchedPois) => setData([...fetchedPois]));
+            .then((fetchedSegments) => flattenData(fetchedSegments, CountryNamesMap, pathTypes, pathLevels))
+            .then((fetchedSegments) => setData([...fetchedSegments]));
 
-          setGpxPreview([`tc-api/segment/gpx/${localSegmentId}`]);
+          updateGpxPreview(fetchedTrail.segmentIds);
 
-          console.info("fetchedSegment.description",fetchedSegment.description === null ? 'przyszedl null' : 'przyszedl string');
-          if (fetchedSegment.description === null || fetchedSegment.description === "null") {
-            setSegmentDescription('');
+          console.info("fetchedTrail.description",fetchedTrail.description === null ? 'przyszedl null' : 'przyszedl string');
+          if (fetchedTrail.description === null || fetchedTrail.description === "null") {
+            setTrailDescription('');
             formData.current.set('Description', '');
           } else {
-            setSegmentDescription(fetchedSegment.description);
-            formData.current.set('Description', fetchedSegment.description);
+            setTrailDescription(fetchedTrail.description);
+            formData.current.set('Description', fetchedTrail.description);
           }
 
-          formData.current.set('Name', fetchedSegment.name);
-          formData.current.set('CountryId', fetchedSegment.countryId);
-          formData.current.set('LevelId', fetchedSegment.levelId);
-          formData.current.set('Gpx', '');
-
-          const lengthNum = parseFloat(fetchedSegment?.length);
-          const lengthNumRounded = Number.isNaN(lengthNum) ? 0 : Math.round(lengthNum);
-          formData.current.set('Length', lengthNumRounded.toString());
-          handlePathTypes(fetchedPathTypes);
+          formData.current.set('Name', fetchedTrail.name);
+          formData.current.set('LevelId', fetchedTrail.levelId);
 
           showFormData(formData.current, "starting editMode");
         } catch (error) {
-          console.error('Error fetching poi:', error);
+          console.error('Error fetching trail:', error);
         }
       };
 
       fetchData();
     }
-  }, [editMode, localSegmentId, appData, segmentId]);
 
-  useEffect(() => { console.info("gpx file", gpxFile) }, [gpxFile]);
+  }, [editMode, localTrailId, trailId, Countries, CountryNamesMap, pathTypes, pathLevels, storeReady]);
+
   useEffect(() => { console.info("table data", data) }, [data]);
   useEffect(() => { console.info("formErrors", formErrors) }, [formErrors]);
 
+  const updateGpxPreview = (segmentList) => {
+    let GpxPreviewArr = null;
+    if(segmentList.length > 0) {
+      GpxPreviewArr = segmentList.map((segmentId) => `tc-api/segment/gpx/${segmentId}`);
+    }
+    setGpxPreview(GpxPreviewArr);
+  }
+
   const validateInput = (name, value) => {
     const emptyMsg = 'Pole jest wymagane.';
+    const chooseOptionMsg = 'Wybierz co najmniej jedną opcję.';
 
     switch (name) {
       case "Name":
         if (value.trim() === '')
           return emptyMsg;
         break;
-      case "CountryId":
+      case "CountryIds":
+        if(value.length < 1)
+          return chooseOptionMsg;
         break;
       case "PathTypeIds":
         if (value.length < 1)
-          return 'Wybierz co najmniej jedną opcję.';
+          return chooseOptionMsg;
         break;
       case "LevelId":
-        break;
-      case "Gpx":
-        console.info("File[0]", value);
-        console.info("File[0] value type", value.type);
-        const fileValue = value;
-        if (editMode && (!fileValue || !fileValue.name))
-          return '';
-        else if (!fileValue || !fileValue.name)
-          return emptyMsg  // Gpx file is required
-        else if (!fileValue.name.match(/.*\.gpx/))
-          return 'Plik ma rozszerzenie inne niż gpx.';
-        else if (fileValue.size > 1024 * 1024 * 10)
-          return 'Rozmiar pliku zbyt duży. Rozmiar gpx przekracza 10 MB.';
-        else if (fileValue.size < 1)
-          return 'Rozmiar pliku zbyt mały. Rozmiar gpx 0 bytes.';
-        else if (gpxValidationNegative.current)
-          return 'Nie powidło się parsowanie pliku gpx.';
-        else
-          return ''; // other cases are accepted
         break;
       case "Description":
         // description is optional
         break;
-      case "PoiIds":
+      case "segmentIds":
         break;
       default:
     }
@@ -189,50 +175,48 @@ const TrailForm = ({editMode}) => {
 
   const handleInputChange = (e) => {
     const { name, value, files } = e.target;
-
+    let multiSelectCase = false;
     switch (name) {
-      case "Gpx":
-        gpxValidationNegative.current = false;
-        const errors = validateInput(name, files[0]);
-        if (gpxType === 'url')
-          setGpxType('gpx');
-        if (files.length > 0) {
-          if (!errors) {
-            toggleSpinner();
-            TCfileReader.current.readAsText(files[0]);
-          }
-        } else {
-          setGpxPreview(null);
-        }
-        formData.current.set(name, files[0]);
-        setFormErrors(formErrors => ({ ...formErrors, [name]: errors }));
-        setGpxFile(value);
-        return;
-      case "CountryId":
-        setSelectedCountry(value);
-        break;
       case "Name":
-        setSegmentName(value);
+        setTrailName(value);
         break;
       case "LevelId":
-        setSelectedSegmentLevel(value);
+        setSelectedTrailLevel(value);
         break;
       case "Description":
-        setSegmentDescription(value);
+        setTrailDescription(value);
         break;
+      default:
+        multiSelectCase = true;
     }
 
     const errors = validateInput(name, value);
-    formData.current.set(name, value);
+    if(!multiSelectCase) {
+      formData.current.set(name, value);
+    }
     setFormErrors(formErrors => ({ ...formErrors, [name]: errors }));
+  };
+
+  const handleCountries = (selectedList) => {
+    const name = "CountryIds";
+    setSelectedCountries([...selectedList]);
+
+    formData.current.delete(name);
+    if (selectedList.length === 0) {
+      formData.current.set(name, '');
+    } else {
+      selectedList.forEach((option) => { formData.current.append(name, option.id); });
+    }
+    const errors = validateInput(name, selectedList);
+    setFormErrors({ ...formErrors, [name]: errors });
   };
 
   const handleSubmit = async (e) => {
     e.preventDefault();
 
-    const poiIdsName = "PoiIds";
-    formData.current.delete(poiIdsName);
-    data.forEach((row) => { formData.current.append(poiIdsName, row.id); });
+    const segmentIdsName = "SegmentIds";
+    formData.current.delete(segmentIdsName);
+    data.forEach((row) => { formData.current.append(segmentIdsName, row.id); });
 
     const errors = {};
     formData.current.forEach((value, key) => {
@@ -255,10 +239,10 @@ const TrailForm = ({editMode}) => {
 
     const authorizationHeader = await getAuthHeader(pca, account);
 
-    let connString = 'tc-api/segment';
+    let connString = 'tc-api/trail';
     let connMethod = 'POST';
     if (editMode) {
-      connString = `tc-api/segment/${localSegmentId}`;
+      connString = `tc-api/trail/${localTrailId}`;
       connMethod = 'PUT';
     }
     toggleSpinner();
@@ -272,27 +256,27 @@ const TrailForm = ({editMode}) => {
       .then(response => {
         if (response.ok) {
           if (response.status === 201 || response.status === 200) {
-            console.log('Segment created successfully');
+            console.log('Trail created successfully');
             return response.json();
           } else {
             console.error('Unexpected response status:', response.status);
             setFormErrorMessage('Nie udało się zapisać odcinka.');
           }
         } else {
-          console.error('Error uploading AddSegment form:', response.status);
+          console.error('Error uploading AddTrail form:', response.status);
           setFormErrorMessage('Nie udało się zapisać odcinka.');
         }
       })
       .then(responseData => {
         if (responseData > -1) {
-          console.log('AddSegment Form uploaded successfully:', responseData);
+          console.log('AddTrail Form uploaded successfully:', responseData);
           if (editMode)
-            console.log("edit Segment")
+            console.log("edit Trail")
           setFormErrorMessage('');
           if (editMode)
-            navigate(`/details-segment/${localSegmentId}`);
+            navigate(`/details-trail/${localTrailId}`);
           else
-            navigate(`/details-segment/${responseData}`);
+            navigate(`/details-trail/${responseData}`);
         }
         else {
           setFormErrorMessage('Nie udało się zapisać odcinka.');
@@ -302,7 +286,7 @@ const TrailForm = ({editMode}) => {
         toggleSpinner();
       })
       .catch(error => {
-        console.error('Error uploading AddSegment form:', error);
+        console.error('Error uploading AddTrail form:', error);
         setFormErrorMessage('Nie udało się zapisać odcinka.');
         setSubmitting(false);
         toggleSpinner();
@@ -322,24 +306,11 @@ const TrailForm = ({editMode}) => {
     formData.current.delete(name);
     if (selectedList.length === 0) {
       formData.current.set(name, '');
+    } else {
+      selectedList.forEach((option) => { formData.current.append(name, option.id); });
     }
-    selectedList.forEach((option) => { formData.current.append(name, option.id); });
 
     const errors = validateInput(name, selectedList);
-    setFormErrors(formErrors => ({ ...formErrors, [name]: errors }));
-  };
-
-  const deleteGpx = () => {
-    console.log("deleteGpx");
-    const name = "Gpx";
-    const value = '';
-
-    setGpxFile(value);
-    setGpxPreview(null);
-
-    gpxValidationNegative.current = false;
-    const errors = validateInput(name, value);
-    formData.current.set(name, value);
     setFormErrors(formErrors => ({ ...formErrors, [name]: errors }));
   };
 
@@ -355,13 +326,24 @@ const TrailForm = ({editMode}) => {
     }
   };
 
-  // functions for PoiModal
+  // functions for SegmentModal
   const onRowSelect = (row) => {
-    setData((d) => [...addRow(d, row)]);
-    setPoiModal(false);
+    if(blockClicks.current) return;
+    blockClicks.current = true
+    setTimeout(() => {
+      blockClicks.current = false;
+    }, 500);
+
+    setData((d) => {
+      const dataTmp = [...addRow(d, row)];
+      updateGpxPreview(dataTmp.map(row => row.id));
+      return dataTmp;
+    });
+
+    setSegmentModal(false);
   };
 
-  // functions for PoiTable
+  // functions for SegmentTable
   const onMoveUp = (row) => {
     console.info("before moveUp", JSON.stringify(data));
     setData((d) => [...moveUp(d, row)]);
@@ -373,16 +355,15 @@ const TrailForm = ({editMode}) => {
   };
 
   const onDelete = (row) => {
-    setData((d) => [...deleteRow(d, row)]);
+    setData((d) => {
+      const dataTmp = [...deleteRow(d, row)];
+      updateGpxPreview(dataTmp.map(row => row.id));
+      return dataTmp;
+    });
+
   };
 
   const gpxNotValidated = () => {
-    gpxValidationNegative.current = true;
-    const name = "Gpx";
-    const value = {};
-    const errors = validateInput(name, value);
-    formData.current.set(name, value);
-    setFormErrors(formErrors => ({ ...formErrors, [name]: errors }));
     toggleSpinner();
     setGpxPreview(null);
     toggleMapModal();
@@ -390,30 +371,16 @@ const TrailForm = ({editMode}) => {
 
   const gpxValidated = (boundingBox, distance) => {
     toggleSpinner();
-    formData.current.set('Length', Math.round(distance)); // rounded to 1 meter
-    const { lat: maxLatitude, lng: maxLongitude } = boundingBox.getNorthEast();
-    const { lat: minLatitude, lng: minLongitude } = boundingBox.getSouthWest();
-    formData.current.set('MaxLatitude', geoRefFloatToIntStr(maxLatitude));
-    formData.current.set('MaxLongitude', geoRefFloatToIntStr(maxLongitude));
-    formData.current.set('MinLatitude', geoRefFloatToIntStr(minLatitude));
-    formData.current.set('MinLongitude', geoRefFloatToIntStr(minLongitude));
-
-    console.info('boudingBox: ', boundingBox);
-    console.info('maxLatitude: ', geoRefFloatToIntStr(maxLatitude));
-    console.info('maxLongitude: ', geoRefFloatToIntStr(maxLongitude));
-    console.info('minLatitude: ', geoRefFloatToIntStr(minLatitude));
-    console.info('minLongitude: ', geoRefFloatToIntStr(minLongitude));
-    console.info("distance rounded to meters [m]:", Math.round(distance));
   };
 
   return (
     <div className={styles.TrailForm}>
-      <SegmentModal isOpen={poiModal} toggle={togglePoiModal} onRowSelect={onRowSelect} /> //RWW SegmentModal new
+      <SegmentModal isOpen={segmentModal} toggle={toggleSegmentModal} onRowSelect={onRowSelect} />
       <MapModal
         isOpen={mapModal}
         toggle={toggleMapModal}
         gpxArr={gpxPreview}
-        type={gpxType}
+        type={'url'}
         {...{ gpxNotValidated, gpxValidated }}
       />
       <Form id="TrailForm" onSubmit={handleSubmit} encType="multipart/form-data">
@@ -425,12 +392,12 @@ const TrailForm = ({editMode}) => {
             <Col sm={12} xxl={6}>
 
               <FormGroup row>
-                <Label for="SegmentName" sm={4} lg={3} className="text-end">Nazwa</Label>
+                <Label for="TrailName" sm={4} lg={3} className="text-end">Nazwa</Label>
                 <Col sm={8} lg={9} >
                   <Input
                     name="Name"
-                    id="SegmentName"
-                    value={segmentName}
+                    id="TrailName"
+                    value={trailName}
                     onChange={handleInputChange}
                     invalid={!!formErrors.Name}
                     placeholder="wprowadź maksymalnie 50 liter"
@@ -441,26 +408,24 @@ const TrailForm = ({editMode}) => {
               </FormGroup>
 
               <FormGroup row>
-                <Label for="SegmentCountry" sm={4} lg={3} className="text-end">Kraj</Label>
+                <Label for="CountryIds" sm={4} lg={3} className="text-end">Kraje</Label>
                 <Col sm={8} lg={9} >
-                  <Input
-                    name="CountryId"
-                    id="SegmentCountry"
-                    type="select"
-                    onChange={handleInputChange}
-                    invalid={!!formErrors.CountryId}
-                    value={selectedCountry}
-                  >
-                    {
-                      appData ?
-                        appData.Countries.map((option) => (
-                          <option key={option.id} value={option.id}>
-                            {option.countryName}
-                          </option>
-                        )) : null
-                    }
-                  </Input>
-                  <FormFeedback>{formErrors.CountryId}</FormFeedback>
+                  {
+                    storeReady &&
+                    (<Multiselect
+                      id="CountryIds"
+                      options={countriesOptions}
+                      selectedValues={selectedCountries}
+                      onSelect={handleCountries}
+                      onRemove={handleCountries}
+                      displayValue="name"
+                      showCheckbox
+                      placeholder="wybierz"
+                      className={!!formErrors.CountryIds ? styles.MultiselectError : styles.Multiselect}
+                    />)
+                  }
+                  <Input name="CountryIds" invalid={!!formErrors.CountryIds} className="d-none"></Input>
+                  <FormFeedback>{formErrors.CountryIds}</FormFeedback>
                 </Col>
               </FormGroup>
 
@@ -468,7 +433,7 @@ const TrailForm = ({editMode}) => {
                 <Label for="PathTypeIds" sm={4} lg={3} className="text-end">Typ ścieżki</Label>
                 <Col sm={8} lg={9} >
                   {
-                    !!appData &&
+                    storeReady &&
                     (<Multiselect
                       id="PathTypeIds"
                       options={pathTypes}
@@ -495,10 +460,10 @@ const TrailForm = ({editMode}) => {
                     type="select"
                     onChange={handleInputChange}
                     invalid={!!formErrors.LevelId}
-                    value={selectedSegmentLevel}
+                    value={selectedTrailLevel}
                   >
                     {
-                      pathLevels ?
+                      storeReady ?
                         pathLevels.map((option) => (
                           <option key={option.id} value={option.id}>
                             {option.name}
@@ -511,39 +476,13 @@ const TrailForm = ({editMode}) => {
               </FormGroup>
 
               <FormGroup row>
-                <Label for="GpxFile" sm={4} lg={3} className="text-end">Plik gpx</Label>
-                <Col sm={8} lg={9} >
-                  <Row>
-                    <Col sm={10}>
-                      <Input
-                        type="file"
-                        name="Gpx"
-                        id="GpxFile"
-                        value={gpxFile}
-                        onChange={handleInputChange}
-                        invalid={!!formErrors.Gpx}
-                        accept=".gpx"
-                      />
-                      <FormFeedback>{formErrors.Gpx}</FormFeedback>
-                    </Col>
-                    <Col sm={2}>
-                      <div class="mt-2 mt-lg-0">
-                        {gpxFile && (<i role="button" onClick={deleteGpx} className="bi bi-trash fs-4"></i>)}
-                        {gpxPreview && (<i role="button" onClick={showGpx} className="bi bi-binoculars fs-4 ms-2"></i>)}
-                      </div>
-                    </Col>
-                  </Row>
-                </Col>
-              </FormGroup>
-
-              <FormGroup row>
-                <Label for="SegmentDescription" sm={4} lg={3} className="text-end">Opis</Label>
+                <Label for="TrailDescription" sm={4} lg={3} className="text-end">Opis</Label>
                 <Col sm={8} lg={9} >
                   <Input
                     type="textarea"
                     name="Description"
-                    id="SegmentDescription"
-                    value={segmentDescription}
+                    id="TrailDescription"
+                    value={trailDescription}
                     onChange={handleInputChange}
                     invalid={!!formErrors.Description}
                     placeholder="wprowadź maksymalnie 2048 znaki"
@@ -555,9 +494,6 @@ const TrailForm = ({editMode}) => {
               </FormGroup>
 
               <div className={styles.Buttons + ' d-none d-xxl-block'}>
-                <Button>
-                  Wyczyść
-                </Button>
                 <Button type="submit" disabled={submitting}>
                   {submitting ? 'Zapisuję...' : 'Zapisz'}
                 </Button>
@@ -566,11 +502,12 @@ const TrailForm = ({editMode}) => {
 
             <Col sm={12} xxl={6} className='d-flex flex-column align-items-sm-start'>
               <div>
-                <Button onClick={togglePoiModal} className={styles.PoiModalButton}>
+                <Button onClick={toggleSegmentModal} className={styles.SegmentModalButton}>
                   Dodaj odcinek
                 </Button>
+                {gpxPreview && (<i role="button" onClick={showGpx} className="bi bi-eye fs-2 ms-2 "></i>)}
               </div>
-              <PoiTable {...{ data, showColumns, onMoveDown, onMoveUp, onDelete }} />
+              <SegmentTable {...{ data, showColumns, onMoveDown, onMoveUp, onDelete }} />
             </Col>
           </Row>
 

@@ -16,7 +16,7 @@ export const AppContext = createContext(null);
 const App = () => {
   const [appData, setAppData] = useState(null);
   const Countries = useTcStore(state => state.Countries);
-  const CountriesNamesMap = useTcStore(state => state.CountryNamesMap);
+  const CountryNamesMap = useTcStore(state => state.CountryNamesMap);
   const POITypes = useTcStore(state => state.POITypes);
   const POITypesMap = useTcStore(state => state.POITypesMap);
   const initDictionaries = useTcStore((state) => state.initDictionaries);
@@ -127,11 +127,11 @@ const App = () => {
   useEffect(() => {
     const initialData = {};
     initialData.Countries = Countries;
-    initialData.CountryNamesMap = CountriesNamesMap;
+    initialData.CountryNamesMap = CountryNamesMap;
     initialData.POITypes = POITypes;
     initialData.PoiTypesMap = POITypesMap;
     setAppData(initialData);
-  }, [Countries, CountriesNamesMap, POITypes, POITypesMap]);
+  }, [Countries, CountryNamesMap, POITypes, POITypesMap]);
 
   return (
     <AppContext.Provider value={appData}>

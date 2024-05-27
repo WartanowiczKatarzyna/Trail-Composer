@@ -42,9 +42,13 @@ textarea.Description:not(abc) {
     padding: 15px;
 }
 
-.PoiModalButton:not(abc):not(bcd){
+.SegmentModalButton:not(abc):not(bcd){
     margin-left: 0;
     margin-bottom: 1rem;
+}
+
+.MultiselectContainer {
+    min-height: 6.6rem;
 }
 
 .Multiselect {

@@ -49,9 +49,10 @@ const SegmentForm = ({editMode}) => {
   const toggleSpinner = useTcStore((state) => state.toggleSpinner);
 
   let formData = useRef(new FormData());
+
   const gpxValidationNegative = useRef(false);
   const TCfileReader = useRef(null);
-
+  const blockClicks = useRef(false);
   const togglePoiModal = () => setPoiModal(p => (!p));
   const toggleMapModal = () => setMapModal(m => (!m));
 
@@ -130,7 +131,7 @@ const SegmentForm = ({editMode}) => {
 
           showFormData(formData.current, "starting editMode");
         } catch (error) {
-          console.error('Error fetching poi:', error);
+          console.error('Error fetching segment:', error);
         }
       };
 
@@ -159,8 +160,6 @@ const SegmentForm = ({editMode}) => {
       case "LevelId":
         break;
       case "Gpx":
-        console.info("File[0]", value);
-        console.info("File[0] value type", value.type);
         const fileValue = value;
         if (editMode && (!fileValue || !fileValue.name))
           return '';
@@ -358,6 +357,12 @@ const SegmentForm = ({editMode}) => {
 
   // functions for PoiModal
   const onRowSelect = (row) => {
+    if(blockClicks.current) return;
+    blockClicks.current = true
+    setTimeout(() => {
+      blockClicks.current = false;
+    }, 500);
+
     setData((d) => [...addRow(d, row)]);
     setPoiModal(false);
   };
@@ -530,7 +535,7 @@ const SegmentForm = ({editMode}) => {
                     <Col sm={2}>
                       <div class="mt-2 mt-lg-0">
                         {gpxFile && (<i role="button" onClick={deleteGpx} className="bi bi-trash fs-4"></i>)}
-                        {gpxPreview && (<i role="button" onClick={showGpx} className="bi bi-binoculars fs-4 ms-2"></i>)}
+                        {gpxPreview && (<i role="button" onClick={showGpx} className="bi bi-eye fs-4 ms-2"></i>)}
                       </div>
                     </Col>
                   </Row>
@@ -556,9 +561,6 @@ const SegmentForm = ({editMode}) => {
               </FormGroup>
 
               <div className={styles.Buttons + ' d-none d-xxl-block'}>
-                <Button>
-                  Wyczyść
-                </Button>
                 <Button type="submit" disabled={submitting}>
                   {submitting ? 'Zapisuję...' : 'Zapisz'}
                 </Button>

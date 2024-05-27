@@ -1,4 +1,5 @@
-﻿using Microsoft.AspNetCore.Mvc;
+﻿using Microsoft.AspNetCore.Authorization;
+using Microsoft.AspNetCore.Mvc;
 using Serilog;
 using Trail_Composer.Data;
 using Trail_Composer.Models.DTOs;
@@ -19,6 +20,7 @@ namespace Trail_Composer.Controllers
             _tcuserService = tcuserService;
         }
 
+        [Authorize]
         [HttpGet]
         public async Task<IActionResult> GetUsername()
         {
@@ -32,7 +34,8 @@ namespace Trail_Composer.Controllers
                 return StatusCode(500, ex.Message);
             }
         }
-        
+
+        [Authorize]
         [HttpPut]
         public async Task<IActionResult> ChangeUsername()
         {

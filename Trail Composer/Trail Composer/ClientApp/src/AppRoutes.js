@@ -21,7 +21,7 @@ const AppRoutes = [
     element: <TrailForm editMode={false}/>
   },
   {
-    path: '/edit-trail/:trail',
+    path: '/edit-trail/:trailId',
     element: <TrailForm editMode={true}/>
   },
   {

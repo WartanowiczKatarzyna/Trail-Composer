@@ -29,6 +29,7 @@ const UserSegmentListPage = () => {
 
   const showColumns = {
     'id': false,
+    'username': false
   }
 
   const fetchData = async () => {
