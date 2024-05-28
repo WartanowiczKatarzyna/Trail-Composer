@@ -407,13 +407,6 @@ namespace Trail_Composer.Models.Services
                     seg.PathLength
                 }).ToListAsync();
 
-            int minLongitude = boundingBoxList.Select(bb => bb.MinLongitude).Min();
-            int maxLongitude = boundingBoxList.Select(bb => bb.MaxLongitude).Max();
-            int minLatitude = boundingBoxList.Select(bb => bb.MinLatitude).Min();
-            int maxLatitude = boundingBoxList.Select(bb => bb.MaxLatitude).Max();
-
-            int totalLength = boundingBoxList.Select(bb => bb.PathLength).Sum();
-
             BoundingBox result = new()
             {
                 MinLongitude = boundingBoxList.Select(bb => bb.MinLongitude).Min(),
