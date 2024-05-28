@@ -38,7 +38,7 @@ namespace Trail_Composer.Models.Services
                     CountryId = seg.CountryId,
                     LevelId = seg.LevelId,
                     PathTypeIds = seg.SegmentTypes.Select(segType => segType.PathType).Select(pathType => pathType.Id).ToList(),
-                    PoiIds = seg.SegmentPois.Select(segPoi => segPoi.Id).ToList(),
+                    PoiIds = seg.SegmentPois.Select(segPoi => segPoi.PoiId).ToList(),
                 })
                 .Where(seg => seg.Id == id)
                 .SingleOrDefaultAsync();
@@ -75,7 +75,7 @@ namespace Trail_Composer.Models.Services
                     LevelId = seg.LevelId,
                     PathLength = seg.PathLength,
                     PathTypeIds = seg.SegmentTypes.Select(segType => segType.PathType).Select(pathType => pathType.Id).ToList(),
-                    PoiIds = seg.SegmentPois.Select(segPoi => segPoi.Id).ToList(),
+                    PoiIds = seg.SegmentPois.Select(segPoi => segPoi.PoiId).ToList(),
                 })
                 .ToListAsync();
 
@@ -145,10 +145,12 @@ namespace Trail_Composer.Models.Services
         {
             var segmentList = await _context.Segments
                 .Include(seg => seg.SegmentTypes)
+                .Include(seg => seg.Tcuser)
                 .Join(
                     _context.TrailSegments,
                     seg => seg.Id,
-                    ts => ts.TrailId,
+                    ts => ts.SegmentId
+                    ,
                     (seg, ts) => new { seg, ts }
                 )
                 .Where(mergedElem => mergedElem.ts.TrailId == trailId)
@@ -163,7 +165,7 @@ namespace Trail_Composer.Models.Services
                     LevelId = mergedElem.seg.LevelId,
                     PathLength = mergedElem.seg.PathLength,
                     PathTypeIds = mergedElem.seg.SegmentTypes.Select(segType => segType.PathType).Select(pathType => pathType.Id).ToList(),
-                    PoiIds = mergedElem.seg.SegmentPois.Select(segPoi => segPoi.Id).ToList(),
+                    PoiIds = mergedElem.seg.SegmentPois.Select(segPoi => segPoi.PoiId).ToList(),
                 })
                 .ToListAsync();
 

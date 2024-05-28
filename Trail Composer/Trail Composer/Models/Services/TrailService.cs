@@ -26,9 +26,9 @@ namespace Trail_Composer.Models.Services
                     Username = trail.Tcuser.Name,
                     Description = trail.Description,
                     LevelId = trail.LevelId,
-                    CountryIds = trail.TrailCountries.Select(country => country.Id).ToList(),
+                    CountryIds = trail.TrailCountries.Select(trailCountry => trailCountry.CountryId).ToList(),
                     PathTypeIds = trail.TrailTypes.Select(trailType => trailType.PathType).Select(pathType => pathType.Id).ToList(),
-                    SegmentIds = trail.TrailSegments.Select(trailSeg => trailSeg.Id).ToList(),
+                    SegmentIds = trail.TrailSegments.Select(trailSeg => trailSeg.SegmentId).ToList(),
                 })
                 .Where(trail => trail.Id == id)
                 .SingleOrDefaultAsync();
@@ -47,9 +47,9 @@ namespace Trail_Composer.Models.Services
                     Name = trail.Name,
                     Username = trail.Tcuser.Name,
                     LevelId = trail.LevelId,
-                    CountryIds = trail.TrailCountries.Select(country => country.Id).ToList(),
+                    CountryIds = trail.TrailCountries.Select(trailCountry => trailCountry.CountryId).ToList(),
                     PathTypeIds = trail.TrailTypes.Select(trailType => trailType.PathType).Select(pathType => pathType.Id).ToList(),
-                    SegmentIds = trail.TrailSegments.Select(trailSeg => trailSeg.Id).ToList(),
+                    SegmentIds = trail.TrailSegments.Select(trailSeg => trailSeg.SegmentId).ToList(),
                 })
                 .ToListAsync();
 
@@ -92,16 +92,15 @@ namespace Trail_Composer.Models.Services
         {
             var trailList = await _context.Trails
                 .Include(trail => trail.TrailTypes)
-                .Where(trail => (
+                .Where(trail => 
                                 trail.TcuserId == userId &&
                                 (trail.TrailCountries.Any(countryId => countryIds.Contains(countryId.CountryId)) ||
-                                //(trail.TrailCountries.Select(trailCountry => trailCountry.CountryId).ToList().Intersect(countryIds).Any() || 
                                 (countryIds.Length == 0)) &&
-                                (trail.MinLatitude > minLatitude) &&
-                                (trail.MaxLatitude < maxLatitude) &&
-                                (trail.MinLongitude > minLongitude) &&
-                                (trail.MaxLongitude < maxLongitude)
-                            ))
+                                (trail.MinLatitude >= minLatitude) &&
+                                (trail.MaxLatitude <= maxLatitude) &&
+                                (trail.MinLongitude >= minLongitude) &&
+                                (trail.MaxLongitude <= maxLongitude)
+                            )                            
                 .Select(trail => new TrailToApi
                 {
                     Id = trail.Id,
@@ -109,7 +108,7 @@ namespace Trail_Composer.Models.Services
                     Name = trail.Name,
                     Username = trail.Tcuser.Name,
                     LevelId = trail.LevelId,
-                    CountryIds = trail.TrailCountries.Select(country => country.Id).ToList(),
+                    CountryIds = trail.TrailCountries.Select(trailCountry => trailCountry.CountryId).ToList(),
                     PathTypeIds = trail.TrailTypes.Select(trailType => trailType.PathType).Select(pathType => pathType.Id).ToList()
                 })
                 .OrderBy(trail => trail.Id)
@@ -146,15 +145,20 @@ namespace Trail_Composer.Models.Services
                 }
 
                 // adding Trail
+
+                // finding bounding box
+                BoundingBox boundingBox = await FindBoundingBoxAndTotalLengthAsync(trail.SegmentIds);
+
                 var newTrail = new Trail
                 {
                     TcuserId = user.Id,
                     Name = trail.Name,
                     Description = trail.Description,
-                    MinLongitude = trail.MinLongitude.GetValueOrDefault(),
-                    MaxLongitude = trail.MaxLongitude.GetValueOrDefault(),
-                    MinLatitude = trail.MinLatitude.GetValueOrDefault(),
-                    MaxLatitude = trail.MaxLatitude.GetValueOrDefault(),
+                    MinLongitude = boundingBox.MinLongitude,
+                    MaxLongitude = boundingBox.MaxLongitude,
+                    MinLatitude = boundingBox.MinLatitude,
+                    MaxLatitude = boundingBox.MaxLatitude,
+                    TotalLength = boundingBox.TotalLength,
                     Level = level,
                 };
 
@@ -259,12 +263,17 @@ namespace Trail_Composer.Models.Services
                     return false;
                 }
 
+                // find new bounding box + total length
+                BoundingBox boundingBox = await FindBoundingBoxAndTotalLengthAsync(trailApi.SegmentIds);
+
                 trailDb.Name = trailApi.Name;
                 trailDb.Description = trailApi.Description;
-                trailDb.MinLongitude = trailApi.MinLongitude.GetValueOrDefault();
-                trailDb.MaxLongitude = trailApi.MaxLongitude.GetValueOrDefault();
-                trailDb.MinLatitude = trailApi.MinLatitude.GetValueOrDefault();
-                trailDb.MaxLatitude = trailApi.MaxLatitude.GetValueOrDefault();
+                trailDb.MinLongitude = boundingBox.MinLongitude;
+                trailDb.MaxLongitude = boundingBox.MaxLongitude
+                    ;
+                trailDb.MinLatitude = boundingBox.MinLatitude;
+                trailDb.MaxLatitude = boundingBox.MaxLatitude;
+                trailDb.TotalLength = boundingBox.TotalLength;
 
                 trailDb.LevelId = trailApi.LevelId;
                 trailDb.Level = trailApiLevel;
@@ -382,6 +391,47 @@ namespace Trail_Composer.Models.Services
                 Log.Error($"DeleteTrailAsync error: {ex.Message}");
             }
             return false;
+        }
+
+        // utility functions
+        private async Task<BoundingBox> FindBoundingBoxAndTotalLengthAsync (ICollection<int> segmentIds)
+        {
+            var boundingBoxList = await _context.Segments
+                .Where(seg => segmentIds.Contains(seg.Id))
+                .Select(seg => new
+                {
+                    seg.MinLongitude, 
+                    seg.MinLatitude,
+                    seg.MaxLatitude, 
+                    seg.MaxLongitude, 
+                    seg.PathLength
+                }).ToListAsync();
+
+            int minLongitude = boundingBoxList.Select(bb => bb.MinLongitude).Min();
+            int maxLongitude = boundingBoxList.Select(bb => bb.MaxLongitude).Max();
+            int minLatitude = boundingBoxList.Select(bb => bb.MinLatitude).Min();
+            int maxLatitude = boundingBoxList.Select(bb => bb.MaxLatitude).Max();
+
+            int totalLength = boundingBoxList.Select(bb => bb.PathLength).Sum();
+
+            BoundingBox result = new()
+            {
+                MinLongitude = boundingBoxList.Select(bb => bb.MinLongitude).Min(),
+                MaxLongitude = boundingBoxList.Select(bb => bb.MaxLongitude).Max(),
+                MinLatitude = boundingBoxList.Select(bb => bb.MinLatitude).Min(),
+                MaxLatitude = boundingBoxList.Select(bb => bb.MaxLatitude).Max(),
+                TotalLength = boundingBoxList.Select(bb => bb.PathLength).Sum()
+            };
+            return result;
+        }
+
+        private class BoundingBox
+        {
+            public int MinLongitude { get; set; }
+            public int MaxLongitude { get; set; }
+            public int MinLatitude { get; set; }
+            public int MaxLatitude { get; set; }
+            public int TotalLength { get; set; }
         }
     }
 }

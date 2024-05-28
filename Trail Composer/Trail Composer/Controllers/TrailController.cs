@@ -47,12 +47,13 @@ namespace Trail_Composer.Controllers
             return Ok(result);
         }
 
-        [Authorize]
+        //[Authorize]
         [HttpGet("list/user/filtered")]
         public async Task<IActionResult> GetFilteredUserTrailList([FromQuery] int[] countryIds, [FromQuery] int minLatitude, [FromQuery] int maxLatitude,
             [FromQuery] int minLongitude, [FromQuery] int maxLongitude)
         {
-            var userId = TCUserDTO.GetUserIdFromContext(this.HttpContext);
+            //var userId = TCUserDTO.GetUserIdFromContext(this.HttpContext);
+            var userId = "703645aa-f169-4aa8-9fc9-e3dbb01960d9";
             var result = await _trailService.GetFilteredUserTrailListAsync(userId, countryIds, minLatitude, maxLatitude, minLongitude, maxLongitude);
             return Ok(result);
         }
