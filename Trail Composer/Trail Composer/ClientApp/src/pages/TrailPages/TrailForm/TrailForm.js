@@ -23,7 +23,6 @@ const TrailForm = ({editMode}) => {
   const navigate = useNavigate();
 
   const { trailId } = useParams();
-  const [localTrailId, setLocalTrailId] = useState(trailId);
   //const [editMode, setEditMode] = useState(false);
   const [segmentModal, setSegmentModal] = useState(false);
   const [mapModal, setMapModal] = useState(false);
@@ -77,7 +76,6 @@ const TrailForm = ({editMode}) => {
   }, [Countries, CountryNamesMap, pathTypes, pathLevels]);
 
   useEffect(() => {
-    setLocalTrailId(trailId);
 
     const form = document.getElementById("TrailForm");
     formData.current = new FormData(form);
@@ -102,7 +100,7 @@ const TrailForm = ({editMode}) => {
           });
           handlePathTypes(fetchedPathTypes);
 
-          await fetch(`tc-api/segment/list/trail/${localTrailId}`)
+          await fetch(`tc-api/segment/list/trail/${trailId}`)
             .then((response) => response.json())
             .then((fetchedSegments) => flattenData(fetchedSegments, CountryNamesMap, pathTypes, pathLevels))
             .then((fetchedSegments) => setData([...fetchedSegments]));
@@ -130,7 +128,7 @@ const TrailForm = ({editMode}) => {
       fetchData();
     }
 
-  }, [editMode, localTrailId, trailId, Countries, CountryNamesMap, pathTypes, pathLevels, storeReady]);
+  }, [editMode, trailId, Countries, CountryNamesMap, pathTypes, pathLevels, storeReady]);
 
   useEffect(() => { console.info("table data", data) }, [data]);
   useEffect(() => { console.info("formErrors", formErrors) }, [formErrors]);
@@ -242,7 +240,7 @@ const TrailForm = ({editMode}) => {
     let connString = 'tc-api/trail';
     let connMethod = 'POST';
     if (editMode) {
-      connString = `tc-api/trail/${localTrailId}`;
+      connString = `tc-api/trail/${trailId}`;
       connMethod = 'PUT';
     }
     toggleSpinner();
@@ -274,7 +272,7 @@ const TrailForm = ({editMode}) => {
             console.log("edit Trail")
           setFormErrorMessage('');
           if (editMode)
-            navigate(`/details-trail/${localTrailId}`);
+            navigate(`/details-trail/${trailId}`);
           else
             navigate(`/details-trail/${responseData}`);
         }

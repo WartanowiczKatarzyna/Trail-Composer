@@ -1,0 +1,26 @@
+.DetailsContainer {
+    background-color: var(--background-color);
+    padding: 20px;
+    font-family: var(--font-family);
+    font-weight: var(--subsection-header-font-weight);
+    font-size: var(--section-header-font-size);
+}
+
+.SectionTitle {
+    font-family: var(--font-family);
+    font-weight: var(--section-header-font-weight);
+    font-size: var(--section-header-font-size);
+
+    margin-top: 1rem;
+    margin-bottom: 1rem;
+
+    border-bottom: var(--main-color);
+    border-bottom-style: solid;
+    border-bottom-width: 1px;
+}
+
+.MapContainer {
+    aspect-ratio: 700 / 500;
+    min-width: 100%;
+}
+

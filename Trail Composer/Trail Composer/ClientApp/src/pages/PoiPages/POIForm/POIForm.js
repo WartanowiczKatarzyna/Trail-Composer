@@ -21,7 +21,6 @@ const PoiForm = ({editMode}) => {
   const navigate = useNavigate();
 
   const { poiId } = useParams();
-  const [localPoiId, setLocalPoiId] = useState(poiId);
 
   const [formErrors, setFormErrors] = useState({});
   const [submitting, setSubmitting] = useState(false);
@@ -51,17 +50,16 @@ const PoiForm = ({editMode}) => {
   },[]);
 
   useEffect(() => {
-    setLocalPoiId(poiId);
 
     const form = document.getElementById("POIForm");
     formData.current = new FormData(form);
     formData.current.set("CountryId", selectedPOICountry);
 
-    if (editMode && localPoiId && appData) {
+    if (editMode && poiId && appData) {
       const fetchData = async () => {
         try {
           toggleSpinner();
-          const fetchedPoi = await fetch(`tc-api/poi/${localPoiId}`).then(response => response.json());
+          const fetchedPoi = await fetch(`tc-api/poi/${poiId}`).then(response => response.json());
           toggleSpinner();
 
           setSelectedPOICountry(fetchedPoi.countryId);
@@ -102,7 +100,7 @@ const PoiForm = ({editMode}) => {
 
       fetchData();
     }
-  }, [appData, editMode, localPoiId, poiId]);
+  }, [appData, editMode, poiId]);
 
   const validateInput = (name, value) => {
     const emptyMsg = 'Pole jest wymagane.';
@@ -235,7 +233,7 @@ const PoiForm = ({editMode}) => {
     let connString = 'tc-api/poi';
     let connMethod = 'POST'
     if (editMode) {
-      connString = `tc-api/poi/${localPoiId}`;
+      connString = `tc-api/poi/${poiId}`;
       connMethod = 'PUT';
     }
     toggleSpinner();
@@ -261,7 +259,7 @@ const PoiForm = ({editMode}) => {
         setSubmitting(false);
         toggleSpinner();
         if (editMode)
-          //navigate(`/details-poi/${localPoiId}`); 
+          //navigate(`/details-poi/${poiId}`);
           navigate(-1);
         else
           navigate(`/details-poi/${data}`);

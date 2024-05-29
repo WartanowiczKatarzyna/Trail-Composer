@@ -26,8 +26,6 @@ const SegmentForm = ({editMode}) => {
   const navigate = useNavigate();
 
   const { segmentId } = useParams();
-  const [localSegmentId, setLocalSegmentId] = useState(segmentId);
-  //const [editMode, setEditMode] = useState(false);
   const [poiModal, setPoiModal] = useState(false);
   const [mapModal, setMapModal] = useState(false);
 
@@ -79,18 +77,17 @@ const SegmentForm = ({editMode}) => {
   }, []);
 
   useEffect(() => {
-    setLocalSegmentId(segmentId);
 
     const form = document.getElementById("SegmentForm");
     formData.current = new FormData(form);
     formData.current.set("CountryId", selectedCountry);
 
-    if (editMode && localSegmentId && appData) {
+    if (editMode && segmentId && appData) {
       setGpxType('url');
 
       const fetchData = async () => {
         try {
-          const fetchedSegment = await fetch(`tc-api/segment/${localSegmentId}`).then(response => response.json());
+          const fetchedSegment = await fetch(`tc-api/segment/${segmentId}`).then(response => response.json());
 
           setSelectedCountry(fetchedSegment.countryId);
           setSegmentName(fetchedSegment.name);
@@ -103,12 +100,12 @@ const SegmentForm = ({editMode}) => {
           });
           setSelectedTypes(fetchedPathTypes);
 
-          await fetch(`tc-api/poi/list/segment/${localSegmentId}`)
+          await fetch(`tc-api/poi/list/segment/${segmentId}`)
             .then((response) => response.json())
             .then((fetchedPois) => flattenData(fetchedPois, appData))
             .then((fetchedPois) => setData([...fetchedPois]));
 
-          setGpxPreview([`tc-api/segment/gpx/${localSegmentId}`]);
+          setGpxPreview([`tc-api/segment/gpx/${segmentId}`]);
 
           console.info("fetchedSegment.description",fetchedSegment.description === null ? 'przyszedl null' : 'przyszedl string');
           if (fetchedSegment.description === null || fetchedSegment.description === "null") {
@@ -137,7 +134,7 @@ const SegmentForm = ({editMode}) => {
 
       fetchData();
     }
-  }, [editMode, localSegmentId, appData, segmentId]);
+  }, [editMode, segmentId, appData]);
 
   useEffect(() => { console.info("gpx file", gpxFile) }, [gpxFile]);
   useEffect(() => { console.info("table data", data) }, [data]);
@@ -258,7 +255,7 @@ const SegmentForm = ({editMode}) => {
     let connString = 'tc-api/segment';
     let connMethod = 'POST';
     if (editMode) {
-      connString = `tc-api/segment/${localSegmentId}`;
+      connString = `tc-api/segment/${segmentId}`;
       connMethod = 'PUT';
     }
     toggleSpinner();
@@ -290,7 +287,7 @@ const SegmentForm = ({editMode}) => {
             console.log("edit Segment")
           setFormErrorMessage('');
           if (editMode)
-            navigate(`/details-segment/${localSegmentId}`);
+            navigate(`/details-segment/${segmentId}`);
           else
             navigate(`/details-segment/${responseData}`);
         }

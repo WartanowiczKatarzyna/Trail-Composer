@@ -139,8 +139,8 @@ const App = () => {
       <PageLayout>
         <Routes>
           {AppRoutes.map((route, index) => {
-            const { element, ...rest } = route;
-            return <Route key={index} {...rest} element={element} />;
+            const { element, key, ...rest } = route;
+            return <Route key={key} {...rest} element={React.cloneElement(element, { key })} />;
           })}
         </Routes>
       </PageLayout>
