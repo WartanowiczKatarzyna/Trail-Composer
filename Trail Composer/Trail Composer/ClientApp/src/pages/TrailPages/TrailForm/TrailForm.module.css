@@ -66,3 +66,11 @@ textarea.Description:not(abc) {
 .MultiselectError > div:first-child {
     border-color: var(--error-color);
 }
+
+.SegmentTable {
+    width: 100%;
+}
+
+.SegmentTableError {
+    border: 1px solid var(--error-color);
+}

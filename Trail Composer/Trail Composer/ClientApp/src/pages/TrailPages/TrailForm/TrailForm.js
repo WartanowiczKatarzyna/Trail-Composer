@@ -82,61 +82,55 @@ const TrailForm = ({editMode}) => {
     handleCountries(selectedCountries);
 
     if (editMode && trailId && storeReady) {
+      fetch(`tc-api/trail/${trailId}`).then(response => response.json()).then(trail => {
+        setTrailName(trail.name);
+        setSelectedTrailLevel(trail.levelId);
 
-      const fetchData = async () => {
+        const fetchedCountriesOptions = trail.countryIds.map( id => ({ id: id, name: CountryNamesMap.get(id) }));
+        handleCountries(fetchedCountriesOptions);
 
-        try {
-          const fetchedTrail = await fetch(`tc-api/trail/${trailId}`).then(response => response.json());
+        let fetchedPathTypes = pathTypes.filter(type => {
+          const foundType = trail.pathTypeIds.find((fetchedTypeId) => fetchedTypeId == type.id);
+          return foundType;
+        });
+        handlePathTypes(fetchedPathTypes);
 
-          setTrailName(fetchedTrail.name);
-          setSelectedTrailLevel(fetchedTrail.levelId);
-
-          const fetchedCountriesOptions = fetchedTrail.countryIds.map( id => ({ id: id, name: CountryNamesMap.get(id) }));
-          handleCountries(fetchedCountriesOptions);
-
-          let fetchedPathTypes = pathTypes.filter(type => {
-            const foundType = fetchedTrail.pathTypeIds.find((fetchedTypeId) => fetchedTypeId == type.id);
-            return foundType;
+        fetch(`tc-api/segment/list/trail/${trailId}`)
+          .then((response) => response.json())
+          .then((fetchedSegments) => flattenData(fetchedSegments, CountryNamesMap, pathTypes, pathLevels))
+          .then((fetchedSegments) => {
+            setData([...fetchedSegments]);
+            updateGpxPreview(fetchedSegments);
+            handleSegmentIds(fetchedSegments);
           });
-          handlePathTypes(fetchedPathTypes);
 
-          await fetch(`tc-api/segment/list/trail/${trailId}`)
-            .then((response) => response.json())
-            .then((fetchedSegments) => flattenData(fetchedSegments, CountryNamesMap, pathTypes, pathLevels))
-            .then((fetchedSegments) => setData([...fetchedSegments]));
-
-          updateGpxPreview(fetchedTrail.segmentIds);
-
-          console.info("fetchedTrail.description",fetchedTrail.description === null ? 'przyszedl null' : 'przyszedl string');
-          if (fetchedTrail.description === null || fetchedTrail.description === "null") {
-            setTrailDescription('');
-            formData.current.set('Description', '');
-          } else {
-            setTrailDescription(fetchedTrail.description);
-            formData.current.set('Description', fetchedTrail.description);
-          }
-
-          formData.current.set('Name', fetchedTrail.name);
-          formData.current.set('LevelId', fetchedTrail.levelId);
-
-          showFormData(formData.current, "starting editMode");
-        } catch (error) {
-          console.error('Error fetching trail:', error);
+        console.info("trail.description",trail.description === null ? 'przyszedl null' : 'przyszedl string');
+        if (trail.description === null || trail.description === "null") {
+          setTrailDescription('');
+          formData.current.set('Description', '');
+        } else {
+          setTrailDescription(trail.description);
+          formData.current.set('Description', trail.description);
         }
-      };
 
-      fetchData();
+        formData.current.set('Name', trail.name);
+        formData.current.set('LevelId', trail.levelId);
+
+        showFormData(formData.current, "starting editMode");
+      }).catch((error) => {
+        console.error('Error fetching trail:', error);
+      });
     }
 
-  }, [editMode, trailId, Countries, CountryNamesMap, pathTypes, pathLevels, storeReady]);
+  }, [editMode, trailId, storeReady]);
 
   useEffect(() => { console.info("table data", data) }, [data]);
   useEffect(() => { console.info("formErrors", formErrors) }, [formErrors]);
 
-  const updateGpxPreview = (segmentList) => {
+  const updateGpxPreview = (segments) => {
     let GpxPreviewArr = null;
-    if(segmentList.length > 0) {
-      GpxPreviewArr = segmentList.map((segmentId) => `tc-api/segment/gpx/${segmentId}`);
+    if(segments.length > 0) {
+      GpxPreviewArr = segments.map((segment) => `tc-api/segment/gpx/${segment.id}`);
     }
     setGpxPreview(GpxPreviewArr);
   }
@@ -144,6 +138,9 @@ const TrailForm = ({editMode}) => {
   const validateInput = (name, value) => {
     const emptyMsg = 'Pole jest wymagane.';
     const chooseOptionMsg = 'Wybierz co najmniej jedną opcję.';
+    const addSegmentMsg = 'Dodaj co najmniej jeden odcinek';
+
+    const checkArray = val => !Array.isArray(val) || (val.length === 1 && val[0] === '');
 
     switch (name) {
       case "Name":
@@ -151,11 +148,11 @@ const TrailForm = ({editMode}) => {
           return emptyMsg;
         break;
       case "CountryIds":
-        if(value.length < 1)
+        if(checkArray(value))
           return chooseOptionMsg;
         break;
       case "PathTypeIds":
-        if (value.length < 1)
+        if (checkArray(value))
           return chooseOptionMsg;
         break;
       case "LevelId":
@@ -163,7 +160,9 @@ const TrailForm = ({editMode}) => {
       case "Description":
         // description is optional
         break;
-      case "segmentIds":
+      case "SegmentIds":
+        if(checkArray(value))
+          return addSegmentMsg;
         break;
       default:
     }
@@ -205,20 +204,57 @@ const TrailForm = ({editMode}) => {
     } else {
       selectedList.forEach((option) => { formData.current.append(name, option.id); });
     }
-    const errors = validateInput(name, selectedList);
+    const errors = validateInput(name, formData.current.getAll(name));
     setFormErrors({ ...formErrors, [name]: errors });
   };
 
-  const handleSubmit = async (e) => {
-    e.preventDefault();
+  // Callback when PathTypes are selected or removed
+  const handlePathTypes = (selectedList) => {
+    const name = "PathTypeIds";
+    setSelectedTypes(selectedList);
 
-    const segmentIdsName = "SegmentIds";
-    formData.current.delete(segmentIdsName);
-    data.forEach((row) => { formData.current.append(segmentIdsName, row.id); });
+    formData.current.delete(name);
+    if (selectedList.length === 0) {
+      formData.current.set(name, '');
+    } else {
+      selectedList.forEach((option) => { formData.current.append(name, option.id); });
+    }
 
+    const errors = validateInput(name, formData.current.getAll(name));
+    setFormErrors(formErrors => ({ ...formErrors, [name]: errors }));
+  };
+
+  const handleSegmentIds = (segments) => {
+    const name = "SegmentIds";
+    formData.current.delete(name);
+    if(segments.length === 0) {
+      formData.current.set(name, '');
+    } else {
+      segments.forEach((segment) => { formData.current.append(name, segment.id); });
+    }
+
+    const errors = validateInput(name, formData.current.getAll(name));
+    console.log('formData.current.getAll(name): ', formData.current.getAll(name));
+    setFormErrors({ ...formErrors, [name]: errors });
+    showFormData(formData.current, 'in handleSegmentsIds after loading segments');
+  }
+
+  const validateForm = () => {
+    //debugger;
     const errors = {};
+    const arrayFields = ['CountryIds', 'PathTypeIds', 'SegmentIds'];
+    const doNotRepeatFields = [];
     formData.current.forEach((value, key) => {
-      const fieldErrors = validateInput(key, value);
+      let valueToCheck = value;
+      if(arrayFields.indexOf(key) !== -1) {
+        if(doNotRepeatFields.indexOf(key) === -1) {
+          doNotRepeatFields.push(key);
+        } else {
+          return;
+        }
+        valueToCheck = formData.current.getAll(key);
+      }
+      const fieldErrors = validateInput(key, valueToCheck);
       if (fieldErrors !== '') {
         errors[key] = fieldErrors;
       }
@@ -226,8 +262,15 @@ const TrailForm = ({editMode}) => {
 
     if (Object.keys(errors).length > 0) {
       setFormErrors(errors);
-      return;
+      return false;
     }
+    return true;
+  }
+
+  const handleSubmit = async (e) => {
+    e.preventDefault();
+
+    if(!validateForm()) return;
 
     setFormErrors({});
 
@@ -296,27 +339,6 @@ const TrailForm = ({editMode}) => {
     navigate(-1);
   }
 
-  // Callback when PathTypes are selected or removed
-  const handlePathTypes = (selectedList) => {
-    const name = "PathTypeIds";
-    setSelectedTypes(selectedList);
-
-    formData.current.delete(name);
-    if (selectedList.length === 0) {
-      formData.current.set(name, '');
-    } else {
-      selectedList.forEach((option) => { formData.current.append(name, option.id); });
-    }
-
-    const errors = validateInput(name, selectedList);
-    setFormErrors(formErrors => ({ ...formErrors, [name]: errors }));
-  };
-
-  const showGpx = () => {
-    toggleSpinner();
-    toggleMapModal();
-  }
-
   const showFormData = (formDataArg, comment) => {
     console.log(comment);
     for (const pair of formDataArg.entries()) {
@@ -324,7 +346,7 @@ const TrailForm = ({editMode}) => {
     }
   };
 
-  // functions for SegmentModal
+  // function for SegmentModal
   const onRowSelect = (row) => {
     if(blockClicks.current) return;
     blockClicks.current = true
@@ -334,7 +356,8 @@ const TrailForm = ({editMode}) => {
 
     setData((d) => {
       const dataTmp = [...addRow(d, row)];
-      updateGpxPreview(dataTmp.map(row => row.id));
+      updateGpxPreview(dataTmp);
+      handleSegmentIds(dataTmp);
       return dataTmp;
     });
 
@@ -355,11 +378,18 @@ const TrailForm = ({editMode}) => {
   const onDelete = (row) => {
     setData((d) => {
       const dataTmp = [...deleteRow(d, row)];
-      updateGpxPreview(dataTmp.map(row => row.id));
+      updateGpxPreview(dataTmp);
+      handleSegmentIds(dataTmp);
+      validateForm();
       return dataTmp;
     });
 
   };
+
+  const showGpx = () => {
+    toggleSpinner();
+    toggleMapModal();
+  }
 
   const gpxNotValidated = () => {
     toggleSpinner();
@@ -505,7 +535,11 @@ const TrailForm = ({editMode}) => {
                 </Button>
                 {gpxPreview && (<i role="button" onClick={showGpx} className="bi bi-eye fs-2 ms-2 "></i>)}
               </div>
-              <SegmentTable {...{ data, showColumns, onMoveDown, onMoveUp, onDelete }} />
+              <div className={`${styles.SegmentTable} ${ !!formErrors.SegmentIds && styles.SegmentTableError}`}>
+                <SegmentTable {...{ data, showColumns, onMoveDown, onMoveUp, onDelete }} />
+              </div>
+              <Input name="SegmentIds" invalid={ !!formErrors.SegmentIds } className="d-none"></Input>
+              <FormFeedback>{formErrors.SegmentIds}</FormFeedback>
             </Col>
           </Row>
 
