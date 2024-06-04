@@ -203,7 +203,7 @@ namespace Trail_Composer.Models.Services
                         Id = user.Id,
                         Name = user.Name
                     };
-                    _context.Tcusers.Add(tcuser);
+                    await _context.Tcusers.AddAsync(tcuser);
                 }
 
                 if ( country != null)
@@ -221,7 +221,7 @@ namespace Trail_Composer.Models.Services
                         Country = country
                     };
 
-                    _context.Pois.Add(newPoi);
+                    await _context.Pois.AddAsync(newPoi);
 
                     // adding Poi - Poitype relations
                     foreach (var typeId in poi.PoiTypeIds)
@@ -239,7 +239,7 @@ namespace Trail_Composer.Models.Services
                                 Poitype = type
                             };
 
-                            _context.PoiPoitypes.Add(newPoiPoitype);
+                            await _context.PoiPoitypes.AddAsync(newPoiPoitype);
                         }
                     }
 
@@ -261,7 +261,7 @@ namespace Trail_Composer.Models.Services
                             Poi = newPoi
                         };
 
-                        _context.Poiphotos.Add(newPoiPhoto);
+                        await _context.Poiphotos.AddAsync(newPoiPhoto);
                     }
 
                     await _context.SaveChangesAsync();
@@ -314,7 +314,7 @@ namespace Trail_Composer.Models.Services
                 _context.PoiPoitypes.RemoveRange(poiDb.PoiPoitypes);
                 foreach (var poiTypeApiId in poiApi.PoiTypeIds)
                 {
-                    var poiTypeApi = _context.Poitypes.Find(poiTypeApiId);
+                    var poiTypeApi = await _context.Poitypes.FindAsync(poiTypeApiId);
                     if (poiTypeApi == null)
                     {
                         await transaction.RollbackAsync();
@@ -330,7 +330,7 @@ namespace Trail_Composer.Models.Services
                         Poi = poiDb,
                         Poitype = poiTypeApi
                     };
-                    _context.PoiPoitypes.Add(poiPoiTypeApi);
+                    await _context.PoiPoitypes.AddAsync(poiPoiTypeApi);
                 }
 
                 if (poiApi.Photo == null || poiApi.Photo.Length <= 0)
@@ -366,7 +366,7 @@ namespace Trail_Composer.Models.Services
                             Poi = poiDb
                         };
 
-                        _context.Poiphotos.Add(newPoiPhoto);
+                        await _context.Poiphotos.AddAsync(newPoiPhoto);
                     } else
                     {
                         //nadpisywanie bloba

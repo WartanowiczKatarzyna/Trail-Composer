@@ -39,7 +39,7 @@ namespace Trail_Composer.Models.Services
                         Id = userId,
                         Name = username
                     };
-                    _context.Tcusers.Add(user);
+                    await _context.Tcusers.AddAsync(user);
 
                     await _context.SaveChangesAsync();
                     await transaction.CommitAsync();

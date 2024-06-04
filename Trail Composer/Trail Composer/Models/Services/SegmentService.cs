@@ -177,7 +177,7 @@ namespace Trail_Composer.Models.Services
 
             if (segment == null || segment.GpxFile == null)
             {
-                return null;
+                return new byte[];
             }
 
             return segment.GpxFile;
@@ -207,7 +207,7 @@ namespace Trail_Composer.Models.Services
                         Id = user.Id,
                         Name = user.Name
                     };
-                    _context.Tcusers.Add(tcuser);
+                    await _context.Tcusers.AddAsync(tcuser);
                 }
 
                 // adding Segment
@@ -227,7 +227,7 @@ namespace Trail_Composer.Models.Services
                     Level = level,
                 };
 
-                _context.Segments.Add(newSegment);
+                await _context.Segments.AddAsync(newSegment);
 
                 // adding Segment - Pathtype relations
                 foreach (var typeId in segment.PathTypeIds)
@@ -244,7 +244,7 @@ namespace Trail_Composer.Models.Services
                             PathType = type
                         };
 
-                        _context.SegmentTypes.Add(segmentType);
+                        await _context.SegmentTypes.AddAsync(segmentType);
                     }
                 }
 
@@ -268,7 +268,7 @@ namespace Trail_Composer.Models.Services
                             Poi = poi
                         };
 
-                        _context.SegmentPois.Add(segmentPoi);
+                        await _context.SegmentPois.AddAsync(segmentPoi);
                     }
                 }
 
@@ -353,7 +353,7 @@ namespace Trail_Composer.Models.Services
                         Segment = segDb,
                         PathType = segTypeApi
                     };
-                    _context.SegmentTypes.Add(segPathTypeApi);
+                    await _context.SegmentTypes.AddAsync(segPathTypeApi);
                 }
 
                 _context.SegmentPois.RemoveRange(segDb.SegmentPois);
@@ -376,7 +376,7 @@ namespace Trail_Composer.Models.Services
                             Poi = poi
                         };
 
-                        _context.SegmentPois.Add(segmentPoi);
+                        await _context.SegmentPois.AddAsync(segmentPoi);
                     }
                 }
 

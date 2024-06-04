@@ -117,6 +117,35 @@ namespace Trail_Composer.Models.Services
 
             return trailList;
         }
+        public async Task<IEnumerable<TrailToApi>> GetFilteredAllTrailListAsync(int[] countryIds, int minLatitude, int maxLatitude,
+            int minLongitude, int maxLongitude)
+        {
+            var trailList = await _context.Trails
+                .Include(trail => trail.TrailTypes)
+                .Where(trail =>
+                                (trail.TrailCountries.Any(countryId => countryIds.Contains(countryId.CountryId)) ||
+                                (countryIds.Length == 0)) &&
+                                (trail.MinLatitude >= minLatitude) &&
+                                (trail.MaxLatitude <= maxLatitude) &&
+                                (trail.MinLongitude >= minLongitude) &&
+                                (trail.MaxLongitude <= maxLongitude)
+                            )
+                .Select(trail => new TrailToApi
+                {
+                    Id = trail.Id,
+                    TcuserId = trail.TcuserId,
+                    Name = trail.Name,
+                    Username = trail.Tcuser.Name,
+                    LevelId = trail.LevelId,
+                    CountryIds = trail.TrailCountries.Select(trailCountry => trailCountry.CountryId).ToList(),
+                    PathTypeIds = trail.TrailTypes.Select(trailType => trailType.PathType).Select(pathType => pathType.Id).ToList()
+                })
+                .OrderBy(trail => trail.Id)
+                .Take(1000)
+                .ToListAsync();
+
+            return trailList;
+        }
         public async Task<int> AddTrailAsync(TrailFromApi trail, TCUserDTO user)
         {
             if (trail.CountryIds.Count < 1 || trail.PathTypeIds.Count < 1)
@@ -141,7 +170,7 @@ namespace Trail_Composer.Models.Services
                         Id = user.Id,
                         Name = user.Name
                     };
-                    _context.Tcusers.Add(tcuser);
+                    await _context.Tcusers.AddAsync(tcuser);
                 }
 
                 // adding Trail
@@ -162,7 +191,7 @@ namespace Trail_Composer.Models.Services
                     Level = level,
                 };
 
-                _context.Trails.Add(newTrail);
+                await _context.Trails.AddAsync(newTrail);
 
                 // adding Trail - Pathtype relations
                 foreach (var typeId in trail.PathTypeIds)
@@ -179,7 +208,7 @@ namespace Trail_Composer.Models.Services
                             PathType = type
                         };
 
-                        _context.TrailTypes.Add(trailType);
+                        await _context.TrailTypes.AddAsync(trailType);
                     }
                 }
 
@@ -198,7 +227,7 @@ namespace Trail_Composer.Models.Services
                             Country = country
                         };
 
-                        _context.TrailCountries.Add(trailCountry);
+                        await _context.TrailCountries.AddAsync(trailCountry);
                     }
                 }
 
@@ -222,7 +251,7 @@ namespace Trail_Composer.Models.Services
                             Segment = segment
                         };
 
-                        _context.TrailSegments.Add(trailSegment);
+                        await _context.TrailSegments.AddAsync(trailSegment);
                     }
                 }
 
@@ -269,8 +298,7 @@ namespace Trail_Composer.Models.Services
                 trailDb.Name = trailApi.Name;
                 trailDb.Description = trailApi.Description;
                 trailDb.MinLongitude = boundingBox.MinLongitude;
-                trailDb.MaxLongitude = boundingBox.MaxLongitude
-                    ;
+                trailDb.MaxLongitude = boundingBox.MaxLongitude;
                 trailDb.MinLatitude = boundingBox.MinLatitude;
                 trailDb.MaxLatitude = boundingBox.MaxLatitude;
                 trailDb.TotalLength = boundingBox.TotalLength;
@@ -281,7 +309,7 @@ namespace Trail_Composer.Models.Services
                 _context.TrailTypes.RemoveRange(trailDb.TrailTypes);
                 foreach (var trailTypeApiId in trailApi.PathTypeIds)
                 {
-                    var trailTypeApi = _context.PathTypes.Find(trailTypeApiId);
+                    var trailTypeApi = await _context.PathTypes.FindAsync(trailTypeApiId);
                     if (trailTypeApi == null)
                     {
                         await transaction.RollbackAsync();
@@ -297,13 +325,13 @@ namespace Trail_Composer.Models.Services
                         Trail = trailDb,
                         PathType = trailTypeApi
                     };
-                    _context.TrailTypes.Add(trailPathTypeApi);
+                    await _context.TrailTypes.AddAsync(trailPathTypeApi);
                 }
 
                 _context.TrailCountries.RemoveRange(trailDb.TrailCountries);
                 foreach (var trailCountryApiId in trailApi.CountryIds)
                 {
-                    var trailCountryApi = _context.Countries.Find(trailCountryApiId);
+                    var trailCountryApi = await _context.Countries.FindAsync(trailCountryApiId);
                     if (trailCountryApi == null)
                     {
                         await transaction.RollbackAsync();
@@ -319,7 +347,7 @@ namespace Trail_Composer.Models.Services
                         Trail = trailDb,
                         Country = trailCountryApi
                     };
-                    _context.TrailCountries.Add(newTrailCountryApi);
+                    await _context.TrailCountries.AddAsync(newTrailCountryApi);
                 }
 
                 _context.TrailSegments.RemoveRange(trailDb.TrailSegments);
@@ -342,7 +370,7 @@ namespace Trail_Composer.Models.Services
                             Segment = seg
                         };
 
-                        _context.TrailSegments.Add(trailSegment);
+                        await _context.TrailSegments.AddAsync(trailSegment);
                     }
                 }
 
