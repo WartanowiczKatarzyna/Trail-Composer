@@ -23,7 +23,6 @@ const TrailForm = ({editMode}) => {
   const navigate = useNavigate();
 
   const { trailId } = useParams();
-  //const [editMode, setEditMode] = useState(false);
   const [segmentModal, setSegmentModal] = useState(false);
   const [mapModal, setMapModal] = useState(false);
 
@@ -47,6 +46,7 @@ const TrailForm = ({editMode}) => {
   const spinnerOFF = useTcStore((state) => state.spinnerOFF);
   const Countries = useTcStore(state => state.Countries);
   const CountryNamesMap = useTcStore(state => state.CountryNamesMap);
+  const refreshTrailUserFiltered = useTcStore((state) => state.refreshTrailUserFiltered);
 
   let formData = useRef(new FormData());
   const blockClicks = useRef(false);
@@ -54,7 +54,7 @@ const TrailForm = ({editMode}) => {
   const toggleSegmentModal = () => setSegmentModal(p => (!p));
   const toggleMapModal = () => setMapModal(m => (!m));
 
-  // states needed for SegmentTable
+  // states needed for TrailTable
   const [data, setData] = useState([]);
   const showColumns = {
     'id': false,
@@ -314,10 +314,6 @@ const TrailForm = ({editMode}) => {
           if (editMode)
             console.log("edit Trail")
           setFormErrorMessage('');
-          if (editMode)
-            navigate(`/details-trail/${trailId}`);
-          else
-            navigate(`/details-trail/${responseData}`);
         }
         else {
           setFormErrorMessage('Nie udało się zapisać odcinka.');
@@ -325,6 +321,13 @@ const TrailForm = ({editMode}) => {
         }
         setSubmitting(false);
         toggleSpinner();
+        if (responseData > -1){
+          refreshTrailUserFiltered(pca, account);
+          if (editMode)
+            navigate(`/details-trail/${trailId}`);
+          else
+            navigate(`/details-trail/${responseData}`);
+        }
       })
       .catch(error => {
         console.error('Error uploading AddTrail form:', error);
@@ -535,11 +538,19 @@ const TrailForm = ({editMode}) => {
                 </Button>
                 {gpxPreview && (<i role="button" onClick={showGpx} className="bi bi-eye fs-2 ms-2 "></i>)}
               </div>
-              <div className={`${styles.SegmentTable} ${ !!formErrors.SegmentIds && styles.SegmentTableError}`}>
-                <SegmentTable {...{ data, showColumns, onMoveDown, onMoveUp, onDelete }} />
+              <div className={`${styles.SegmentTable} ${!!formErrors.SegmentIds && styles.SegmentTableError}`}>
+                <svg
+                  className={`${styles.SegmentTableNoIcon} ${!!formErrors.SegmentIds && styles.SegmentTableErrorIcon}`}
+                  xmlns="http://www.w3.org/2000/svg" viewBox="0 0 12 12" fill="none" stroke="#dc3545">
+                  <circle cx="6" cy="6" r="4.5"/>
+                  <path stroke-linejoin="round" d="M5.8 3.6h.4L6 6.5z"/>
+                  <circle cx="6" cy="8.2" r=".6" fill="#dc3545" stroke="none"/>
+                </svg>
+                <SegmentTable {...{data, showColumns, onMoveDown, onMoveUp, onDelete}} />
               </div>
-              <Input name="SegmentIds" invalid={ !!formErrors.SegmentIds } className="d-none"></Input>
+              <Input name="SegmentIds" invalid={!!formErrors.SegmentIds} className="d-none"></Input>
               <FormFeedback>{formErrors.SegmentIds}</FormFeedback>
+
             </Col>
           </Row>
 

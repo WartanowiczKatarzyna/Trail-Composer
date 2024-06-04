@@ -1,17 +1,17 @@
 import React, { useState, useContext, useEffect, useRef } from 'react';
 import { useNavigate, useParams } from 'react-router-dom';
 import { useMsal, useAccount, useIsAuthenticated } from "@azure/msal-react";
-import styles from './UserSegmentListPage.module.css';
+import styles from './UserTrailListPage.module.css';
 
-import { SegmentTable } from '../../../components/tables/SegmentTable/SegmentTable.tsx';
-import { flattenData } from '../../../components/tables/SegmentTable/flattenData.js';
+import { TrailTable } from '../../../components/tables/TrailTable/TrailTable.tsx';
+import { flattenData } from '../../../components/tables/TrailTable/flattenData.js';
 import TcSpinner from '../../../components/TCSpinner/TCSpinner.js';
 
 import { getAuthHeader } from '../../../utils/auth/getAuthHeader.js';
 import { useTcStore } from "../../../store/TcStore";
 import SectionTitle from "../../../components/SectionTitle/SectionTitle";
 
-const UserSegmentListPage = () => {
+const UserTrailListPage = () => {
 
   const CountryNamesMap = useTcStore(state => state.CountryNamesMap);
   const pathTypes = useTcStore(state => state.pathTypes);
@@ -25,7 +25,7 @@ const UserSegmentListPage = () => {
   const navigate = useNavigate();
 
   const [data, setData] = useState(null);
-  const refreshSegmentUserFiltered = useTcStore((state) => state.refreshSegmentUserFiltered);
+  const refreshTrailUserFiltered = useTcStore((state) => state.refreshTrailUserFiltered);
 
   const showColumns = {
     'id': false,
@@ -35,7 +35,7 @@ const UserSegmentListPage = () => {
   const fetchData = async () => {
     spinnerON();
     const authorizationHeader = await getAuthHeader(pca, account);
-    fetch(`tc-api/segment/list/user`,
+    fetch(`tc-api/trail/list/user`,
       {
         method: "GET",
         headers: {
@@ -70,7 +70,7 @@ const UserSegmentListPage = () => {
   async function onDelete(row) {
     const authorizationHeader = await getAuthHeader(pca, account);
     
-    fetch(`tc-api/segment/${row.id}`, {
+    fetch(`tc-api/trail/${row.id}`, {
       method: "DELETE",
       headers: {
         Authorization: authorizationHeader
@@ -78,27 +78,27 @@ const UserSegmentListPage = () => {
       .then(response => {
         console.log(response.status);
         fetchData();
-        refreshSegmentUserFiltered(pca, account);
+        refreshTrailUserFiltered(pca, account);
       })
       .catch(error => {
-        console.error('Error deleting Segment:', error);
+        console.error('Error deleting Trail:', error);
       });
   }
   function onEdit(row) {
-    navigate(`/edit-segment/${row.id}`);
+    navigate(`/edit-trail/${row.id}`);
   }
   function onRowSelect(row) {
-    navigate(`/details-segment/${row.id}`);
+    navigate(`/details-trail/${row.id}`);
   }
 
   return (
     data ?
       <>
-        <div className="ms-4"><SectionTitle>Moje Odcinki</SectionTitle></div>
-        <SegmentTable {...{data, onDelete, onEdit, onRowSelect, showColumns}} />
+        <div className="ms-4"><SectionTitle>Moje trasy</SectionTitle></div>
+        <TrailTable {...{data, onDelete, onEdit, onRowSelect, showColumns}} />
       </>
       : <TcSpinner />
     );
 };
 
-export default UserSegmentListPage;
+export default UserTrailListPage;

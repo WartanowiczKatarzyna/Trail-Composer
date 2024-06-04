@@ -11,9 +11,9 @@ import { useTcStore } from "../../../store/TcStore";
 import PropTypes from 'prop-types';
 import SectionTitle from "../../../components/SectionTitle/SectionTitle";
 import SectionButtons from "../../../components/SectionButtons/SectionButtons";
-import {geoRefFloatToIntStr, geoRefIntToFloat} from "../../../utils/geoRef";
+import { geoRefFloatToIntStr, geoRefIntToFloat } from "../../../utils/geoRef";
 
-const PoiForm = ({editMode}) => {
+const PoiForm = ({ editMode }) => {
   const appData = useContext(AppContext);
   const { result, error } = useMsalAuthentication(InteractionType.Redirect, { scopes: ['openid', 'offline_access'] });
   const { instance: pca, accounts } = useMsal();
@@ -47,7 +47,7 @@ const PoiForm = ({editMode}) => {
     TCfileReader.current.onloadend = () => {
       setImagePreview(TCfileReader.current.result);
     }
-  },[]);
+  }, []);
 
   useEffect(() => {
 
@@ -76,8 +76,8 @@ const PoiForm = ({editMode}) => {
             return foundType;
           });
           setSelectedPOITypes(fetchedPoiTypes);
-          
-          if (fetchedPoi.description === null || fetchedPoi.description === "null"){
+
+          if (fetchedPoi.description === null || fetchedPoi.description === "null") {
             setPoiDescription('');
             formData.current.set('Description', '');
           } else {
@@ -133,13 +133,13 @@ const PoiForm = ({editMode}) => {
         break;
       case "Photo":
         const fileValue = value;
-        if(!fileValue || !fileValue.name)
+        if (!fileValue || !fileValue.name)
           return ''; // photo is optional
-        else if ( fileValue.type !== 'image/jpeg' )
+        else if (fileValue.type !== 'image/jpeg')
           return 'Plik nie jest plikiem jpg typu image/jpeg.';
-        else if( fileValue.size < 1 )
+        else if (fileValue.size < 1)
           return 'Plik jest zbyt mały. Rozmiar zdjęcia 0 bytes.';
-        else if( fileValue.size > 1024 * 1024 * 10 )
+        else if (fileValue.size > 1024 * 1024 * 10)
           return 'Plik jest zbyt duży. Rozmiar zdjęcia przekracza 10 MB.';
         else
           return ''; // other cases are accepted
@@ -159,9 +159,9 @@ const PoiForm = ({editMode}) => {
         if (files.length > 0 && !errors) {
           TCfileReader.current.readAsDataURL(files[0]);
         }
-        if(value) {
+        if (value) {
           formData.current.set(name, files[0]);
-          setFormErrors(formErrors=> ({ ...formErrors, [name]: errors }));
+          setFormErrors(formErrors => ({ ...formErrors, [name]: errors }));
           setPhotoValue(value);
         } else {
           deletePhoto();
@@ -179,14 +179,14 @@ const PoiForm = ({editMode}) => {
         break;
       case "Latitude":
         setPoiLatitude(value);
-        
+
         const errLat = validateInput(name, value);
         formData.current.set(name, value);
         setFormErrors(formErrors => ({ ...formErrors, [name]: errLat }));
         return;
       case "Longitude":
         setPoiLongitude(value);
-      
+
         const errLong = validateInput(name, value);
         formData.current.set(name, value);
         setFormErrors(formErrors => ({ ...formErrors, [name]: errLong }));
@@ -223,7 +223,7 @@ const PoiForm = ({editMode}) => {
 
     const formDataToBeSent = new FormData();
     for (const [key, value] of formData.current.entries()) {
-      if(key === 'Latitude' || key === 'Longitude') {
+      if (key === 'Latitude' || key === 'Longitude') {
         formDataToBeSent.append(key, geoRefFloatToIntStr(value));
       } else {
         formDataToBeSent.append(key, value);
@@ -251,18 +251,25 @@ const PoiForm = ({editMode}) => {
           if (editMode)
             console.log("edit POI")
           setFormErrorMessage('');
-          refreshPoiUserFiltered(pca, account, appData);
         }
         else {
           setFormErrorMessage('Nie udało się zapisać POI.');
         }
         setSubmitting(false);
         toggleSpinner();
-        if (editMode)
-          //navigate(`/details-poi/${poiId}`);
-          navigate(-1);
-        else
-          navigate(`/details-poi/${data}`);
+        if (data > -1) {
+          refreshPoiUserFiltered(pca, account, appData);
+          if (editMode)
+            //navigate(`/details-poi/${poiId}`);
+            navigate(-1);
+          else
+            navigate(`/details-poi/${data}`); refreshPoiUserFiltered(pca, account, appData);
+          if (editMode)
+            //navigate(`/details-poi/${poiId}`);
+            navigate(-1);
+          else
+            navigate(`/details-poi/${data}`);
+        }
       })
       .catch(error => {
         console.error('Error uploading AddPOI form:', error);
@@ -289,7 +296,7 @@ const PoiForm = ({editMode}) => {
     selectedList.forEach((option) => { formData.current.append(name, option.id); });
 
     const errors = validateInput(name, selectedList);
-    setFormErrors(formErrors=> ({ ...formErrors, [name]: errors }));
+    setFormErrors(formErrors => ({ ...formErrors, [name]: errors }));
   };
 
   const deletePhoto = () => {
@@ -472,14 +479,14 @@ const PoiForm = ({editMode}) => {
                     </Col>
                     <Col sm={1}>
                       {imagePreview && (<div className="mt-2 mt-lg-0"><i role="button" onClick={deletePhoto}
-                                                                         className="bi bi-trash fs-4"></i></div>)}
+                        className="bi bi-trash fs-4"></i></div>)}
                     </Col>
                   </Row>
                 </Col>
               </FormGroup>
 
               {
-                !!imagePreview && (<img src={imagePreview} alt="Preview" className={styles.Photo}/>)
+                !!imagePreview && (<img src={imagePreview} alt="Preview" className={styles.Photo} />)
               }
 
             </Col>

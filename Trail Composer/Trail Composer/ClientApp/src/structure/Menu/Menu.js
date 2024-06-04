@@ -12,7 +12,7 @@ const Menu = () => (
       <AccordionHeader targetId='1' className={styles.SectionHeader}> Trasy </AccordionHeader>
       <AccordionBody accordionId='1'>
         <NavLink tag={Link} className={styles.NavLink} to="/add-trail">Nowa trasa</NavLink>
-        <NavLink tag={Link} className={styles.NavLink} to="/">Moje trasy</NavLink>
+        <NavLink tag={Link} className={styles.NavLink} to="/list-trail/user">Moje trasy</NavLink>
       </AccordionBody>
 
       <AccordionHeader targetId='2' className={styles.SectionHeader}> Odcinki </AccordionHeader>

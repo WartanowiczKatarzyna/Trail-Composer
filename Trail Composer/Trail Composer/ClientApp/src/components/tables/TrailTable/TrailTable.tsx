@@ -53,7 +53,7 @@ export  function TrailTable({
         footer: (props: { column: { id: any; }; }) => props.column.id,
       },
       {
-        accessorKey: 'length',
+        accessorKey: 'totalLength',
         cell: (info: { getValue: () => any; }) => info.getValue(),
         header: () => <span>Długość</span>,
         footer: (props: { column: { id: any; }; }) => props.column.id,
@@ -65,15 +65,15 @@ export  function TrailTable({
         footer: (props: { column: { id: any; }; }) => props.column.id,
       },
       {
-        accessorKey: 'country',
+        accessorKey: 'countries',
         cell: (info: { getValue: () => any; }) => info.getValue(),
-        header: () => <span>Kraj</span>,
+        header: () => <span>Kraje</span>,
         footer: (props: { column: { id: any; }; }) => props.column.id,
       },
       {
-        accessorKey: 'trailTypes',
+        accessorKey: 'pathTypes',
         cell: (info: { getValue: () => any; }) => info.getValue(),
-        header: () => <span>Typ odcinka</span>,
+        header: () => <span>Typ trasy</span>,
         footer: (props: { column: { id: any; }; }) => props.column.id,
       },
       {

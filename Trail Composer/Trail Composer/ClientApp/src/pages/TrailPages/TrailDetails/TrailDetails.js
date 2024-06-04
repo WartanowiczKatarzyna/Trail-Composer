@@ -9,8 +9,9 @@ import {useTcStore} from "../../../store/TcStore";
 import TCMap from "../../../components/TCMap/TCMap";
 import SectionTitle from "../../../components/SectionTitle/SectionTitle";
 import SectionButtons from "../../../components/SectionButtons/SectionButtons";
+import MapModal from "../../../modals/MapModal/MapModal";
 
-// artefact = segment
+// artefact = trail
 
 const TrailDetails = () => {
   const { instance: pca, accounts } = useMsal();
@@ -18,30 +19,32 @@ const TrailDetails = () => {
 
   const { trailId: artefactId} = useParams();
 
-  const [artefact, SetArtefact] = useState(null);
+  const [artefact, setArtefact] = useState(null);
   const [pathLevelName, setPathLevelName] = useState('');
   const [pathTypesNames, setPathTypesNames] = useState('');
-  const [countryName, setCountryName] = useState('');
+  const [countryNames, setCountryNames] = useState('');
   const [description, setDescription] = useState('');
   const [artefactName, setArtefactName] = useState('');
   const [gpxPreview, setGpxPreview] = useState(null);
   const [owner, setOwner] = useState({});
   const [username, setUsername] = useState('');
   const [distance, setDistance] = useState('');
-  const [downloadGpxUrl, setDownloadGpxUrl] = useState('');
+  const [mapModal, setMapModal] = useState(false);
   const CountryNamesMap = useTcStore(state => state.CountryNamesMap);
   const pathLevels = useTcStore((state) => state.pathLevels);
   const pathTypes = useTcStore((state) => state.pathTypes);
-  const refreshSegmentUserFiltered = useTcStore((state) => state.refreshSegmentUserFiltered);
+  const refreshTrailUserFiltered = useTcStore((state) => state.refreshTrailUserFiltered);
   const spinnerON = useTcStore((state) => state.spinnerON);
   const spinnerOFF = useTcStore((state) => state.spinnerOFF);
 
   const navigate = useNavigate();
   const isOwner = useIsAuthenticated(owner);
 
+  const toggleMapModal = () => setMapModal(m => (!m));
+
   useEffect(() => {
     spinnerON();
-    fetch(`tc-api/segment/${artefactId}`)
+    fetch(`tc-api/trail/${artefactId}`)
       .then(response => {
         spinnerOFF();
         if (response.status === 200)
@@ -50,7 +53,7 @@ const TrailDetails = () => {
           navigate('/error/page-not-found');
       })
       .then(data => {
-        SetArtefact(data)})
+        setArtefact(data)})
       .catch(error => {
         console.log(error);
         spinnerOFF();
@@ -62,7 +65,7 @@ const TrailDetails = () => {
     if (artefact && pathTypes.length && pathLevels.length && Array.from(CountryNamesMap).length) {
       setOwner({localAccountId: artefact.tcuserId});
 
-      setCountryName(CountryNamesMap?.get(artefact.countryId) || 'nieznany');
+      setCountryNames(artefact.countryIds.map( id => CountryNamesMap.get(id)).join(', '));
 
       const levelObj = pathLevels.find(l => l.id == artefact.levelId) || 'nieznany';
       setPathLevelName(levelObj.name);
@@ -75,11 +78,9 @@ const TrailDetails = () => {
       setArtefactName(artefact.name);
 
       if( parseInt(artefactId) ) {
-        setGpxPreview(`tc-api/segment/gpx/${artefactId}`);
-        setDownloadGpxUrl(`tc-api/segment/download-gpx/${artefactId}`);
+        setGpxPreview(artefact.segmentIds.map((id) => `tc-api/segment/gpx/${id}`));
       } else {
         setGpxPreview('');
-        setDownloadGpxUrl('');
       }
     }
   }, [ artefact, artefactId, pathTypes, pathLevels, CountryNamesMap ]);
@@ -87,14 +88,14 @@ const TrailDetails = () => {
   const deleteArtefact = async () => {
     const authorizationHeader = await getAuthHeader(pca, account);
     
-    fetch(`tc-api/segment/${artefactId}`, {
+    fetch(`tc-api/trail/${artefactId}`, {
       method: "DELETE",
       headers: {
         Authorization: authorizationHeader
       }})
       .then(response => {
         console.log(response.status);
-        refreshSegmentUserFiltered(pca, account);
+        refreshTrailUserFiltered(pca, account);
         navigate(-1);
       })
       .catch(error => {
@@ -103,11 +104,15 @@ const TrailDetails = () => {
   };
 
   const toEdit = () => {
-    navigate(`/edit-segment/${artefactId}`);
+    navigate(`/edit-trail/${artefactId}`);
   };
 
   const toPoiList = () => {
-    navigate(`/list-poi/segment/${artefactId}`);
+    navigate(`/list-poi/trail/${artefactId}`);
+  };
+
+  const toSegmentList = () => {
+    navigate(`/list-segment/trail/${artefactId}`);
   };
 
   const gpxNotValidated = () => {
@@ -127,8 +132,31 @@ const TrailDetails = () => {
     console.info("distance:", distance);
   };
 
+  const showGpx = () => {
+    spinnerON();
+    toggleMapModal();
+  }
+
+  const gpxNotValidatedModal = () => {
+    spinnerOFF();
+    setGpxPreview(null);
+    toggleMapModal();
+  };
+
+  const gpxValidatedModal = (boundingBox, distance) => {
+    spinnerOFF();
+  };
+
   return (
     <Container className={styles.DetailsContainer}>
+      <MapModal
+        isOpen={mapModal}
+        toggle={toggleMapModal}
+        gpxArr={gpxPreview}
+        type={'url'}
+        gpxValidated={gpxValidatedModal}
+        gpxNotValidated={gpxNotValidatedModal}
+      />
       <Row className={styles.SectionTitle}>
         <div className="d-flex justify-content-between">
           <SectionTitle>{artefact ? artefactName : 'Ładuję...'}</SectionTitle>
@@ -139,26 +167,28 @@ const TrailDetails = () => {
         {artefact && (<Col sm={4}>
           <Row className='mt-2'>{`Typy: ${pathTypesNames}`}</Row>
           <Row className='mt-2'>{`Poziom: ${pathLevelName}`}</Row>
-          <Row className='mt-2'>{`Kraj: ${countryName}`}</Row>
+          <Row className='mt-2'>{`Kraje: ${countryNames}`}</Row>
           <Row className='mt-2'>{`Długość: ${distance} km`}</Row>
           <Row className='mt-2'>{`Autor: ${username}`}</Row>
           <Row className='mt-5'>{description && (`Opis:`)}</Row>
           <Row className='mt-1'>{description && `${description}`}</Row>
           <div className={styles.Buttons + ' d-none d-sm-block pt-2'}>
-            <Button onClick={toPoiList} className="mt-3">POI</Button>
-            <a href={downloadGpxUrl}><Button className="mt-3">Pobierz GPX</Button></a>
+            {gpxPreview && (<Button onClick={showGpx} className={`${styles.ButtonGroup} mt-3 pl-1 pr-1 pt-0 pb-0`}><i className="bi bi-eye fs-5"></i></Button>)}
+            <Button onClick={toSegmentList} className={`${styles.ButtonGroup} mt-3`}>Odcinki</Button>
+            <Button onClick={toPoiList} className={`${styles.ButtonGroup} mt-3`}>POI</Button>
           </div>
         </Col>)}
         <Col sm={8} className='d-flex justify-content-center'>
           {!!gpxPreview && (
             <div className={`mt-3 mt-sm-0 ${styles.MapContainer}`}>
-              <TCMap gpxArr={[gpxPreview]} {...{gpxNotValidated, gpxValidated}} />
+              <TCMap gpxArr={gpxPreview} {...{gpxNotValidated, gpxValidated}} />
             </div>)}
         </Col>
       </Row>
       <div className={styles.Buttons + ' d-sm-none pt-3'}>
-        <Button onClick={toPoiList} >POI</Button>
-        <a href={downloadGpxUrl} ><Button>Pobierz GPX</Button></a>
+        {gpxPreview && (<Button onClick={showGpx} className={`${styles.ButtonGroup} mt-3 pl-1 pr-1 pt-0 pb-0`}><i className="bi bi-eye fs-5"></i></Button>)}
+        <Button onClick={toSegmentList} className={`${styles.ButtonGroup} mt-3`}>Odcinki</Button>
+        <Button onClick={toPoiList} className={`${styles.ButtonGroup} mt-3`}>POI</Button>
       </div>
     </Container>
   );

@@ -45,6 +45,7 @@ const SegmentForm = ({editMode}) => {
   const pathLevels = useTcStore((state) => state.pathLevels);
   const pathTypes = useTcStore((state) => state.pathTypes);
   const toggleSpinner = useTcStore((state) => state.toggleSpinner);
+  const refreshSegmentUserFiltered = useTcStore((state) => state.refreshSegmentUserFiltered);
 
   let formData = useRef(new FormData());
 
@@ -286,17 +287,19 @@ const SegmentForm = ({editMode}) => {
           if (editMode)
             console.log("edit Segment")
           setFormErrorMessage('');
+        }
+        else {
+          setFormErrorMessage('Nie udało się zapisać odcinka.');
+        }
+        setSubmitting(false);
+        toggleSpinner();
+        if (responseData > -1){
+          refreshSegmentUserFiltered(pca, account);
           if (editMode)
             navigate(`/details-segment/${segmentId}`);
           else
             navigate(`/details-segment/${responseData}`);
         }
-        else {
-          setFormErrorMessage('Nie udało się zapisać odcinka.');
-          console.error("bla bla", responseData);
-        }
-        setSubmitting(false);
-        toggleSpinner();
       })
       .catch(error => {
         console.error('Error uploading AddSegment form:', error);

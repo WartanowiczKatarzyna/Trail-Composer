@@ -4,6 +4,7 @@ import SegmentForm from "./pages/SegmentPages/SegmentForm/SegmentForm";
 import TrailDetails from "./pages/TrailPages/TrailDetails/TrailDetails";
 import SegmentDetails from "./pages/SegmentPages/SegmentDetails/SegmentDetails";
 import UserSegmentListPage from "./pages/SegmentPages/UserSegmentListPage/UserSegmentListPage";
+import UserTrailListPage from "./pages/TrailPages/UserTrailListPage/UserTrailListPage";
 import TrailSegmentListPage from "./pages/SegmentPages/TrailSegmentListPage/TrailSegmentListPage";
 import POIForm from "./pages/PoiPages/POIForm/POIForm"
 import PoiDetails from "./pages/PoiPages/POIDetails/POIDetails";
@@ -22,6 +23,11 @@ const AppRoutes = [
     path: '/details-trail/:trailId',
     element: <TrailDetails />,
     key: 'details-trail/'
+  },
+  {
+    path: '/list-trail/user',
+    element: <UserTrailListPage />,
+    key: 'list-trail/user'
   },
   {
     path: '/add-trail',
