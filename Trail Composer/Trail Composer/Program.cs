@@ -21,7 +21,7 @@ var azureAdB2COptions = configuration.GetSection("AzureAdB2C").Get<AzureAdB2COpt
 
 builder.Services.AddControllersWithViews();
 builder.Services.AddDbContext<TrailComposerDbContext>(options =>
-    options.UseSqlServer(builder.Configuration.GetConnectionString("Trail_Composer_DB")));
+    options.UseSqlServer(builder.Configuration.GetConnectionString("Azure_DB")));
 builder.Services.Configure<FormOptions>(options =>
 {
     options.ValueCountLimit = int.MaxValue;

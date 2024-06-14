@@ -177,7 +177,7 @@ namespace Trail_Composer.Models.Services
 
             if (segment == null || segment.GpxFile == null)
             {
-                return new byte[];
+                return Array.Empty<byte>();
             }
 
             return segment.GpxFile;
