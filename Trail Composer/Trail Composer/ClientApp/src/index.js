@@ -6,13 +6,13 @@ import * as serviceWorkerRegistration from './serviceWorkerRegistration';
 import reportWebVitals from './reportWebVitals';
 import { MsalProvider } from "@azure/msal-react";
 import { PublicClientApplication } from "@azure/msal-browser";
-import { msalConfig } from './authConfig';
+import { msalConfigLocal, msalConfigAzure } from './authConfig';
 
 const baseUrl = document.getElementsByTagName('base')[0].getAttribute('href');
 const rootElement = document.getElementById('root');
 const root = createRoot(rootElement);
 
-const pca = new PublicClientApplication(msalConfig);
+const pca = new PublicClientApplication(msalConfigAzure);
 
 root.render(
   //<StrictMode>
