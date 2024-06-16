@@ -11,13 +11,14 @@ import {
 } from 'reactstrap';
 import TCMap from "../../components/TCMap/TCMap";
 
-import AppalachianMap from '../../assets/gpx/appalachian-trail-connecticut.gpx'
 import AppalachianImg from '../../assets/images/appalachian-trail-connecticut.png'
 
 const HomePage = () => {
   const [gpxUrls, setGpxUrls] = useState([]);
   const [activeIndex, setActiveIndex] = useState(0);
   const [animating, setAnimating] = useState(false);
+  const AppalachianMap = process.env.PUBLIC_URL + '/gpx/appalachian-trail-connecticut.gpx';
+
   const items = [
     {
       src: 'https://picsum.photos/id/456/700/500',
