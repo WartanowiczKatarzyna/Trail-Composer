@@ -25,6 +25,7 @@ namespace Trail_Composer.Models.Services
                     Name = trail.Name,
                     Username = trail.Tcuser.Name,
                     Description = trail.Description,
+                    TotalLength = trail.TotalLength,
                     LevelId = trail.LevelId,
                     CountryIds = trail.TrailCountries.Select(trailCountry => trailCountry.CountryId).ToList(),
                     PathTypeIds = trail.TrailTypes.Select(trailType => trailType.PathType).Select(pathType => pathType.Id).ToList(),
@@ -46,6 +47,7 @@ namespace Trail_Composer.Models.Services
                     TcuserId = trail.TcuserId,
                     Name = trail.Name,
                     Username = trail.Tcuser.Name,
+                    TotalLength = trail.TotalLength,
                     LevelId = trail.LevelId,
                     CountryIds = trail.TrailCountries.Select(trailCountry => trailCountry.CountryId).ToList(),
                     PathTypeIds = trail.TrailTypes.Select(trailType => trailType.PathType).Select(pathType => pathType.Id).ToList(),
@@ -63,9 +65,7 @@ namespace Trail_Composer.Models.Services
                 .Include(trail => trail.TrailCountries)
                 .Where(trail => (
                                 trail.TcuserId != userId &&
-                                (trail.TrailCountries.Any(countryId => countryIds.Contains(countryId.CountryId)) ||
-                                //(trail.TrailCountries.Select(trailCountry => trailCountry.CountryId).ToList().Intersect(countryIds).Any() || 
-                                (countryIds.Length == 0)) &&
+                                (trail.TrailCountries.Any(countryId => countryIds.Contains(countryId.CountryId)) || (countryIds.Length == 0)) &&
                                 (trail.MinLatitude > minLatitude) &&
                                 (trail.MaxLatitude < maxLatitude) &&
                                 (trail.MinLongitude > minLongitude) &&
@@ -77,6 +77,7 @@ namespace Trail_Composer.Models.Services
                     TcuserId = trail.TcuserId,
                     Name = trail.Name,
                     Username = trail.Tcuser.Name,
+                    TotalLength = trail.TotalLength,
                     LevelId = trail.LevelId,
                     CountryIds = trail.TrailCountries.Select(country => country.Id).ToList(),
                     PathTypeIds = trail.TrailTypes.Select(trailType => trailType.PathType).Select(pathType => pathType.Id).ToList()
@@ -107,6 +108,7 @@ namespace Trail_Composer.Models.Services
                     TcuserId = trail.TcuserId,
                     Name = trail.Name,
                     Username = trail.Tcuser.Name,
+                    TotalLength = trail.TotalLength,
                     LevelId = trail.LevelId,
                     CountryIds = trail.TrailCountries.Select(trailCountry => trailCountry.CountryId).ToList(),
                     PathTypeIds = trail.TrailTypes.Select(trailType => trailType.PathType).Select(pathType => pathType.Id).ToList()
@@ -136,6 +138,7 @@ namespace Trail_Composer.Models.Services
                     TcuserId = trail.TcuserId,
                     Name = trail.Name,
                     Username = trail.Tcuser.Name,
+                    TotalLength = trail.TotalLength,
                     LevelId = trail.LevelId,
                     CountryIds = trail.TrailCountries.Select(trailCountry => trailCountry.CountryId).ToList(),
                     PathTypeIds = trail.TrailTypes.Select(trailType => trailType.PathType).Select(pathType => pathType.Id).ToList()
@@ -148,7 +151,7 @@ namespace Trail_Composer.Models.Services
         }
         public async Task<int> AddTrailAsync(TrailFromApi trail, TCUserDTO user)
         {
-            if (trail.CountryIds.Count < 1 || trail.PathTypeIds.Count < 1)
+            if (trail.CountryIds.Count < 1 || trail.PathTypeIds.Count < 1 || trail.SegmentIds.Count > 500)
                 return -2;
 
             using var transaction = await _context.Database.BeginTransactionAsync();
@@ -269,6 +272,9 @@ namespace Trail_Composer.Models.Services
         }
         public async Task<bool> EditTrailAsync(int trailId, TrailFromApi trailApi, string userId)
         {
+            if (trailApi.SegmentIds.Count > 500)
+                return false;
+
             using var transaction = await _context.Database.BeginTransactionAsync();
             try
             {

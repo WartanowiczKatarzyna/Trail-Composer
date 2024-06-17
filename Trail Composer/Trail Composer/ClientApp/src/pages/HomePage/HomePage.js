@@ -17,7 +17,7 @@ const HomePage = () => {
   const [gpxUrls, setGpxUrls] = useState([]);
   const [activeIndex, setActiveIndex] = useState(0);
   const [animating, setAnimating] = useState(false);
-  const AppalachianMap = process.env.PUBLIC_URL + '/gpx/appalachian-trail-connecticut.gpx';
+  const AppalachianMap = process.env.PUBLIC_URL + '/gpx/appalachian-trail-connecticut.jpg';
 
   const items = [
     {

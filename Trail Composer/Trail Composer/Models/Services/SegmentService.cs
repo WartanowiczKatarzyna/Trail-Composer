@@ -11,6 +11,7 @@ using Trail_Composer.Models.DTOs;
 using Trail_Composer.Models.Generated;
 using System.Data.SqlTypes;
 using Microsoft.SqlServer.Types;
+using NetTopologySuite.Triangulate;
 
 namespace Trail_Composer.Models.Services
 {
@@ -184,7 +185,7 @@ namespace Trail_Composer.Models.Services
         }
         public async Task<int> AddSegmentAsync(SegmentFromAPI segment, TCUserDTO user)
         {
-            if (segment.Gpx == null || segment.Gpx.Length < 1)
+            if (segment.Gpx == null || segment.Gpx.Length < 1 || segment.PoiIds?.Count > 100)
                 return -2;
 
             using var transaction = await _context.Database.BeginTransactionAsync();
@@ -286,6 +287,9 @@ namespace Trail_Composer.Models.Services
         }
         public async Task<bool> EditSegmentAsync(int segId, SegmentFromAPI segApi, string userId)
         {
+            if (segApi.PoiIds?.Count > 100)
+                return false;
+
             using var transaction = await _context.Database.BeginTransactionAsync();
             try
             {

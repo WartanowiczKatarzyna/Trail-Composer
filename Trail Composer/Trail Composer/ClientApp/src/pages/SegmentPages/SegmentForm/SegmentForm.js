@@ -154,6 +154,8 @@ const SegmentForm = ({editMode}) => {
       case "PathTypeIds":
         if (value.length < 1)
           return 'Wybierz co najmniej jedną opcję.';
+        if (value.length > 100)
+          return 'Zbyt dużo POI';
         break;
       case "LevelId":
         break;

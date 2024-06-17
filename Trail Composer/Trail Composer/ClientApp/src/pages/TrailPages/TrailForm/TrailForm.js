@@ -139,6 +139,7 @@ const TrailForm = ({editMode}) => {
     const emptyMsg = 'Pole jest wymagane.';
     const chooseOptionMsg = 'Wybierz co najmniej jedną opcję.';
     const addSegmentMsg = 'Dodaj co najmniej jeden odcinek';
+    const tooManySegmentsMsg = 'Zbyt duża liczba odcinków';
 
     const checkArray = val => !Array.isArray(val) || (val.length === 1 && val[0] === '');
 
@@ -163,6 +164,8 @@ const TrailForm = ({editMode}) => {
       case "SegmentIds":
         if(checkArray(value))
           return addSegmentMsg;
+        if(value.length > 500)
+          return tooManySegmentsMsg;
         break;
       default:
     }
