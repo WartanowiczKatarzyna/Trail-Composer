@@ -212,7 +212,7 @@ namespace Trail_Composer.Models.Services
                 }
 
                 // adding Segment
-                var newSegment = new Segment
+                var newSegment = new Generated.Segment
                 {
                     TcuserId = user.Id,
                     CountryId = segment.CountryId,
