@@ -6,6 +6,7 @@ import { Badge } from 'reactstrap';
 import { flattenData } from '../tables/PoiTable/flattenData';
 import { AppContext } from '../../App';
 import { useTcStore } from "../../store/TcStore";
+import { useNavigate, useParams } from 'react-router-dom';
 
 /**
  * 
@@ -17,6 +18,7 @@ const PoiListPageComponent = ({url}) => {
   const appData = useContext(AppContext);
   const spinnerON = useTcStore(state => state.spinnerON);
   const spinnerOFF = useTcStore(state => state.spinnerOFF);
+  const navigate = useNavigate();
 
   const [data, setData] = useState([]);
   const showColumns = {
