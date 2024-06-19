@@ -49,10 +49,14 @@ const PoiListPageComponent = ({url}) => {
 
   useEffect(()=> {console.info('data: ', data);}, [data]);
 
+  function onRowSelect(row) {
+    navigate(`/details-POI/${row.id}`);
+  }
+
   return (
     <div>
       {data.length > 0 ?
-        <PoiTable {...{ data, showColumns }} /> :
+        <PoiTable {...{ data, showColumns, onRowSelect }} /> :
         <Badge className={styles.Badge}>Brak danych</Badge>
       }
     </div>
