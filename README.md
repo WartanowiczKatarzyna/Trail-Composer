@@ -7,7 +7,7 @@ Z poziomu root projektu wywołaj komendę:
 >dotnet restore
 
 ### 2. Konfiguracja bazy danych
-Skrypt tworzący bazę danych znajduje się w DBScripts/s22074_Trail_composer_entity_diagram_create
+Skrypt tworzący bazę danych znajduje się w DBScripts/Trail_composer_entity_diagram_create
 Connection string do bazy danych należy wpisać w appsettings.json:
 >"ConnectionStrings": {
 >"Azure_DB": "twoj_connection_string"
