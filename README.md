@@ -1,4 +1,6 @@
-# Trail Composer: instalacja
+# Trail Composer
+
+# Instalacja
 
 ## Środowisko rozwojowe
 
@@ -19,3 +21,4 @@ Connection string do bazy danych należy wpisać w appsettings.json:
 
 Przed publikacją aplikacji upewnij się, że projekt jest prawidłowo skonfigurowany dla środowiska rozwojowego
 
+# Struktura plików
