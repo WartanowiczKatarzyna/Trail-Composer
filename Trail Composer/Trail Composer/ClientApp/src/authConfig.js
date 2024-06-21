@@ -14,19 +14,19 @@ export const b2cPolicies = {
     },
     authorities: {
         signUpSignIn: {
-            authority: 'https://trailcompo.b2clogin.com/trailcompo.onmicrosoft.com/B2C_1_trail_compo_sign_in_or_sign_up',
+            authority: '',
         },
         signUp: {
-            authority: 'https://trailcompo.b2clogin.com/trailcompo.onmicrosoft.com/B2C_1_trailcompo_sign_up',
+            authority: '',
         },
         resetPassword: {
-            authority: 'https://trailcompo.b2clogin.com/trailcompo.onmicrosoft.com/B2C_1_trail_compo_password_reset',
+            authority: '',
         },
         editProfile: {
-            authority: "https://trailcompo.b2clogin.com/trailcompo.onmicrosoft.com/B2C_1_trail_compo_edit_profile",
+            authority: "",
         }
     },
-    authorityDomain: 'trailcompo.b2clogin.com',
+    authorityDomain: '',
 };
 
 /**
@@ -36,7 +36,7 @@ export const b2cPolicies = {
  */
 export const msalConfigLocal = {
     auth: {
-        clientId: '1a958c2d-229e-4ff5-9658-9f6348a975ac', // This is the ONLY mandatory field that you need to supply.
+        clientId: '', // This is the ONLY mandatory field that you need to supply.
         authority: b2cPolicies.authorities.signUpSignIn.authority, // Choose SUSI as your default authority.
         knownAuthorities: [b2cPolicies.authorityDomain], // Mark your B2C tenant's domain as trusted.
         redirectUri: 'http://localhost:44491', // You must register this URI on Azure Portal/App Registration. Defaults to window.location.origin
@@ -75,10 +75,10 @@ export const msalConfigLocal = {
 };
 export const msalConfigAzure = {
     auth: {
-        clientId: '1a958c2d-229e-4ff5-9658-9f6348a975ac', // This is the ONLY mandatory field that you need to supply.
+        clientId: '', // This is the ONLY mandatory field that you need to supply.
         authority: b2cPolicies.authorities.signUpSignIn.authority, // Choose SUSI as your default authority.
         knownAuthorities: [b2cPolicies.authorityDomain], // Mark your B2C tenant's domain as trusted.
-        redirectUri: 'https://trailcomposerbackend.azurewebsites.net', // You must register this URI on Azure Portal/App Registration. Defaults to window.location.origin
+        redirectUri: '', // You must register this URI on Azure Portal/App Registration. Defaults to window.location.origin
         postLogoutRedirectUri: '/', // Indicates the page to navigate after logout.
         navigateToLoginRequestUrl: false, // If "true", will navigate back to the original request location before processing the auth code response.
     },
