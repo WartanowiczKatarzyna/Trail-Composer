@@ -1,5 +1,7 @@
 # Trail Composer
 
+[Przykładowa aplikacja w środowisku produkcyjnym](https://trailcomposerbackend.azurewebsites.net/)
+
 # Instalacja
 
 ## Środowisko rozwojowe
